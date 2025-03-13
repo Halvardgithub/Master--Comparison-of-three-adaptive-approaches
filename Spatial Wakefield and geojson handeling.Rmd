@@ -12,8 +12,31 @@ knitr::opts_chunk$set(echo = TRUE)
 # Loading and processing the geosjon file
 A geojson file for Spain and we are interested in the levels for autonomous regions and provinces. We descount the two islands, as they are less interesting in a spatial analysis. The goal is to make informative maps of the regions, as well as presenting the risk syrfaces and resutls of the analysis as a heatmap for the regions. For the analysis, we need the adjacency structure as a simple graph, or an adjacency matrix, and columns containing the name of the province and autonomous region in question. This must then also be harmonized with the disease data.
 
-```{r}
+Some of the autonomous regions, like the island regions Illes Baleares and Canary Islands, and two cities in Morocco, namely Ceuta and Melilla, should be removed from all the data.
 
+```{r}
+library(sf)
+library(spdep)
+library(dplyr)
+library(ggplot2)
+
+shp_prov <- st_read("Data/Provinces/Provincias_ETRS89_30N.shp")
+CCAA_to_remove <- c("Illes Balears", "Canarias", "Ceuta", "Melilla")
+shp_prov <- filter(shp_prov, !CCAA_Name %in% CCAA_to_remove)
+
+colnames(shp_prov) <- c("Index", "ProvName", "ProvName1", "CCAA_Index", "CCAA_Name", "geometry")
+plot(shp_prov["ProvName"], key.pos = NULL, main = "Map of the provinces of Spain")
+
+# shp_AutReg <- st_read("Data/AutonomousRegions/Comunidades_Autonomas_ETRS89_30N.shp")
+# colnames(shp_AutReg) <- c("Index", "CCAA_Name", "CCAA_Name1", "geometry")
+# plot(shp_AutReg["CCAA_Name1"], key.pos = NULL, main = "Map of the autonomous regions of Spain")
+
+# Create the ggplot2 map
+MapSpainFig <- ggplot() +
+  geom_sf(data = shp_prov, fill = NA, color = "black", linewidth = 0.6) +
+  geom_sf(data = shp_prov_large, fill = NA, color = "black", linewidth = 1.15) +
+  labs(title = "Map of autonomous regions and provinces in Spain") +
+  theme_minimal()
 ```
 
 
@@ -24,6 +47,8 @@ The implementation will be in rgeneric and be very similar to the temporal case 
 NB: There must be consistent ordering of regions and so on for the weight matrix to coincide with the supplied data. 
 
 ```{r}
+library(INLA)
+
 inla.rgeneric.AdaptiveICAR = function(
   cmd = c("graph", "Q", "mu", "initial", "log.norm.const","log.prior", "quit"),
   theta = NULL)
@@ -126,5 +151,17 @@ AICAR_model <- inla.rgeneric.define(inla.rgeneric.AdaptiveICAR,
 ```
 
 # Load and preprocess the disease data
+
+```{r}
+library(readxl) 
+#Mortality
+Mortality_df <- read.csv("Data/Mortality.csv", sep=";")
+Mortality_df$Provincia.de.residencia[4]
+
+Mortality_df2 <- read_excel("Data/Mortality.xlsx")
+
+```
+
+
 
 # Perform spatial analysis with INLA
