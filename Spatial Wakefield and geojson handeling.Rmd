@@ -1,0 +1,130 @@
+---
+title: "Spatial Wakefield and geojson handeling"
+author: "Halvard"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Loading and processing the geosjon file
+A geojson file for Spain and we are interested in the levels for autonomous regions and provinces. We descount the two islands, as they are less interesting in a spatial analysis. The goal is to make informative maps of the regions, as well as presenting the risk syrfaces and resutls of the analysis as a heatmap for the regions. For the analysis, we need the adjacency structure as a simple graph, or an adjacency matrix, and columns containing the name of the province and autonomous region in question. This must then also be harmonized with the disease data.
+
+```{r}
+
+```
+
+
+# Spatial Wakefield model
+
+The implementation will be in rgeneric and be very similar to the temporal case from my master project in the fall. The main difference is that the previous conflict and non-conflict points are now instead transitions inside an autonomous regions and transitions involving two autonomous regions. The expectation is that regions in the same autonomous regions have more in common than regions in different autonomous regions. Additionally, the function will need the dataframe with the administrative levels as an input variable to construct the precision matrix $Q$. Lets implement this with the dataframe created above as an input.
+
+NB: There must be consistent ordering of regions and so on for the weight matrix to coincide with the supplied data. 
+
+```{r}
+inla.rgeneric.AdaptiveICAR = function(
+  cmd = c("graph", "Q", "mu", "initial", "log.norm.const","log.prior", "quit"),
+  theta = NULL)
+{
+  #Input:
+  #df: contains the relevant information for the areal data
+  #prior_str is either Gamma0.005, Gamma0.00005 or PC    , might not need this, but useful for sensitivity analysis, or just include an argument which is the p and a used in the pc.priors
+  # maybe also pass the adjacency graph/matrix as an argument, can then iterate through the non-zero entries maybe
+  
+  envir = parent.env(environment())
+  
+  interpret_theta <- function() { return(list(tau1 = exp(theta[1L]), 
+                                              tau2 = exp(theta[2L])))}
+  
+  graph <- function() {return(Q())}
+  
+  Q <- function() {
+    N <- nrow(df) #df is passed as an argument, the number of regions
+    R1 <- matrix(0, nrow = N, ncol = N) #non-conflict
+    R2 <- matrix(0, nrow = N, ncol = N) #conflict
+    
+    #assume the adjacency matrix is called AMat, then
+    non_zero_indices <- which(AMat == 1, arr.ind = TRUE)
+    
+    for (k in seq_len(nrow(non_zero_indices))) { #nrow?
+      i <- non_zero_indices[k, 1]
+      j <- non_zero_indices[k, 2]
+      
+      if(df[i, "autReg"] == df[j, "autReg"]){
+        R1[i, j] <- -1
+        R1[i, i] <- R1[i, i] + 1
+      }
+      else{
+        R2[i, j] <- -1
+        R2[i, i] <- R2[i, i] + 1
+      }
+    }
+    
+    gv <- exp(1 / N * sum(log(diag(INLA:::inla.ginv(R1 + R2))))) #scaling constant
+    R_star_list <- list(R1 = R1*gv, R2 = R2*gv)
+    
+    p <- interpret_theta()
+    Q <- R_star_list$R1 * p$tau1 + R_star_list$R2 * p$tau2
+    return(inla.as.sparse(Q)) #sparse representation
+    
+    
+    for( i in 1:(N - 1)){
+      if(i %in% conflict_years | (i + 1) %in% conflict_years) {
+        R2[c(i, i+1), c(i, i+1)] <- R2[c(i, i+1), c(i, i+1)] + c(1, -1, -1, 1)
+      }
+      else {
+        R1[c(i, i+1), c(i, i+1)] <- R1[c(i, i+1), c(i, i+1)] + c(1, -1, -1, 1)
+      }
+    }
+    gv <- exp(1 / N * sum(log(diag(INLA:::inla.ginv(R1 + R2))))) #scaling constant
+    R_star_list <- list(R1 = R1*gv, R2 = R2*gv)
+    
+    p <- interpret_theta()
+    Q <- R_star_list$R1 * p$tau1 + R_star_list$R2 * p$tau2
+    return(inla.as.sparse(Q)) #sparse representation
+  }
+  
+  mu <- function() {return(numeric(0))}
+  
+  initial <- function() {return(c(4, 4))}#Default initial for precisions is 4
+  
+  log.norm.const <- function() {return(numeric(0))}
+  
+  log.prior <- function() {#default: shape = 1, rate = 0.00005
+    p <- interpret_theta()
+    if(prior_str == "PC"){
+      prior <- inla.pc.dprec(p$tau1, u = 1, alpha = 0.01, log=TRUE) + log(p$tau1) +
+          inla.pc.dprec(p$tau2, u = 1, alpha = 0.01, log = TRUE) + log(p$tau2)
+      return(prior)
+    } else if(prior_str == "Gamma0,005"){
+      prior <- dgamma(p$tau1, shape = 1, rate = 0.005, log = TRUE) + log(p$tau1) +
+      dgamma(p$tau2, shape = 1, rate = 0.005, log = TRUE) + log(p$tau2)
+      return(prior)
+    }
+    prior <- dgamma(p$tau1, shape = 1, rate = 0.00005, log = TRUE) + log(p$tau1) +
+    dgamma(p$tau2, shape = 1, rate = 0.00005, log = TRUE) + log(p$tau2)
+    return(prior) 
+  }
+  
+  quit <- function() {return(invisible())}
+  
+  #to ensure theta is defined
+  if (!length(theta)) theta = initial()
+  
+  vals <- do.call(match.arg(cmd), args = list())
+  return(vals)
+}
+```
+
+To initialize the resulting latent term we call the rgeneric function as below:
+```{r}
+AICAR_model <- inla.rgeneric.define(inla.rgeneric.AdaptiveICAR, 
+                                    df = df, AMat = AMAT, prior_str = "PC") #might pass u and a
+
+```
+
+# Load and preprocess the disease data
+
+# Perform spatial analysis with INLA
