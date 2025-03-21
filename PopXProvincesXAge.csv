@@ -1,0 +1,988 @@
+Provinces;Population;Sex;Age;Year;Total
+02 Albacete;TOTAL;Hombres;0-4 años;2019;8.569
+02 Albacete;TOTAL;Hombres;5-9 años;2019;9.789
+02 Albacete;TOTAL;Hombres;10-14 años;2019;10.371
+02 Albacete;TOTAL;Hombres;15-19 años;2019;10.374
+02 Albacete;TOTAL;Hombres;20-24 años;2019;11.019
+02 Albacete;TOTAL;Hombres;25-29 años;2019;11.523
+02 Albacete;TOTAL;Hombres;30-34 años;2019;11.927
+02 Albacete;TOTAL;Hombres;35-39 años;2019;14.173
+02 Albacete;TOTAL;Hombres;40-44 años;2019;16.099
+02 Albacete;TOTAL;Hombres;45-49 años;2019;15.585
+02 Albacete;TOTAL;Hombres;50-54 años;2019;15.758
+02 Albacete;TOTAL;Hombres;55-59 años;2019;14.535
+02 Albacete;TOTAL;Hombres;60-64 años;2019;10.928
+02 Albacete;TOTAL;Hombres;65-69 años;2019;8.922
+02 Albacete;TOTAL;Hombres;70-74 años;2019;7.641
+02 Albacete;TOTAL;Hombres;75-79 años;2019;6.173
+02 Albacete;TOTAL;Hombres;80-84 años;2019;5.298
+02 Albacete;TOTAL;Hombres;85-89 años;2019;3.596
+02 Albacete;TOTAL;Hombres;90-94 años;2019;1.344
+02 Albacete;TOTAL;Hombres;95-99 años;2019;249
+02 Albacete;TOTAL;Hombres;100 años y más;2019;38
+03 Alicante/Alacant;TOTAL;Hombres;0-4 años;2019;40.688
+03 Alicante/Alacant;TOTAL;Hombres;5-9 años;2019;47.686
+03 Alicante/Alacant;TOTAL;Hombres;10-14 años;2019;51.869
+03 Alicante/Alacant;TOTAL;Hombres;15-19 años;2019;47.926
+03 Alicante/Alacant;TOTAL;Hombres;20-24 años;2019;46.853
+03 Alicante/Alacant;TOTAL;Hombres;25-29 años;2019;50.394
+03 Alicante/Alacant;TOTAL;Hombres;30-34 años;2019;55.543
+03 Alicante/Alacant;TOTAL;Hombres;35-39 años;2019;68.903
+03 Alicante/Alacant;TOTAL;Hombres;40-44 años;2019;80.267
+03 Alicante/Alacant;TOTAL;Hombres;45-49 años;2019;76.555
+03 Alicante/Alacant;TOTAL;Hombres;50-54 años;2019;71.206
+03 Alicante/Alacant;TOTAL;Hombres;55-59 años;2019;63.493
+03 Alicante/Alacant;TOTAL;Hombres;60-64 años;2019;54.291
+03 Alicante/Alacant;TOTAL;Hombres;65-69 años;2019;48.836
+03 Alicante/Alacant;TOTAL;Hombres;70-74 años;2019;44.995
+03 Alicante/Alacant;TOTAL;Hombres;75-79 años;2019;32.025
+03 Alicante/Alacant;TOTAL;Hombres;80-84 años;2019;22.058
+03 Alicante/Alacant;TOTAL;Hombres;85-89 años;2019;12.429
+03 Alicante/Alacant;TOTAL;Hombres;90-94 años;2019;4.052
+03 Alicante/Alacant;TOTAL;Hombres;95-99 años;2019;729
+03 Alicante/Alacant;TOTAL;Hombres;100 años y más;2019;117
+04 Almería;TOTAL;Hombres;0-4 años;2019;19.773
+04 Almería;TOTAL;Hombres;5-9 años;2019;21.185
+04 Almería;TOTAL;Hombres;10-14 años;2019;21.478
+04 Almería;TOTAL;Hombres;15-19 años;2019;19.715
+04 Almería;TOTAL;Hombres;20-24 años;2019;21.249
+04 Almería;TOTAL;Hombres;25-29 años;2019;24.188
+04 Almería;TOTAL;Hombres;30-34 años;2019;26.993
+04 Almería;TOTAL;Hombres;35-39 años;2019;31.785
+04 Almería;TOTAL;Hombres;40-44 años;2019;33.695
+04 Almería;TOTAL;Hombres;45-49 años;2019;29.433
+04 Almería;TOTAL;Hombres;50-54 años;2019;26.687
+04 Almería;TOTAL;Hombres;55-59 años;2019;23.033
+04 Almería;TOTAL;Hombres;60-64 años;2019;18.954
+04 Almería;TOTAL;Hombres;65-69 años;2019;15.361
+04 Almería;TOTAL;Hombres;70-74 años;2019;12.775
+04 Almería;TOTAL;Hombres;75-79 años;2019;8.227
+04 Almería;TOTAL;Hombres;80-84 años;2019;6.138
+04 Almería;TOTAL;Hombres;85-89 años;2019;3.536
+04 Almería;TOTAL;Hombres;90-94 años;2019;1.214
+04 Almería;TOTAL;Hombres;95-99 años;2019;237
+04 Almería;TOTAL;Hombres;100 años y más;2019;45
+01 Araba/Álava;TOTAL;Hombres;0-4 años;2019;7.962
+01 Araba/Álava;TOTAL;Hombres;5-9 años;2019;9.079
+01 Araba/Álava;TOTAL;Hombres;10-14 años;2019;8.405
+01 Araba/Álava;TOTAL;Hombres;15-19 años;2019;7.777
+01 Araba/Álava;TOTAL;Hombres;20-24 años;2019;7.147
+01 Araba/Álava;TOTAL;Hombres;25-29 años;2019;7.641
+01 Araba/Álava;TOTAL;Hombres;30-34 años;2019;9.396
+01 Araba/Álava;TOTAL;Hombres;35-39 años;2019;12.146
+01 Araba/Álava;TOTAL;Hombres;40-44 años;2019;14.751
+01 Araba/Álava;TOTAL;Hombres;45-49 años;2019;13.821
+01 Araba/Álava;TOTAL;Hombres;50-54 años;2019;13.050
+01 Araba/Álava;TOTAL;Hombres;55-59 años;2019;11.514
+01 Araba/Álava;TOTAL;Hombres;60-64 años;2019;10.113
+01 Araba/Álava;TOTAL;Hombres;65-69 años;2019;8.919
+01 Araba/Álava;TOTAL;Hombres;70-74 años;2019;8.163
+01 Araba/Álava;TOTAL;Hombres;75-79 años;2019;5.641
+01 Araba/Álava;TOTAL;Hombres;80-84 años;2019;4.164
+01 Araba/Álava;TOTAL;Hombres;85-89 años;2019;2.703
+01 Araba/Álava;TOTAL;Hombres;90-94 años;2019;933
+01 Araba/Álava;TOTAL;Hombres;95-99 años;2019;156
+01 Araba/Álava;TOTAL;Hombres;100 años y más;2019;18
+33 Asturias;TOTAL;Hombres;0-4 años;2019;16.315
+33 Asturias;TOTAL;Hombres;5-9 años;2019;19.943
+33 Asturias;TOTAL;Hombres;10-14 años;2019;21.046
+33 Asturias;TOTAL;Hombres;15-19 años;2019;19.931
+33 Asturias;TOTAL;Hombres;20-24 años;2019;19.402
+33 Asturias;TOTAL;Hombres;25-29 años;2019;21.194
+33 Asturias;TOTAL;Hombres;30-34 años;2019;26.142
+33 Asturias;TOTAL;Hombres;35-39 años;2019;34.133
+33 Asturias;TOTAL;Hombres;40-44 años;2019;42.706
+33 Asturias;TOTAL;Hombres;45-49 años;2019;40.951
+33 Asturias;TOTAL;Hombres;50-54 años;2019;39.803
+33 Asturias;TOTAL;Hombres;55-59 años;2019;39.700
+33 Asturias;TOTAL;Hombres;60-64 años;2019;37.200
+33 Asturias;TOTAL;Hombres;65-69 años;2019;32.417
+33 Asturias;TOTAL;Hombres;70-74 años;2019;27.968
+33 Asturias;TOTAL;Hombres;75-79 años;2019;18.210
+33 Asturias;TOTAL;Hombres;80-84 años;2019;15.489
+33 Asturias;TOTAL;Hombres;85-89 años;2019;10.852
+33 Asturias;TOTAL;Hombres;90-94 años;2019;3.863
+33 Asturias;TOTAL;Hombres;95-99 años;2019;769
+33 Asturias;TOTAL;Hombres;100 años y más;2019;103
+05 Ávila;TOTAL;Hombres;0-4 años;2019;2.748
+05 Ávila;TOTAL;Hombres;5-9 años;2019;3.373
+05 Ávila;TOTAL;Hombres;10-14 años;2019;3.602
+05 Ávila;TOTAL;Hombres;15-19 años;2019;3.483
+05 Ávila;TOTAL;Hombres;20-24 años;2019;3.681
+05 Ávila;TOTAL;Hombres;25-29 años;2019;3.834
+05 Ávila;TOTAL;Hombres;30-34 años;2019;4.161
+05 Ávila;TOTAL;Hombres;35-39 años;2019;4.802
+05 Ávila;TOTAL;Hombres;40-44 años;2019;5.935
+05 Ávila;TOTAL;Hombres;45-49 años;2019;5.954
+05 Ávila;TOTAL;Hombres;50-54 años;2019;6.261
+05 Ávila;TOTAL;Hombres;55-59 años;2019;6.653
+05 Ávila;TOTAL;Hombres;60-64 años;2019;5.743
+05 Ávila;TOTAL;Hombres;65-69 años;2019;4.822
+05 Ávila;TOTAL;Hombres;70-74 años;2019;4.288
+05 Ávila;TOTAL;Hombres;75-79 años;2019;3.265
+05 Ávila;TOTAL;Hombres;80-84 años;2019;3.010
+05 Ávila;TOTAL;Hombres;85-89 años;2019;2.261
+05 Ávila;TOTAL;Hombres;90-94 años;2019;947
+05 Ávila;TOTAL;Hombres;95-99 años;2019;225
+05 Ávila;TOTAL;Hombres;100 años y más;2019;23
+06 Badajoz;TOTAL;Hombres;0-4 años;2019;14.795
+06 Badajoz;TOTAL;Hombres;5-9 años;2019;16.882
+06 Badajoz;TOTAL;Hombres;10-14 años;2019;17.823
+06 Badajoz;TOTAL;Hombres;15-19 años;2019;17.706
+06 Badajoz;TOTAL;Hombres;20-24 años;2019;18.514
+06 Badajoz;TOTAL;Hombres;25-29 años;2019;20.489
+06 Badajoz;TOTAL;Hombres;30-34 años;2019;21.479
+06 Badajoz;TOTAL;Hombres;35-39 años;2019;23.696
+06 Badajoz;TOTAL;Hombres;40-44 años;2019;25.705
+06 Badajoz;TOTAL;Hombres;45-49 años;2019;26.306
+06 Badajoz;TOTAL;Hombres;50-54 años;2019;26.922
+06 Badajoz;TOTAL;Hombres;55-59 años;2019;25.373
+06 Badajoz;TOTAL;Hombres;60-64 años;2019;20.112
+06 Badajoz;TOTAL;Hombres;65-69 años;2019;16.470
+06 Badajoz;TOTAL;Hombres;70-74 años;2019;14.469
+06 Badajoz;TOTAL;Hombres;75-79 años;2019;10.108
+06 Badajoz;TOTAL;Hombres;80-84 años;2019;8.576
+06 Badajoz;TOTAL;Hombres;85-89 años;2019;5.474
+06 Badajoz;TOTAL;Hombres;90-94 años;2019;1.861
+06 Badajoz;TOTAL;Hombres;95-99 años;2019;323
+06 Badajoz;TOTAL;Hombres;100 años y más;2019;29
+08 Barcelona;TOTAL;Hombres;0-4 años;2019;131.088
+08 Barcelona;TOTAL;Hombres;5-9 años;2019;150.599
+08 Barcelona;TOTAL;Hombres;10-14 años;2019;158.323
+08 Barcelona;TOTAL;Hombres;15-19 años;2019;146.915
+08 Barcelona;TOTAL;Hombres;20-24 años;2019;143.849
+08 Barcelona;TOTAL;Hombres;25-29 años;2019;161.074
+08 Barcelona;TOTAL;Hombres;30-34 años;2019;176.600
+08 Barcelona;TOTAL;Hombres;35-39 años;2019;215.549
+08 Barcelona;TOTAL;Hombres;40-44 años;2019;255.179
+08 Barcelona;TOTAL;Hombres;45-49 años;2019;234.650
+08 Barcelona;TOTAL;Hombres;50-54 años;2019;209.324
+08 Barcelona;TOTAL;Hombres;55-59 años;2019;175.814
+08 Barcelona;TOTAL;Hombres;60-64 años;2019;151.882
+08 Barcelona;TOTAL;Hombres;65-69 años;2019;130.330
+08 Barcelona;TOTAL;Hombres;70-74 años;2019;117.595
+08 Barcelona;TOTAL;Hombres;75-79 años;2019;82.740
+08 Barcelona;TOTAL;Hombres;80-84 años;2019;63.773
+08 Barcelona;TOTAL;Hombres;85-89 años;2019;40.062
+08 Barcelona;TOTAL;Hombres;90-94 años;2019;14.343
+08 Barcelona;TOTAL;Hombres;95-99 años;2019;2.712
+08 Barcelona;TOTAL;Hombres;100 años y más;2019;288
+48 Bizkaia;TOTAL;Hombres;0-4 años;2019;23.157
+48 Bizkaia;TOTAL;Hombres;5-9 años;2019;26.773
+48 Bizkaia;TOTAL;Hombres;10-14 años;2019;27.612
+48 Bizkaia;TOTAL;Hombres;15-19 años;2019;26.518
+48 Bizkaia;TOTAL;Hombres;20-24 años;2019;24.488
+48 Bizkaia;TOTAL;Hombres;25-29 años;2019;26.261
+48 Bizkaia;TOTAL;Hombres;30-34 años;2019;30.976
+48 Bizkaia;TOTAL;Hombres;35-39 años;2019;39.587
+48 Bizkaia;TOTAL;Hombres;40-44 años;2019;48.151
+48 Bizkaia;TOTAL;Hombres;45-49 años;2019;46.944
+48 Bizkaia;TOTAL;Hombres;50-54 años;2019;45.527
+48 Bizkaia;TOTAL;Hombres;55-59 años;2019;42.723
+48 Bizkaia;TOTAL;Hombres;60-64 años;2019;37.760
+48 Bizkaia;TOTAL;Hombres;65-69 años;2019;31.771
+48 Bizkaia;TOTAL;Hombres;70-74 años;2019;27.885
+48 Bizkaia;TOTAL;Hombres;75-79 años;2019;19.566
+48 Bizkaia;TOTAL;Hombres;80-84 años;2019;15.671
+48 Bizkaia;TOTAL;Hombres;85-89 años;2019;10.587
+48 Bizkaia;TOTAL;Hombres;90-94 años;2019;3.591
+48 Bizkaia;TOTAL;Hombres;95-99 años;2019;615
+48 Bizkaia;TOTAL;Hombres;100 años y más;2019;49
+09 Burgos;TOTAL;Hombres;0-4 años;2019;6.829
+09 Burgos;TOTAL;Hombres;5-9 años;2019;8.319
+09 Burgos;TOTAL;Hombres;10-14 años;2019;8.456
+09 Burgos;TOTAL;Hombres;15-19 años;2019;8.111
+09 Burgos;TOTAL;Hombres;20-24 años;2019;7.944
+09 Burgos;TOTAL;Hombres;25-29 años;2019;8.546
+09 Burgos;TOTAL;Hombres;30-34 años;2019;9.756
+09 Burgos;TOTAL;Hombres;35-39 años;2019;11.865
+09 Burgos;TOTAL;Hombres;40-44 años;2019;14.414
+09 Burgos;TOTAL;Hombres;45-49 años;2019;14.458
+09 Burgos;TOTAL;Hombres;50-54 años;2019;14.271
+09 Burgos;TOTAL;Hombres;55-59 años;2019;14.188
+09 Burgos;TOTAL;Hombres;60-64 años;2019;12.780
+09 Burgos;TOTAL;Hombres;65-69 años;2019;10.970
+09 Burgos;TOTAL;Hombres;70-74 años;2019;9.219
+09 Burgos;TOTAL;Hombres;75-79 años;2019;6.793
+09 Burgos;TOTAL;Hombres;80-84 años;2019;5.316
+09 Burgos;TOTAL;Hombres;85-89 años;2019;3.958
+09 Burgos;TOTAL;Hombres;90-94 años;2019;1.626
+09 Burgos;TOTAL;Hombres;95-99 años;2019;378
+09 Burgos;TOTAL;Hombres;100 años y más;2019;33
+10 Cáceres;TOTAL;Hombres;0-4 años;2019;6.953
+10 Cáceres;TOTAL;Hombres;5-9 años;2019;8.454
+10 Cáceres;TOTAL;Hombres;10-14 años;2019;9.363
+10 Cáceres;TOTAL;Hombres;15-19 años;2019;9.455
+10 Cáceres;TOTAL;Hombres;20-24 años;2019;9.949
+10 Cáceres;TOTAL;Hombres;25-29 años;2019;10.726
+10 Cáceres;TOTAL;Hombres;30-34 años;2019;11.638
+10 Cáceres;TOTAL;Hombres;35-39 años;2019;13.229
+10 Cáceres;TOTAL;Hombres;40-44 años;2019;14.225
+10 Cáceres;TOTAL;Hombres;45-49 años;2019;15.026
+10 Cáceres;TOTAL;Hombres;50-54 años;2019;16.414
+10 Cáceres;TOTAL;Hombres;55-59 años;2019;16.631
+10 Cáceres;TOTAL;Hombres;60-64 años;2019;13.619
+10 Cáceres;TOTAL;Hombres;65-69 años;2019;10.925
+10 Cáceres;TOTAL;Hombres;70-74 años;2019;9.021
+10 Cáceres;TOTAL;Hombres;75-79 años;2019;7.145
+10 Cáceres;TOTAL;Hombres;80-84 años;2019;6.154
+10 Cáceres;TOTAL;Hombres;85-89 años;2019;4.399
+10 Cáceres;TOTAL;Hombres;90-94 años;2019;1.626
+10 Cáceres;TOTAL;Hombres;95-99 años;2019;378
+10 Cáceres;TOTAL;Hombres;100 años y más;2019;58
+11 Cádiz;TOTAL;Hombres;0-4 años;2019;29.074
+11 Cádiz;TOTAL;Hombres;5-9 años;2019;34.051
+11 Cádiz;TOTAL;Hombres;10-14 años;2019;38.787
+11 Cádiz;TOTAL;Hombres;15-19 años;2019;34.917
+11 Cádiz;TOTAL;Hombres;20-24 años;2019;32.848
+11 Cádiz;TOTAL;Hombres;25-29 años;2019;35.763
+11 Cádiz;TOTAL;Hombres;30-34 años;2019;38.662
+11 Cádiz;TOTAL;Hombres;35-39 años;2019;46.600
+11 Cádiz;TOTAL;Hombres;40-44 años;2019;52.494
+11 Cádiz;TOTAL;Hombres;45-49 años;2019;51.056
+11 Cádiz;TOTAL;Hombres;50-54 años;2019;49.155
+11 Cádiz;TOTAL;Hombres;55-59 años;2019;42.836
+11 Cádiz;TOTAL;Hombres;60-64 años;2019;35.855
+11 Cádiz;TOTAL;Hombres;65-69 años;2019;29.097
+11 Cádiz;TOTAL;Hombres;70-74 años;2019;24.581
+11 Cádiz;TOTAL;Hombres;75-79 años;2019;16.873
+11 Cádiz;TOTAL;Hombres;80-84 años;2019;10.880
+11 Cádiz;TOTAL;Hombres;85-89 años;2019;6.172
+11 Cádiz;TOTAL;Hombres;90-94 años;2019;1.754
+11 Cádiz;TOTAL;Hombres;95-99 años;2019;284
+11 Cádiz;TOTAL;Hombres;100 años y más;2019;52
+39 Cantabria;TOTAL;Hombres;0-4 años;2019;10.997
+39 Cantabria;TOTAL;Hombres;5-9 años;2019;13.946
+39 Cantabria;TOTAL;Hombres;10-14 años;2019;14.498
+39 Cantabria;TOTAL;Hombres;15-19 años;2019;13.167
+39 Cantabria;TOTAL;Hombres;20-24 años;2019;12.357
+39 Cantabria;TOTAL;Hombres;25-29 años;2019;13.444
+39 Cantabria;TOTAL;Hombres;30-34 años;2019;15.802
+39 Cantabria;TOTAL;Hombres;35-39 años;2019;21.091
+39 Cantabria;TOTAL;Hombres;40-44 años;2019;25.033
+39 Cantabria;TOTAL;Hombres;45-49 años;2019;23.553
+39 Cantabria;TOTAL;Hombres;50-54 años;2019;22.644
+39 Cantabria;TOTAL;Hombres;55-59 años;2019;21.438
+39 Cantabria;TOTAL;Hombres;60-64 años;2019;19.799
+39 Cantabria;TOTAL;Hombres;65-69 años;2019;16.581
+39 Cantabria;TOTAL;Hombres;70-74 años;2019;13.696
+39 Cantabria;TOTAL;Hombres;75-79 años;2019;9.003
+39 Cantabria;TOTAL;Hombres;80-84 años;2019;7.506
+39 Cantabria;TOTAL;Hombres;85-89 años;2019;5.024
+39 Cantabria;TOTAL;Hombres;90-94 años;2019;1.814
+39 Cantabria;TOTAL;Hombres;95-99 años;2019;362
+39 Cantabria;TOTAL;Hombres;100 años y más;2019;46
+12 Castellón/Castelló;TOTAL;Hombres;0-4 años;2019;13.176
+12 Castellón/Castelló;TOTAL;Hombres;5-9 años;2019;15.326
+12 Castellón/Castelló;TOTAL;Hombres;10-14 años;2019;16.424
+12 Castellón/Castelló;TOTAL;Hombres;15-19 años;2019;14.887
+12 Castellón/Castelló;TOTAL;Hombres;20-24 años;2019;14.446
+12 Castellón/Castelló;TOTAL;Hombres;25-29 años;2019;15.003
+12 Castellón/Castelló;TOTAL;Hombres;30-34 años;2019;16.786
+12 Castellón/Castelló;TOTAL;Hombres;35-39 años;2019;21.636
+12 Castellón/Castelló;TOTAL;Hombres;40-44 años;2019;26.273
+12 Castellón/Castelló;TOTAL;Hombres;45-49 años;2019;24.561
+12 Castellón/Castelló;TOTAL;Hombres;50-54 años;2019;23.100
+12 Castellón/Castelló;TOTAL;Hombres;55-59 años;2019;20.168
+12 Castellón/Castelló;TOTAL;Hombres;60-64 años;2019;16.851
+12 Castellón/Castelló;TOTAL;Hombres;65-69 años;2019;14.337
+12 Castellón/Castelló;TOTAL;Hombres;70-74 años;2019;12.808
+12 Castellón/Castelló;TOTAL;Hombres;75-79 años;2019;9.092
+12 Castellón/Castelló;TOTAL;Hombres;80-84 años;2019;6.861
+12 Castellón/Castelló;TOTAL;Hombres;85-89 años;2019;4.461
+12 Castellón/Castelló;TOTAL;Hombres;90-94 años;2019;1.577
+12 Castellón/Castelló;TOTAL;Hombres;95-99 años;2019;272
+12 Castellón/Castelló;TOTAL;Hombres;100 años y más;2019;32
+13 Ciudad Real;TOTAL;Hombres;0-4 años;2019;10.469
+13 Ciudad Real;TOTAL;Hombres;5-9 años;2019;12.305
+13 Ciudad Real;TOTAL;Hombres;10-14 años;2019;13.296
+13 Ciudad Real;TOTAL;Hombres;15-19 años;2019;12.774
+13 Ciudad Real;TOTAL;Hombres;20-24 años;2019;13.901
+13 Ciudad Real;TOTAL;Hombres;25-29 años;2019;14.874
+13 Ciudad Real;TOTAL;Hombres;30-34 años;2019;15.488
+13 Ciudad Real;TOTAL;Hombres;35-39 años;2019;17.687
+13 Ciudad Real;TOTAL;Hombres;40-44 años;2019;19.218
+13 Ciudad Real;TOTAL;Hombres;45-49 años;2019;18.763
+13 Ciudad Real;TOTAL;Hombres;50-54 años;2019;19.894
+13 Ciudad Real;TOTAL;Hombres;55-59 años;2019;18.527
+13 Ciudad Real;TOTAL;Hombres;60-64 años;2019;14.504
+13 Ciudad Real;TOTAL;Hombres;65-69 años;2019;11.867
+13 Ciudad Real;TOTAL;Hombres;70-74 años;2019;10.119
+13 Ciudad Real;TOTAL;Hombres;75-79 años;2019;7.655
+13 Ciudad Real;TOTAL;Hombres;80-84 años;2019;6.507
+13 Ciudad Real;TOTAL;Hombres;85-89 años;2019;4.875
+13 Ciudad Real;TOTAL;Hombres;90-94 años;2019;1.775
+13 Ciudad Real;TOTAL;Hombres;95-99 años;2019;348
+13 Ciudad Real;TOTAL;Hombres;100 años y más;2019;31
+14 Córdoba;TOTAL;Hombres;0-4 años;2019;17.142
+14 Córdoba;TOTAL;Hombres;5-9 años;2019;19.810
+14 Córdoba;TOTAL;Hombres;10-14 años;2019;22.000
+14 Córdoba;TOTAL;Hombres;15-19 años;2019;21.373
+14 Córdoba;TOTAL;Hombres;20-24 años;2019;21.956
+14 Córdoba;TOTAL;Hombres;25-29 años;2019;23.923
+14 Córdoba;TOTAL;Hombres;30-34 años;2019;24.277
+14 Córdoba;TOTAL;Hombres;35-39 años;2019;27.308
+14 Córdoba;TOTAL;Hombres;40-44 años;2019;29.777
+14 Córdoba;TOTAL;Hombres;45-49 años;2019;29.322
+14 Córdoba;TOTAL;Hombres;50-54 años;2019;30.983
+14 Córdoba;TOTAL;Hombres;55-59 años;2019;28.478
+14 Córdoba;TOTAL;Hombres;60-64 años;2019;23.387
+14 Córdoba;TOTAL;Hombres;65-69 años;2019;18.188
+14 Córdoba;TOTAL;Hombres;70-74 años;2019;15.725
+14 Córdoba;TOTAL;Hombres;75-79 años;2019;11.760
+14 Córdoba;TOTAL;Hombres;80-84 años;2019;9.352
+14 Córdoba;TOTAL;Hombres;85-89 años;2019;6.322
+14 Córdoba;TOTAL;Hombres;90-94 años;2019;2.222
+14 Córdoba;TOTAL;Hombres;95-99 años;2019;423
+14 Córdoba;TOTAL;Hombres;100 años y más;2019;62
+15 Coruña, A;TOTAL;Hombres;0-4 años;2019;20.970
+15 Coruña, A;TOTAL;Hombres;5-9 años;2019;24.133
+15 Coruña, A;TOTAL;Hombres;10-14 años;2019;24.780
+15 Coruña, A;TOTAL;Hombres;15-19 años;2019;22.880
+15 Coruña, A;TOTAL;Hombres;20-24 años;2019;22.564
+15 Coruña, A;TOTAL;Hombres;25-29 años;2019;25.566
+15 Coruña, A;TOTAL;Hombres;30-34 años;2019;30.193
+15 Coruña, A;TOTAL;Hombres;35-39 años;2019;40.239
+15 Coruña, A;TOTAL;Hombres;40-44 años;2019;47.524
+15 Coruña, A;TOTAL;Hombres;45-49 años;2019;44.602
+15 Coruña, A;TOTAL;Hombres;50-54 años;2019;41.846
+15 Coruña, A;TOTAL;Hombres;55-59 años;2019;39.289
+15 Coruña, A;TOTAL;Hombres;60-64 años;2019;35.455
+15 Coruña, A;TOTAL;Hombres;65-69 años;2019;31.917
+15 Coruña, A;TOTAL;Hombres;70-74 años;2019;29.647
+15 Coruña, A;TOTAL;Hombres;75-79 años;2019;21.754
+15 Coruña, A;TOTAL;Hombres;80-84 años;2019;17.415
+15 Coruña, A;TOTAL;Hombres;85-89 años;2019;11.020
+15 Coruña, A;TOTAL;Hombres;90-94 años;2019;3.806
+15 Coruña, A;TOTAL;Hombres;95-99 años;2019;771
+15 Coruña, A;TOTAL;Hombres;100 años y más;2019;99
+16 Cuenca;TOTAL;Hombres;0-4 años;2019;3.552
+16 Cuenca;TOTAL;Hombres;5-9 años;2019;4.176
+16 Cuenca;TOTAL;Hombres;10-14 años;2019;4.618
+16 Cuenca;TOTAL;Hombres;15-19 años;2019;4.969
+16 Cuenca;TOTAL;Hombres;20-24 años;2019;5.060
+16 Cuenca;TOTAL;Hombres;25-29 años;2019;5.745
+16 Cuenca;TOTAL;Hombres;30-34 años;2019;5.833
+16 Cuenca;TOTAL;Hombres;35-39 años;2019;6.730
+16 Cuenca;TOTAL;Hombres;40-44 años;2019;7.485
+16 Cuenca;TOTAL;Hombres;45-49 años;2019;7.507
+16 Cuenca;TOTAL;Hombres;50-54 años;2019;8.140
+16 Cuenca;TOTAL;Hombres;55-59 años;2019;8.002
+16 Cuenca;TOTAL;Hombres;60-64 años;2019;6.110
+16 Cuenca;TOTAL;Hombres;65-69 años;2019;5.021
+16 Cuenca;TOTAL;Hombres;70-74 años;2019;4.373
+16 Cuenca;TOTAL;Hombres;75-79 años;2019;3.618
+16 Cuenca;TOTAL;Hombres;80-84 años;2019;3.595
+16 Cuenca;TOTAL;Hombres;85-89 años;2019;2.742
+16 Cuenca;TOTAL;Hombres;90-94 años;2019;1.030
+16 Cuenca;TOTAL;Hombres;95-99 años;2019;216
+16 Cuenca;TOTAL;Hombres;100 años y más;2019;20
+20 Gipuzkoa;TOTAL;Hombres;0-4 años;2019;15.564
+20 Gipuzkoa;TOTAL;Hombres;5-9 años;2019;18.647
+20 Gipuzkoa;TOTAL;Hombres;10-14 años;2019;19.215
+20 Gipuzkoa;TOTAL;Hombres;15-19 años;2019;17.958
+20 Gipuzkoa;TOTAL;Hombres;20-24 años;2019;17.014
+20 Gipuzkoa;TOTAL;Hombres;25-29 años;2019;16.912
+20 Gipuzkoa;TOTAL;Hombres;30-34 años;2019;18.965
+20 Gipuzkoa;TOTAL;Hombres;35-39 años;2019;23.867
+20 Gipuzkoa;TOTAL;Hombres;40-44 años;2019;30.314
+20 Gipuzkoa;TOTAL;Hombres;45-49 años;2019;29.568
+20 Gipuzkoa;TOTAL;Hombres;50-54 años;2019;28.027
+20 Gipuzkoa;TOTAL;Hombres;55-59 años;2019;25.696
+20 Gipuzkoa;TOTAL;Hombres;60-64 años;2019;22.856
+20 Gipuzkoa;TOTAL;Hombres;65-69 años;2019;20.095
+20 Gipuzkoa;TOTAL;Hombres;70-74 años;2019;18.446
+20 Gipuzkoa;TOTAL;Hombres;75-79 años;2019;12.442
+20 Gipuzkoa;TOTAL;Hombres;80-84 años;2019;9.477
+20 Gipuzkoa;TOTAL;Hombres;85-89 años;2019;5.954
+20 Gipuzkoa;TOTAL;Hombres;90-94 años;2019;1.965
+20 Gipuzkoa;TOTAL;Hombres;95-99 años;2019;349
+20 Gipuzkoa;TOTAL;Hombres;100 años y más;2019;32
+17 Girona;TOTAL;Hombres;0-4 años;2019;19.087
+17 Girona;TOTAL;Hombres;5-9 años;2019;22.175
+17 Girona;TOTAL;Hombres;10-14 años;2019;22.656
+17 Girona;TOTAL;Hombres;15-19 años;2019;20.992
+17 Girona;TOTAL;Hombres;20-24 años;2019;20.709
+17 Girona;TOTAL;Hombres;25-29 años;2019;21.544
+17 Girona;TOTAL;Hombres;30-34 años;2019;23.368
+17 Girona;TOTAL;Hombres;35-39 años;2019;29.531
+17 Girona;TOTAL;Hombres;40-44 años;2019;34.475
+17 Girona;TOTAL;Hombres;45-49 años;2019;31.874
+17 Girona;TOTAL;Hombres;50-54 años;2019;29.391
+17 Girona;TOTAL;Hombres;55-59 años;2019;25.883
+17 Girona;TOTAL;Hombres;60-64 años;2019;22.310
+17 Girona;TOTAL;Hombres;65-69 años;2019;18.701
+17 Girona;TOTAL;Hombres;70-74 años;2019;15.918
+17 Girona;TOTAL;Hombres;75-79 años;2019;10.734
+17 Girona;TOTAL;Hombres;80-84 años;2019;8.097
+17 Girona;TOTAL;Hombres;85-89 años;2019;5.439
+17 Girona;TOTAL;Hombres;90-94 años;2019;1.993
+17 Girona;TOTAL;Hombres;95-99 años;2019;356
+17 Girona;TOTAL;Hombres;100 años y más;2019;65
+18 Granada;TOTAL;Hombres;0-4 años;2019;20.479
+18 Granada;TOTAL;Hombres;5-9 años;2019;23.555
+18 Granada;TOTAL;Hombres;10-14 años;2019;26.497
+18 Granada;TOTAL;Hombres;15-19 años;2019;25.012
+18 Granada;TOTAL;Hombres;20-24 años;2019;25.625
+18 Granada;TOTAL;Hombres;25-29 años;2019;28.116
+18 Granada;TOTAL;Hombres;30-34 años;2019;29.137
+18 Granada;TOTAL;Hombres;35-39 años;2019;34.062
+18 Granada;TOTAL;Hombres;40-44 años;2019;37.159
+18 Granada;TOTAL;Hombres;45-49 años;2019;35.358
+18 Granada;TOTAL;Hombres;50-54 años;2019;35.982
+18 Granada;TOTAL;Hombres;55-59 años;2019;31.757
+18 Granada;TOTAL;Hombres;60-64 años;2019;26.537
+18 Granada;TOTAL;Hombres;65-69 años;2019;21.057
+18 Granada;TOTAL;Hombres;70-74 años;2019;17.938
+18 Granada;TOTAL;Hombres;75-79 años;2019;13.108
+18 Granada;TOTAL;Hombres;80-84 años;2019;10.151
+18 Granada;TOTAL;Hombres;85-89 años;2019;6.512
+18 Granada;TOTAL;Hombres;90-94 años;2019;2.049
+18 Granada;TOTAL;Hombres;95-99 años;2019;396
+18 Granada;TOTAL;Hombres;100 años y más;2019;68
+19 Guadalajara;TOTAL;Hombres;0-4 años;2019;6.252
+19 Guadalajara;TOTAL;Hombres;5-9 años;2019;7.667
+19 Guadalajara;TOTAL;Hombres;10-14 años;2019;7.865
+19 Guadalajara;TOTAL;Hombres;15-19 años;2019;7.217
+19 Guadalajara;TOTAL;Hombres;20-24 años;2019;6.372
+19 Guadalajara;TOTAL;Hombres;25-29 años;2019;6.743
+19 Guadalajara;TOTAL;Hombres;30-34 años;2019;7.925
+19 Guadalajara;TOTAL;Hombres;35-39 años;2019;10.559
+19 Guadalajara;TOTAL;Hombres;40-44 años;2019;12.738
+19 Guadalajara;TOTAL;Hombres;45-49 años;2019;11.528
+19 Guadalajara;TOTAL;Hombres;50-54 años;2019;10.575
+19 Guadalajara;TOTAL;Hombres;55-59 años;2019;8.919
+19 Guadalajara;TOTAL;Hombres;60-64 años;2019;7.139
+19 Guadalajara;TOTAL;Hombres;65-69 años;2019;5.366
+19 Guadalajara;TOTAL;Hombres;70-74 años;2019;4.554
+19 Guadalajara;TOTAL;Hombres;75-79 años;2019;3.084
+19 Guadalajara;TOTAL;Hombres;80-84 años;2019;2.649
+19 Guadalajara;TOTAL;Hombres;85-89 años;2019;2.134
+19 Guadalajara;TOTAL;Hombres;90-94 años;2019;986
+19 Guadalajara;TOTAL;Hombres;95-99 años;2019;235
+19 Guadalajara;TOTAL;Hombres;100 años y más;2019;27
+21 Huelva;TOTAL;Hombres;0-4 años;2019;11.983
+21 Huelva;TOTAL;Hombres;5-9 años;2019;14.300
+21 Huelva;TOTAL;Hombres;10-14 años;2019;15.388
+21 Huelva;TOTAL;Hombres;15-19 años;2019;13.946
+21 Huelva;TOTAL;Hombres;20-24 años;2019;14.139
+21 Huelva;TOTAL;Hombres;25-29 años;2019;15.806
+21 Huelva;TOTAL;Hombres;30-34 años;2019;17.309
+21 Huelva;TOTAL;Hombres;35-39 años;2019;20.746
+21 Huelva;TOTAL;Hombres;40-44 años;2019;23.125
+21 Huelva;TOTAL;Hombres;45-49 años;2019;21.480
+21 Huelva;TOTAL;Hombres;50-54 años;2019;20.152
+21 Huelva;TOTAL;Hombres;55-59 años;2019;17.231
+21 Huelva;TOTAL;Hombres;60-64 años;2019;14.484
+21 Huelva;TOTAL;Hombres;65-69 años;2019;11.860
+21 Huelva;TOTAL;Hombres;70-74 años;2019;10.353
+21 Huelva;TOTAL;Hombres;75-79 años;2019;7.168
+21 Huelva;TOTAL;Hombres;80-84 años;2019;4.870
+21 Huelva;TOTAL;Hombres;85-89 años;2019;2.989
+21 Huelva;TOTAL;Hombres;90-94 años;2019;879
+21 Huelva;TOTAL;Hombres;95-99 años;2019;175
+21 Huelva;TOTAL;Hombres;100 años y más;2019;30
+22 Huesca;TOTAL;Hombres;0-4 años;2019;4.638
+22 Huesca;TOTAL;Hombres;5-9 años;2019;5.232
+22 Huesca;TOTAL;Hombres;10-14 años;2019;5.466
+22 Huesca;TOTAL;Hombres;15-19 años;2019;5.115
+22 Huesca;TOTAL;Hombres;20-24 años;2019;5.509
+22 Huesca;TOTAL;Hombres;25-29 años;2019;5.639
+22 Huesca;TOTAL;Hombres;30-34 años;2019;6.454
+22 Huesca;TOTAL;Hombres;35-39 años;2019;8.016
+22 Huesca;TOTAL;Hombres;40-44 años;2019;9.326
+22 Huesca;TOTAL;Hombres;45-49 años;2019;8.956
+22 Huesca;TOTAL;Hombres;50-54 años;2019;8.765
+22 Huesca;TOTAL;Hombres;55-59 años;2019;8.378
+22 Huesca;TOTAL;Hombres;60-64 años;2019;7.316
+22 Huesca;TOTAL;Hombres;65-69 años;2019;5.994
+22 Huesca;TOTAL;Hombres;70-74 años;2019;5.284
+22 Huesca;TOTAL;Hombres;75-79 años;2019;3.625
+22 Huesca;TOTAL;Hombres;80-84 años;2019;3.573
+22 Huesca;TOTAL;Hombres;85-89 años;2019;2.576
+22 Huesca;TOTAL;Hombres;90-94 años;2019;1.094
+22 Huesca;TOTAL;Hombres;95-99 años;2019;246
+22 Huesca;TOTAL;Hombres;100 años y más;2019;26
+23 Jaén;TOTAL;Hombres;0-4 años;2019;13.211
+23 Jaén;TOTAL;Hombres;5-9 años;2019;15.336
+23 Jaén;TOTAL;Hombres;10-14 años;2019;17.248
+23 Jaén;TOTAL;Hombres;15-19 años;2019;17.726
+23 Jaén;TOTAL;Hombres;20-24 años;2019;18.784
+23 Jaén;TOTAL;Hombres;25-29 años;2019;20.666
+23 Jaén;TOTAL;Hombres;30-34 años;2019;19.714
+23 Jaén;TOTAL;Hombres;35-39 años;2019;21.903
+23 Jaén;TOTAL;Hombres;40-44 años;2019;23.406
+23 Jaén;TOTAL;Hombres;45-49 años;2019;24.313
+23 Jaén;TOTAL;Hombres;50-54 años;2019;25.760
+23 Jaén;TOTAL;Hombres;55-59 años;2019;23.900
+23 Jaén;TOTAL;Hombres;60-64 años;2019;19.318
+23 Jaén;TOTAL;Hombres;65-69 años;2019;14.560
+23 Jaén;TOTAL;Hombres;70-74 años;2019;12.039
+23 Jaén;TOTAL;Hombres;75-79 años;2019;9.263
+23 Jaén;TOTAL;Hombres;80-84 años;2019;8.409
+23 Jaén;TOTAL;Hombres;85-89 años;2019;5.607
+23 Jaén;TOTAL;Hombres;90-94 años;2019;1.840
+23 Jaén;TOTAL;Hombres;95-99 años;2019;319
+23 Jaén;TOTAL;Hombres;100 años y más;2019;34
+24 León;TOTAL;Hombres;0-4 años;2019;7.325
+24 León;TOTAL;Hombres;5-9 años;2019;8.528
+24 León;TOTAL;Hombres;10-14 años;2019;9.196
+24 León;TOTAL;Hombres;15-19 años;2019;9.199
+24 León;TOTAL;Hombres;20-24 años;2019;9.474
+24 León;TOTAL;Hombres;25-29 años;2019;10.568
+24 León;TOTAL;Hombres;30-34 años;2019;12.236
+24 León;TOTAL;Hombres;35-39 años;2019;14.944
+24 León;TOTAL;Hombres;40-44 años;2019;16.750
+24 León;TOTAL;Hombres;45-49 años;2019;17.513
+24 León;TOTAL;Hombres;50-54 años;2019;18.401
+24 León;TOTAL;Hombres;55-59 años;2019;18.759
+24 León;TOTAL;Hombres;60-64 años;2019;17.196
+24 León;TOTAL;Hombres;65-69 años;2019;13.936
+24 León;TOTAL;Hombres;70-74 años;2019;12.029
+24 León;TOTAL;Hombres;75-79 años;2019;9.377
+24 León;TOTAL;Hombres;80-84 años;2019;8.478
+24 León;TOTAL;Hombres;85-89 años;2019;6.488
+24 León;TOTAL;Hombres;90-94 años;2019;2.673
+24 León;TOTAL;Hombres;95-99 años;2019;598
+24 León;TOTAL;Hombres;100 años y más;2019;76
+25 Lleida;TOTAL;Hombres;0-4 años;2019;10.072
+25 Lleida;TOTAL;Hombres;5-9 años;2019;11.821
+25 Lleida;TOTAL;Hombres;10-14 años;2019;11.749
+25 Lleida;TOTAL;Hombres;15-19 años;2019;11.268
+25 Lleida;TOTAL;Hombres;20-24 años;2019;11.377
+25 Lleida;TOTAL;Hombres;25-29 años;2019;12.172
+25 Lleida;TOTAL;Hombres;30-34 años;2019;13.379
+25 Lleida;TOTAL;Hombres;35-39 años;2019;16.865
+25 Lleida;TOTAL;Hombres;40-44 años;2019;20.284
+25 Lleida;TOTAL;Hombres;45-49 años;2019;18.595
+25 Lleida;TOTAL;Hombres;50-54 años;2019;17.448
+25 Lleida;TOTAL;Hombres;55-59 años;2019;15.681
+25 Lleida;TOTAL;Hombres;60-64 años;2019;12.958
+25 Lleida;TOTAL;Hombres;65-69 años;2019;10.622
+25 Lleida;TOTAL;Hombres;70-74 años;2019;8.965
+25 Lleida;TOTAL;Hombres;75-79 años;2019;6.210
+25 Lleida;TOTAL;Hombres;80-84 años;2019;5.407
+25 Lleida;TOTAL;Hombres;85-89 años;2019;4.037
+25 Lleida;TOTAL;Hombres;90-94 años;2019;1.600
+25 Lleida;TOTAL;Hombres;95-99 años;2019;331
+25 Lleida;TOTAL;Hombres;100 años y más;2019;37
+27 Lugo;TOTAL;Hombres;0-4 años;2019;5.366
+27 Lugo;TOTAL;Hombres;5-9 años;2019;5.724
+27 Lugo;TOTAL;Hombres;10-14 años;2019;5.843
+27 Lugo;TOTAL;Hombres;15-19 años;2019;5.820
+27 Lugo;TOTAL;Hombres;20-24 años;2019;6.182
+27 Lugo;TOTAL;Hombres;25-29 años;2019;7.551
+27 Lugo;TOTAL;Hombres;30-34 años;2019;8.868
+27 Lugo;TOTAL;Hombres;35-39 años;2019;11.085
+27 Lugo;TOTAL;Hombres;40-44 años;2019;12.400
+27 Lugo;TOTAL;Hombres;45-49 años;2019;11.816
+27 Lugo;TOTAL;Hombres;50-54 años;2019;12.470
+27 Lugo;TOTAL;Hombres;55-59 años;2019;12.748
+27 Lugo;TOTAL;Hombres;60-64 años;2019;11.790
+27 Lugo;TOTAL;Hombres;65-69 años;2019;10.391
+27 Lugo;TOTAL;Hombres;70-74 años;2019;9.259
+27 Lugo;TOTAL;Hombres;75-79 años;2019;7.551
+27 Lugo;TOTAL;Hombres;80-84 años;2019;7.068
+27 Lugo;TOTAL;Hombres;85-89 años;2019;5.057
+27 Lugo;TOTAL;Hombres;90-94 años;2019;2.135
+27 Lugo;TOTAL;Hombres;95-99 años;2019;485
+27 Lugo;TOTAL;Hombres;100 años y más;2019;77
+28 Madrid;TOTAL;Hombres;0-4 años;2019;161.121
+28 Madrid;TOTAL;Hombres;5-9 años;2019;179.505
+28 Madrid;TOTAL;Hombres;10-14 años;2019;181.358
+28 Madrid;TOTAL;Hombres;15-19 años;2019;167.675
+28 Madrid;TOTAL;Hombres;20-24 años;2019;164.774
+28 Madrid;TOTAL;Hombres;25-29 años;2019;187.718
+28 Madrid;TOTAL;Hombres;30-34 años;2019;211.428
+28 Madrid;TOTAL;Hombres;35-39 años;2019;254.811
+28 Madrid;TOTAL;Hombres;40-44 años;2019;294.105
+28 Madrid;TOTAL;Hombres;45-49 años;2019;272.381
+28 Madrid;TOTAL;Hombres;50-54 años;2019;244.133
+28 Madrid;TOTAL;Hombres;55-59 años;2019;207.931
+28 Madrid;TOTAL;Hombres;60-64 años;2019;169.802
+28 Madrid;TOTAL;Hombres;65-69 años;2019;142.932
+28 Madrid;TOTAL;Hombres;70-74 años;2019;127.794
+28 Madrid;TOTAL;Hombres;75-79 años;2019;90.630
+28 Madrid;TOTAL;Hombres;80-84 años;2019;66.857
+28 Madrid;TOTAL;Hombres;85-89 años;2019;43.072
+28 Madrid;TOTAL;Hombres;90-94 años;2019;15.661
+28 Madrid;TOTAL;Hombres;95-99 años;2019;3.224
+28 Madrid;TOTAL;Hombres;100 años y más;2019;400
+29 Málaga;TOTAL;Hombres;0-4 años;2019;38.655
+29 Málaga;TOTAL;Hombres;5-9 años;2019;45.902
+29 Málaga;TOTAL;Hombres;10-14 años;2019;49.359
+29 Málaga;TOTAL;Hombres;15-19 años;2019;44.389
+29 Málaga;TOTAL;Hombres;20-24 años;2019;41.693
+29 Málaga;TOTAL;Hombres;25-29 años;2019;46.076
+29 Málaga;TOTAL;Hombres;30-34 años;2019;51.460
+29 Málaga;TOTAL;Hombres;35-39 años;2019;64.060
+29 Málaga;TOTAL;Hombres;40-44 años;2019;71.625
+29 Málaga;TOTAL;Hombres;45-49 años;2019;68.072
+29 Málaga;TOTAL;Hombres;50-54 años;2019;63.845
+29 Málaga;TOTAL;Hombres;55-59 años;2019;55.071
+29 Málaga;TOTAL;Hombres;60-64 años;2019;46.106
+29 Málaga;TOTAL;Hombres;65-69 años;2019;39.456
+29 Málaga;TOTAL;Hombres;70-74 años;2019;36.109
+29 Málaga;TOTAL;Hombres;75-79 años;2019;24.433
+29 Málaga;TOTAL;Hombres;80-84 años;2019;15.935
+29 Málaga;TOTAL;Hombres;85-89 años;2019;8.672
+29 Málaga;TOTAL;Hombres;90-94 años;2019;2.672
+29 Málaga;TOTAL;Hombres;95-99 años;2019;556
+29 Málaga;TOTAL;Hombres;100 años y más;2019;203
+30 Murcia;TOTAL;Hombres;0-4 años;2019;40.368
+30 Murcia;TOTAL;Hombres;5-9 años;2019;44.977
+30 Murcia;TOTAL;Hombres;10-14 años;2019;47.120
+30 Murcia;TOTAL;Hombres;15-19 años;2019;43.540
+30 Murcia;TOTAL;Hombres;20-24 años;2019;42.275
+30 Murcia;TOTAL;Hombres;25-29 años;2019;45.059
+30 Murcia;TOTAL;Hombres;30-34 años;2019;47.918
+30 Murcia;TOTAL;Hombres;35-39 años;2019;61.255
+30 Murcia;TOTAL;Hombres;40-44 años;2019;68.756
+30 Murcia;TOTAL;Hombres;45-49 años;2019;62.121
+30 Murcia;TOTAL;Hombres;50-54 años;2019;57.077
+30 Murcia;TOTAL;Hombres;55-59 años;2019;47.242
+30 Murcia;TOTAL;Hombres;60-64 años;2019;37.518
+30 Murcia;TOTAL;Hombres;65-69 años;2019;30.623
+30 Murcia;TOTAL;Hombres;70-74 años;2019;26.338
+30 Murcia;TOTAL;Hombres;75-79 años;2019;18.395
+30 Murcia;TOTAL;Hombres;80-84 años;2019;14.702
+30 Murcia;TOTAL;Hombres;85-89 años;2019;8.741
+30 Murcia;TOTAL;Hombres;90-94 años;2019;3.001
+30 Murcia;TOTAL;Hombres;95-99 años;2019;549
+30 Murcia;TOTAL;Hombres;100 años y más;2019;40
+31 Navarra;TOTAL;Hombres;0-4 años;2019;15.519
+31 Navarra;TOTAL;Hombres;5-9 años;2019;18.089
+31 Navarra;TOTAL;Hombres;10-14 años;2019;18.277
+31 Navarra;TOTAL;Hombres;15-19 años;2019;17.416
+31 Navarra;TOTAL;Hombres;20-24 años;2019;16.856
+31 Navarra;TOTAL;Hombres;25-29 años;2019;16.768
+31 Navarra;TOTAL;Hombres;30-34 años;2019;18.405
+31 Navarra;TOTAL;Hombres;35-39 años;2019;23.312
+31 Navarra;TOTAL;Hombres;40-44 años;2019;28.191
+31 Navarra;TOTAL;Hombres;45-49 años;2019;27.050
+31 Navarra;TOTAL;Hombres;50-54 años;2019;25.211
+31 Navarra;TOTAL;Hombres;55-59 años;2019;22.636
+31 Navarra;TOTAL;Hombres;60-64 años;2019;19.286
+31 Navarra;TOTAL;Hombres;65-69 años;2019;16.459
+31 Navarra;TOTAL;Hombres;70-74 años;2019;14.495
+31 Navarra;TOTAL;Hombres;75-79 años;2019;10.431
+31 Navarra;TOTAL;Hombres;80-84 años;2019;7.721
+31 Navarra;TOTAL;Hombres;85-89 años;2019;5.169
+31 Navarra;TOTAL;Hombres;90-94 años;2019;1.889
+31 Navarra;TOTAL;Hombres;95-99 años;2019;409
+31 Navarra;TOTAL;Hombres;100 años y más;2019;42
+32 Ourense;TOTAL;Hombres;0-4 años;2019;4.629
+32 Ourense;TOTAL;Hombres;5-9 años;2019;5.352
+32 Ourense;TOTAL;Hombres;10-14 años;2019;5.571
+32 Ourense;TOTAL;Hombres;15-19 años;2019;5.465
+32 Ourense;TOTAL;Hombres;20-24 años;2019;5.910
+32 Ourense;TOTAL;Hombres;25-29 años;2019;6.904
+32 Ourense;TOTAL;Hombres;30-34 años;2019;7.732
+32 Ourense;TOTAL;Hombres;35-39 años;2019;9.697
+32 Ourense;TOTAL;Hombres;40-44 años;2019;11.061
+32 Ourense;TOTAL;Hombres;45-49 años;2019;10.889
+32 Ourense;TOTAL;Hombres;50-54 años;2019;11.144
+32 Ourense;TOTAL;Hombres;55-59 años;2019;11.070
+32 Ourense;TOTAL;Hombres;60-64 años;2019;10.450
+32 Ourense;TOTAL;Hombres;65-69 años;2019;9.841
+32 Ourense;TOTAL;Hombres;70-74 años;2019;9.859
+32 Ourense;TOTAL;Hombres;75-79 años;2019;7.816
+32 Ourense;TOTAL;Hombres;80-84 años;2019;6.835
+32 Ourense;TOTAL;Hombres;85-89 años;2019;4.910
+32 Ourense;TOTAL;Hombres;90-94 años;2019;1.850
+32 Ourense;TOTAL;Hombres;95-99 años;2019;462
+32 Ourense;TOTAL;Hombres;100 años y más;2019;75
+34 Palencia;TOTAL;Hombres;0-4 años;2019;2.865
+34 Palencia;TOTAL;Hombres;5-9 años;2019;3.148
+34 Palencia;TOTAL;Hombres;10-14 años;2019;3.285
+34 Palencia;TOTAL;Hombres;15-19 años;2019;3.312
+34 Palencia;TOTAL;Hombres;20-24 años;2019;3.538
+34 Palencia;TOTAL;Hombres;25-29 años;2019;3.894
+34 Palencia;TOTAL;Hombres;30-34 años;2019;4.453
+34 Palencia;TOTAL;Hombres;35-39 años;2019;5.317
+34 Palencia;TOTAL;Hombres;40-44 años;2019;5.851
+34 Palencia;TOTAL;Hombres;45-49 años;2019;6.053
+34 Palencia;TOTAL;Hombres;50-54 años;2019;6.651
+34 Palencia;TOTAL;Hombres;55-59 años;2019;6.822
+34 Palencia;TOTAL;Hombres;60-64 años;2019;6.529
+34 Palencia;TOTAL;Hombres;65-69 años;2019;5.311
+34 Palencia;TOTAL;Hombres;70-74 años;2019;4.333
+34 Palencia;TOTAL;Hombres;75-79 años;2019;3.173
+34 Palencia;TOTAL;Hombres;80-84 años;2019;2.451
+34 Palencia;TOTAL;Hombres;85-89 años;2019;1.850
+34 Palencia;TOTAL;Hombres;90-94 años;2019;770
+34 Palencia;TOTAL;Hombres;95-99 años;2019;189
+34 Palencia;TOTAL;Hombres;100 años y más;2019;13
+36 Pontevedra;TOTAL;Hombres;0-4 años;2019;18.048
+36 Pontevedra;TOTAL;Hombres;5-9 años;2019;21.480
+36 Pontevedra;TOTAL;Hombres;10-14 años;2019;22.854
+36 Pontevedra;TOTAL;Hombres;15-19 años;2019;21.733
+36 Pontevedra;TOTAL;Hombres;20-24 años;2019;20.574
+36 Pontevedra;TOTAL;Hombres;25-29 años;2019;23.252
+36 Pontevedra;TOTAL;Hombres;30-34 años;2019;26.140
+36 Pontevedra;TOTAL;Hombres;35-39 años;2019;34.809
+36 Pontevedra;TOTAL;Hombres;40-44 años;2019;42.035
+36 Pontevedra;TOTAL;Hombres;45-49 años;2019;38.847
+36 Pontevedra;TOTAL;Hombres;50-54 años;2019;35.697
+36 Pontevedra;TOTAL;Hombres;55-59 años;2019;31.825
+36 Pontevedra;TOTAL;Hombres;60-64 años;2019;28.382
+36 Pontevedra;TOTAL;Hombres;65-69 años;2019;25.818
+36 Pontevedra;TOTAL;Hombres;70-74 años;2019;23.741
+36 Pontevedra;TOTAL;Hombres;75-79 años;2019;16.195
+36 Pontevedra;TOTAL;Hombres;80-84 años;2019;12.550
+36 Pontevedra;TOTAL;Hombres;85-89 años;2019;7.870
+36 Pontevedra;TOTAL;Hombres;90-94 años;2019;2.678
+36 Pontevedra;TOTAL;Hombres;95-99 años;2019;611
+36 Pontevedra;TOTAL;Hombres;100 años y más;2019;147
+26 Rioja, La;TOTAL;Hombres;0-4 años;2019;7.050
+26 Rioja, La;TOTAL;Hombres;5-9 años;2019;8.186
+26 Rioja, La;TOTAL;Hombres;10-14 años;2019;8.441
+26 Rioja, La;TOTAL;Hombres;15-19 años;2019;7.765
+26 Rioja, La;TOTAL;Hombres;20-24 años;2019;7.362
+26 Rioja, La;TOTAL;Hombres;25-29 años;2019;7.709
+26 Rioja, La;TOTAL;Hombres;30-34 años;2019;8.755
+26 Rioja, La;TOTAL;Hombres;35-39 años;2019;11.371
+26 Rioja, La;TOTAL;Hombres;40-44 años;2019;13.768
+26 Rioja, La;TOTAL;Hombres;45-49 años;2019;13.044
+26 Rioja, La;TOTAL;Hombres;50-54 años;2019;11.995
+26 Rioja, La;TOTAL;Hombres;55-59 años;2019;11.507
+26 Rioja, La;TOTAL;Hombres;60-64 años;2019;9.839
+26 Rioja, La;TOTAL;Hombres;65-69 años;2019;8.308
+26 Rioja, La;TOTAL;Hombres;70-74 años;2019;7.219
+26 Rioja, La;TOTAL;Hombres;75-79 años;2019;5.406
+26 Rioja, La;TOTAL;Hombres;80-84 años;2019;4.097
+26 Rioja, La;TOTAL;Hombres;85-89 años;2019;2.950
+26 Rioja, La;TOTAL;Hombres;90-94 años;2019;1.134
+26 Rioja, La;TOTAL;Hombres;95-99 años;2019;256
+26 Rioja, La;TOTAL;Hombres;100 años y más;2019;17
+37 Salamanca;TOTAL;Hombres;0-4 años;2019;5.519
+37 Salamanca;TOTAL;Hombres;5-9 años;2019;6.512
+37 Salamanca;TOTAL;Hombres;10-14 años;2019;7.365
+37 Salamanca;TOTAL;Hombres;15-19 años;2019;7.156
+37 Salamanca;TOTAL;Hombres;20-24 años;2019;7.308
+37 Salamanca;TOTAL;Hombres;25-29 años;2019;7.921
+37 Salamanca;TOTAL;Hombres;30-34 años;2019;8.717
+37 Salamanca;TOTAL;Hombres;35-39 años;2019;10.225
+37 Salamanca;TOTAL;Hombres;40-44 años;2019;11.656
+37 Salamanca;TOTAL;Hombres;45-49 años;2019;12.335
+37 Salamanca;TOTAL;Hombres;50-54 años;2019;13.040
+37 Salamanca;TOTAL;Hombres;55-59 años;2019;12.969
+37 Salamanca;TOTAL;Hombres;60-64 años;2019;11.303
+37 Salamanca;TOTAL;Hombres;65-69 años;2019;9.463
+37 Salamanca;TOTAL;Hombres;70-74 años;2019;8.612
+37 Salamanca;TOTAL;Hombres;75-79 años;2019;7.061
+37 Salamanca;TOTAL;Hombres;80-84 años;2019;6.144
+37 Salamanca;TOTAL;Hombres;85-89 años;2019;4.536
+37 Salamanca;TOTAL;Hombres;90-94 años;2019;1.980
+37 Salamanca;TOTAL;Hombres;95-99 años;2019;477
+37 Salamanca;TOTAL;Hombres;100 años y más;2019;65
+40 Segovia;TOTAL;Hombres;0-4 años;2019;2.980
+40 Segovia;TOTAL;Hombres;5-9 años;2019;3.523
+40 Segovia;TOTAL;Hombres;10-14 años;2019;3.771
+40 Segovia;TOTAL;Hombres;15-19 años;2019;3.632
+40 Segovia;TOTAL;Hombres;20-24 años;2019;3.937
+40 Segovia;TOTAL;Hombres;25-29 años;2019;4.064
+40 Segovia;TOTAL;Hombres;30-34 años;2019;4.237
+40 Segovia;TOTAL;Hombres;35-39 años;2019;5.151
+40 Segovia;TOTAL;Hombres;40-44 años;2019;5.817
+40 Segovia;TOTAL;Hombres;45-49 años;2019;6.203
+40 Segovia;TOTAL;Hombres;50-54 años;2019;6.446
+40 Segovia;TOTAL;Hombres;55-59 años;2019;6.289
+40 Segovia;TOTAL;Hombres;60-64 años;2019;5.201
+40 Segovia;TOTAL;Hombres;65-69 años;2019;4.136
+40 Segovia;TOTAL;Hombres;70-74 años;2019;3.494
+40 Segovia;TOTAL;Hombres;75-79 años;2019;2.623
+40 Segovia;TOTAL;Hombres;80-84 años;2019;2.454
+40 Segovia;TOTAL;Hombres;85-89 años;2019;1.851
+40 Segovia;TOTAL;Hombres;90-94 años;2019;793
+40 Segovia;TOTAL;Hombres;95-99 años;2019;195
+40 Segovia;TOTAL;Hombres;100 años y más;2019;16
+41 Sevilla;TOTAL;Hombres;0-4 años;2019;47.739
+41 Sevilla;TOTAL;Hombres;5-9 años;2019;56.566
+41 Sevilla;TOTAL;Hombres;10-14 años;2019;60.890
+41 Sevilla;TOTAL;Hombres;15-19 años;2019;54.017
+41 Sevilla;TOTAL;Hombres;20-24 años;2019;51.273
+41 Sevilla;TOTAL;Hombres;25-29 años;2019;56.034
+41 Sevilla;TOTAL;Hombres;30-34 años;2019;59.310
+41 Sevilla;TOTAL;Hombres;35-39 años;2019;73.922
+41 Sevilla;TOTAL;Hombres;40-44 años;2019;84.745
+41 Sevilla;TOTAL;Hombres;45-49 años;2019;79.412
+41 Sevilla;TOTAL;Hombres;50-54 años;2019;74.710
+41 Sevilla;TOTAL;Hombres;55-59 años;2019;63.182
+41 Sevilla;TOTAL;Hombres;60-64 años;2019;51.364
+41 Sevilla;TOTAL;Hombres;65-69 años;2019;42.435
+41 Sevilla;TOTAL;Hombres;70-74 años;2019;37.045
+41 Sevilla;TOTAL;Hombres;75-79 años;2019;26.192
+41 Sevilla;TOTAL;Hombres;80-84 años;2019;16.952
+41 Sevilla;TOTAL;Hombres;85-89 años;2019;9.836
+41 Sevilla;TOTAL;Hombres;90-94 años;2019;2.921
+41 Sevilla;TOTAL;Hombres;95-99 años;2019;546
+41 Sevilla;TOTAL;Hombres;100 años y más;2019;121
+42 Soria;TOTAL;Hombres;0-4 años;2019;1.611
+42 Soria;TOTAL;Hombres;5-9 años;2019;1.865
+42 Soria;TOTAL;Hombres;10-14 años;2019;2.005
+42 Soria;TOTAL;Hombres;15-19 años;2019;2.096
+42 Soria;TOTAL;Hombres;20-24 años;2019;2.118
+42 Soria;TOTAL;Hombres;25-29 años;2019;2.174
+42 Soria;TOTAL;Hombres;30-34 años;2019;2.406
+42 Soria;TOTAL;Hombres;35-39 años;2019;2.843
+42 Soria;TOTAL;Hombres;40-44 años;2019;3.255
+42 Soria;TOTAL;Hombres;45-49 años;2019;3.454
+42 Soria;TOTAL;Hombres;50-54 años;2019;3.756
+42 Soria;TOTAL;Hombres;55-59 años;2019;3.730
+42 Soria;TOTAL;Hombres;60-64 años;2019;3.084
+42 Soria;TOTAL;Hombres;65-69 años;2019;2.555
+42 Soria;TOTAL;Hombres;70-74 años;2019;2.274
+42 Soria;TOTAL;Hombres;75-79 años;2019;1.818
+42 Soria;TOTAL;Hombres;80-84 años;2019;1.596
+42 Soria;TOTAL;Hombres;85-89 años;2019;1.379
+42 Soria;TOTAL;Hombres;90-94 años;2019;614
+42 Soria;TOTAL;Hombres;95-99 años;2019;155
+42 Soria;TOTAL;Hombres;100 años y más;2019;26
+43 Tarragona;TOTAL;Hombres;0-4 años;2019;19.175
+43 Tarragona;TOTAL;Hombres;5-9 años;2019;22.646
+43 Tarragona;TOTAL;Hombres;10-14 años;2019;23.784
+43 Tarragona;TOTAL;Hombres;15-19 años;2019;21.362
+43 Tarragona;TOTAL;Hombres;20-24 años;2019;20.191
+43 Tarragona;TOTAL;Hombres;25-29 años;2019;20.955
+43 Tarragona;TOTAL;Hombres;30-34 años;2019;23.635
+43 Tarragona;TOTAL;Hombres;35-39 años;2019;30.743
+43 Tarragona;TOTAL;Hombres;40-44 años;2019;36.603
+43 Tarragona;TOTAL;Hombres;45-49 años;2019;33.603
+43 Tarragona;TOTAL;Hombres;50-54 años;2019;30.536
+43 Tarragona;TOTAL;Hombres;55-59 años;2019;26.534
+43 Tarragona;TOTAL;Hombres;60-64 años;2019;23.203
+43 Tarragona;TOTAL;Hombres;65-69 años;2019;20.406
+43 Tarragona;TOTAL;Hombres;70-74 años;2019;17.814
+43 Tarragona;TOTAL;Hombres;75-79 años;2019;12.280
+43 Tarragona;TOTAL;Hombres;80-84 años;2019;9.177
+43 Tarragona;TOTAL;Hombres;85-89 años;2019;5.831
+43 Tarragona;TOTAL;Hombres;90-94 años;2019;2.232
+43 Tarragona;TOTAL;Hombres;95-99 años;2019;504
+43 Tarragona;TOTAL;Hombres;100 años y más;2019;44
+44 Teruel;TOTAL;Hombres;0-4 años;2019;2.655
+44 Teruel;TOTAL;Hombres;5-9 años;2019;3.057
+44 Teruel;TOTAL;Hombres;10-14 años;2019;3.151
+44 Teruel;TOTAL;Hombres;15-19 años;2019;3.085
+44 Teruel;TOTAL;Hombres;20-24 años;2019;3.305
+44 Teruel;TOTAL;Hombres;25-29 años;2019;3.483
+44 Teruel;TOTAL;Hombres;30-34 años;2019;3.921
+44 Teruel;TOTAL;Hombres;35-39 años;2019;4.688
+44 Teruel;TOTAL;Hombres;40-44 años;2019;5.138
+44 Teruel;TOTAL;Hombres;45-49 años;2019;5.058
+44 Teruel;TOTAL;Hombres;50-54 años;2019;5.472
+44 Teruel;TOTAL;Hombres;55-59 años;2019;5.448
+44 Teruel;TOTAL;Hombres;60-64 años;2019;4.626
+44 Teruel;TOTAL;Hombres;65-69 años;2019;3.772
+44 Teruel;TOTAL;Hombres;70-74 años;2019;3.179
+44 Teruel;TOTAL;Hombres;75-79 años;2019;2.375
+44 Teruel;TOTAL;Hombres;80-84 años;2019;2.375
+44 Teruel;TOTAL;Hombres;85-89 años;2019;2.085
+44 Teruel;TOTAL;Hombres;90-94 años;2019;843
+44 Teruel;TOTAL;Hombres;95-99 años;2019;193
+44 Teruel;TOTAL;Hombres;100 años y más;2019;18
+45 Toledo;TOTAL;Hombres;0-4 años;2019;16.737
+45 Toledo;TOTAL;Hombres;5-9 años;2019;20.241
+45 Toledo;TOTAL;Hombres;10-14 años;2019;21.019
+45 Toledo;TOTAL;Hombres;15-19 años;2019;18.915
+45 Toledo;TOTAL;Hombres;20-24 años;2019;18.133
+45 Toledo;TOTAL;Hombres;25-29 años;2019;19.086
+45 Toledo;TOTAL;Hombres;30-34 años;2019;21.499
+45 Toledo;TOTAL;Hombres;35-39 años;2019;27.800
+45 Toledo;TOTAL;Hombres;40-44 años;2019;31.451
+45 Toledo;TOTAL;Hombres;45-49 años;2019;28.802
+45 Toledo;TOTAL;Hombres;50-54 años;2019;26.452
+45 Toledo;TOTAL;Hombres;55-59 años;2019;23.545
+45 Toledo;TOTAL;Hombres;60-64 años;2019;19.463
+45 Toledo;TOTAL;Hombres;65-69 años;2019;15.737
+45 Toledo;TOTAL;Hombres;70-74 años;2019;13.357
+45 Toledo;TOTAL;Hombres;75-79 años;2019;9.579
+45 Toledo;TOTAL;Hombres;80-84 años;2019;8.303
+45 Toledo;TOTAL;Hombres;85-89 años;2019;6.115
+45 Toledo;TOTAL;Hombres;90-94 años;2019;2.335
+45 Toledo;TOTAL;Hombres;95-99 años;2019;466
+45 Toledo;TOTAL;Hombres;100 años y más;2019;55
+46 Valencia/València;TOTAL;Hombres;0-4 años;2019;56.124
+46 Valencia/València;TOTAL;Hombres;5-9 años;2019;66.986
+46 Valencia/València;TOTAL;Hombres;10-14 años;2019;72.343
+46 Valencia/València;TOTAL;Hombres;15-19 años;2019;65.785
+46 Valencia/València;TOTAL;Hombres;20-24 años;2019;64.086
+46 Valencia/València;TOTAL;Hombres;25-29 años;2019;68.617
+46 Valencia/València;TOTAL;Hombres;30-34 años;2019;75.201
+46 Valencia/València;TOTAL;Hombres;35-39 años;2019;96.168
+46 Valencia/València;TOTAL;Hombres;40-44 años;2019;115.499
+46 Valencia/València;TOTAL;Hombres;45-49 años;2019;107.697
+46 Valencia/València;TOTAL;Hombres;50-54 años;2019;100.118
+46 Valencia/València;TOTAL;Hombres;55-59 años;2019;87.418
+46 Valencia/València;TOTAL;Hombres;60-64 años;2019;72.944
+46 Valencia/València;TOTAL;Hombres;65-69 años;2019;62.029
+46 Valencia/València;TOTAL;Hombres;70-74 años;2019;53.309
+46 Valencia/València;TOTAL;Hombres;75-79 años;2019;39.191
+46 Valencia/València;TOTAL;Hombres;80-84 años;2019;28.894
+46 Valencia/València;TOTAL;Hombres;85-89 años;2019;16.997
+46 Valencia/València;TOTAL;Hombres;90-94 años;2019;5.765
+46 Valencia/València;TOTAL;Hombres;95-99 años;2019;1.038
+46 Valencia/València;TOTAL;Hombres;100 años y más;2019;141
+47 Valladolid;TOTAL;Hombres;0-4 años;2019;10.135
+47 Valladolid;TOTAL;Hombres;5-9 años;2019;12.312
+47 Valladolid;TOTAL;Hombres;10-14 años;2019;12.830
+47 Valladolid;TOTAL;Hombres;15-19 años;2019;11.603
+47 Valladolid;TOTAL;Hombres;20-24 años;2019;11.117
+47 Valladolid;TOTAL;Hombres;25-29 años;2019;11.893
+47 Valladolid;TOTAL;Hombres;30-34 años;2019;13.397
+47 Valladolid;TOTAL;Hombres;35-39 años;2019;17.621
+47 Valladolid;TOTAL;Hombres;40-44 años;2019;22.550
+47 Valladolid;TOTAL;Hombres;45-49 años;2019;21.523
+47 Valladolid;TOTAL;Hombres;50-54 años;2019;20.333
+47 Valladolid;TOTAL;Hombres;55-59 años;2019;18.788
+47 Valladolid;TOTAL;Hombres;60-64 años;2019;16.746
+47 Valladolid;TOTAL;Hombres;65-69 años;2019;14.935
+47 Valladolid;TOTAL;Hombres;70-74 años;2019;13.647
+47 Valladolid;TOTAL;Hombres;75-79 años;2019;9.923
+47 Valladolid;TOTAL;Hombres;80-84 años;2019;7.122
+47 Valladolid;TOTAL;Hombres;85-89 años;2019;4.598
+47 Valladolid;TOTAL;Hombres;90-94 años;2019;1.727
+47 Valladolid;TOTAL;Hombres;95-99 años;2019;384
+47 Valladolid;TOTAL;Hombres;100 años y más;2019;32
+49 Zamora;TOTAL;Hombres;0-4 años;2019;2.393
+49 Zamora;TOTAL;Hombres;5-9 años;2019;2.899
+49 Zamora;TOTAL;Hombres;10-14 años;2019;3.033
+49 Zamora;TOTAL;Hombres;15-19 años;2019;3.208
+49 Zamora;TOTAL;Hombres;20-24 años;2019;3.563
+49 Zamora;TOTAL;Hombres;25-29 años;2019;3.897
+49 Zamora;TOTAL;Hombres;30-34 años;2019;4.377
+49 Zamora;TOTAL;Hombres;35-39 años;2019;5.259
+49 Zamora;TOTAL;Hombres;40-44 años;2019;6.018
+49 Zamora;TOTAL;Hombres;45-49 años;2019;6.198
+49 Zamora;TOTAL;Hombres;50-54 años;2019;6.837
+49 Zamora;TOTAL;Hombres;55-59 años;2019;7.345
+49 Zamora;TOTAL;Hombres;60-64 años;2019;6.557
+49 Zamora;TOTAL;Hombres;65-69 años;2019;5.718
+49 Zamora;TOTAL;Hombres;70-74 años;2019;5.244
+49 Zamora;TOTAL;Hombres;75-79 años;2019;4.294
+49 Zamora;TOTAL;Hombres;80-84 años;2019;3.896
+49 Zamora;TOTAL;Hombres;85-89 años;2019;3.020
+49 Zamora;TOTAL;Hombres;90-94 años;2019;1.271
+49 Zamora;TOTAL;Hombres;95-99 años;2019;286
+49 Zamora;TOTAL;Hombres;100 años y más;2019;28
+50 Zaragoza;TOTAL;Hombres;0-4 años;2019;21.316
+50 Zaragoza;TOTAL;Hombres;5-9 años;2019;24.133
+50 Zaragoza;TOTAL;Hombres;10-14 años;2019;25.178
+50 Zaragoza;TOTAL;Hombres;15-19 años;2019;23.713
+50 Zaragoza;TOTAL;Hombres;20-24 años;2019;23.139
+50 Zaragoza;TOTAL;Hombres;25-29 años;2019;24.482
+50 Zaragoza;TOTAL;Hombres;30-34 años;2019;28.018
+50 Zaragoza;TOTAL;Hombres;35-39 años;2019;34.124
+50 Zaragoza;TOTAL;Hombres;40-44 años;2019;41.436
+50 Zaragoza;TOTAL;Hombres;45-49 años;2019;39.757
+50 Zaragoza;TOTAL;Hombres;50-54 años;2019;36.950
+50 Zaragoza;TOTAL;Hombres;55-59 años;2019;33.629
+50 Zaragoza;TOTAL;Hombres;60-64 años;2019;28.687
+50 Zaragoza;TOTAL;Hombres;65-69 años;2019;24.110
+50 Zaragoza;TOTAL;Hombres;70-74 años;2019;21.849
+50 Zaragoza;TOTAL;Hombres;75-79 años;2019;16.112
+50 Zaragoza;TOTAL;Hombres;80-84 años;2019;12.259
+50 Zaragoza;TOTAL;Hombres;85-89 años;2019;8.742
+50 Zaragoza;TOTAL;Hombres;90-94 años;2019;3.154
+50 Zaragoza;TOTAL;Hombres;95-99 años;2019;693
+50 Zaragoza;TOTAL;Hombres;100 años y más;2019;58

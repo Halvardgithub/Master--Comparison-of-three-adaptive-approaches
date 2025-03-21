@@ -21,22 +21,69 @@ library(dplyr)
 library(ggplot2)
 
 shp_prov <- st_read("Data/Provinces/Provincias_ETRS89_30N.shp")
+colnames(shp_prov) <- c("Index", "ProvName", "ProvName1", "CCAA_Index", "CCAA_Name", "geometry")
 CCAA_to_remove <- c("Illes Balears", "Canarias", "Ceuta", "Melilla")
 shp_prov <- filter(shp_prov, !CCAA_Name %in% CCAA_to_remove)
 
-colnames(shp_prov) <- c("Index", "ProvName", "ProvName1", "CCAA_Index", "CCAA_Name", "geometry")
 plot(shp_prov["ProvName"], key.pos = NULL, main = "Map of the provinces of Spain")
 
 # shp_AutReg <- st_read("Data/AutonomousRegions/Comunidades_Autonomas_ETRS89_30N.shp")
 # colnames(shp_AutReg) <- c("Index", "CCAA_Name", "CCAA_Name1", "geometry")
 # plot(shp_AutReg["CCAA_Name1"], key.pos = NULL, main = "Map of the autonomous regions of Spain")
 
+# shp_prov <- st_read("Data/Provinces/Provincias_ETRS89_30N.shp")
+# 
+# shp_AutReg <- st_read("Data/AutonomousRegions/Comunidades_Autonomas_ETRS89_30N.shp")
+# 
+# colnames(shp_prov) <- c("Index", "ProvName", "ProvName1", "CCAA_Index", "CCAA_Name", "geometry")
+# colnames(shp_AutReg) <- c("Index", "CCAA_Name", "CCAA_Name1", "geometry")
+
+
+shp_prov_large <- shp_prov |>
+  group_by(CCAA_Name) |>
+  summarise(geometry = st_union(geometry))
+
 # Create the ggplot2 map
 MapSpainFig <- ggplot() +
-  geom_sf(data = shp_prov, fill = NA, color = "black", linewidth = 0.6) +
-  geom_sf(data = shp_prov_large, fill = NA, color = "black", linewidth = 1.15) +
-  labs(title = "Map of autonomous regions and provinces in Spain") +
-  theme_minimal()
+geom_sf(data = shp_prov, fill = NA, color = "black", linewidth = 0.6) +
+geom_sf(data = shp_prov_large, fill = NA, color = "black", linewidth = 1.15) +
+labs(title = "Map of autonomous regions and provinces in Spain") +
+theme_minimal()
+MapSpainFig
+
+```
+
+
+## Code from Andrea and Miguel for data preperation and plotting
+
+```{r}
+library(sf)
+library(ggplot2)
+library(dplyr)
+
+ss_provinces = read_sf("Data/Provinces/Provincias_ETRS89_30N.shp")
+
+ss_ar = read_sf("Data/AutonomousRegions/Comunidades_Autonomas_ETRS89_30N.shp")
+
+ggplot() + geom_sf(data = ss_provinces) + geom_sf(data = ss_ar)
+
+# we only work with mainland Spain, remove the islands
+
+out = c("Islas Baleares", "Las Palmas", "Santa Cruz de Tenerife", "Ceuta", "Melilla")
+
+out2 = c("Canarias", "Islas Baleares", "Ceuta", "Melilla")
+
+ss_provinces = ss_provinces |> filter(!(Texto %in% out))
+
+ss_ar = ss_ar %>% filter(!(Texto %in% out2))
+
+ggplot() +
+
+  geom_sf(data = ss_ar, color="black") + #do not really need this line
+
+  geom_sf(data=ss_provinces, fill=NA, color="grey") +
+
+  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4)
 ```
 
 
