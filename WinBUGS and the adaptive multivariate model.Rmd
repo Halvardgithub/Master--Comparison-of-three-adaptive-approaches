@@ -1,0 +1,41 @@
+---
+title: "WinBUGS model"
+author: "Halvard"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(R2WinBUGS)
+
+#remotes::install_github("fisabio/pbugs")
+library(pbugs)
+```
+
+### Loading data
+Load the data and spatial structures.
+```{r}
+
+```
+
+### Implement the multivariate adaptive model with WinBUGS
+```{r}
+
+```
+
+
+# Run the model
+
+
+
+
+
+
+
+
+
+

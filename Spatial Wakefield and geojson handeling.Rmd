@@ -201,6 +201,10 @@ AICAR_model <- inla.rgeneric.define(inla.rgeneric.AdaptiveICAR,
 
 ```{r}
 library(readxl) 
+
+library(readr)
+Expected_cases <- read_csv("ExpectedCasesMiguel.csv")
+
 #Mortality
 Mortality_df <- read.csv("Data/Mortality.csv", sep=";")
 Mortality_df$Provincia.de.residencia[4]
