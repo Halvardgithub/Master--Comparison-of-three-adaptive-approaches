@@ -24,6 +24,93 @@ Load the data and spatial structures.
 
 ### Implement the multivariate adaptive model with WinBUGS
 ```{r}
+# Multivariate adaptive BYM model, WinBUGS code
+AdaptiveBYM_model <- function() {
+  # Likelihood
+  for (i in 1:Nareas) {
+    for (j in 1:Ndiseases) {
+      O[i, j] ~ dpois(lambda[i, j])
+      # Modeling of the mean for each census tract and disease
+      log(lambda[i, j]) <- log(E[i, j]) + mu[j] + phi[i,j] + sd.theta[j] * theta[i, j]
+      # SMR for each census tract and disease
+      SMR[i, j] <- exp(mu[j] + phi[i, j] + sd.theta[j] * theta[i, j])
+      # Prior distribution for spatial effects
+      phi[i, j] ~ dnorm(mean.phi[i, j], prec.phi[i, j])
+      # Prior distribution for non-spatial effects
+      theta[i, j] ~ dnorm(0, 1)
+    }
+  }
+  for (i in 1:n.adj) {
+    sqrt.c.adj[i] <- sqrt(c[adj[i]])
+    for (j in 1:Ndiseases) {
+      phi.adj[i, j] <- phi[adj[i], j]
+    }
+  }
+  # Precision of the conditional distribution of spatial effects
+  for (j in 1:Ndiseases) {
+    prec.phi[1, j] <- pow(sd.phi[j], -2) * sqrt(c[1]) * sum(sqrt.c.adj[index[1]:index[2]])
+    for (i in 2:Nareas) {
+      prec.phi[i, j] <- pow(sd.phi[j], -2) * sqrt(c[i]) * sum(sqrt.c.adj[(index[i] + 1):index[i + 1]])
+    }
+  }
+  # Mean of the conditional distribution of spatial effects
+  for (j in 1:Ndiseases) {
+    mean.phi[1, j] <- inprod2(sqrt.c.adj[index[1]:index[2]],
+      phi.adj[index[1]:index[2], j])/sum(sqrt.c.adj[index[1]:index[2]])
+    for (i in 2:Nareas) {
+      mean.phi[i, j] <- inprod2(sqrt.c.adj[(index[i] + 1):index[i + 1]], phi.adj[(index[i] + 1):index[i + 1], j])/sum(sqrt.c.adj[(index[i] + 1):index[i +1]])
+    }
+    # Sum-to-zero restriction for spatial effects
+    ceros[j] <- 0
+    ceros[j] ~ dnorm(sum.phi[j], 10)
+    sum.phi[j] <- sum(phi[, j])
+  }
+  # Prior distributions for c
+  for (i in 1:Nareas) {
+    c[i] ~ dgamma(tau, tau) %_% I(0.001, )
+  }
+  tau <- pow(sd.c, -2)
+  sd.c ~ dunif(0, 5)
+  # Other prior distributions
+  for (j in 1:Ndiseases) {
+    sd.phi[j] ~ dunif(0, 5)
+    sd.theta[j] ~ dunif(0, 5)
+    mu[j] ~ dflat()
+  }
+}
+# Object where the results for each set of diseases will be
+# saved
+results.AdaptiveBYM <- list()
+# Run multivariate adaptive BYM model for each set of
+# diseases
+for (i in 1:15) {
+  # Selection of mortality causes
+  causes.id <- causes[-c(i)]
+  # Data
+  data <- list(O = apply(Obs[, sex, , causes.id], c(2, 3), sum), 
+               E = apply(Exp[, sex, , causes.id], c(2, 3), sum),
+               Nareas = dim(Obs)[3], Ndiseases = length(causes.id),
+               n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index)
+  # Initial values
+  initials <- function() {
+    list(mu = rnorm(data$Ndiseases, 0, 1), sd.phi = runif(data$Ndiseases,0, 1), 
+         sd.theta = runif(data$Ndiseases, 0, 1), 
+         phi = matrix(rnorm(data$Nareasdata$Ndiseases), nrow = data$Nareas, 
+                ncol = data$Ndiseases),
+         theta = matrix(rnorm(data$Nareas * data$Ndiseases),
+                nrow = data$Nareas, ncol = data$Ndiseases), 
+         c = runif(data$Nareas,0.9, 1.1), sd.c = runif(1, 0.5, 0.6))
+  }
+  # Variables to retrieve
+  param <- c("mu", "lambda", "sd.phi", "phi", "sd.theta", "theta","SMR", "c", "sd.c", "tau")
+  # Calls to WinBUGS
+  results.AdaptiveBYM[[i]] <- pbugs(data = data, inits = initials,
+                                    parameters.to.save = param, model = AdaptiveBYM_model,
+                                    n.iter = 2e+05, n.burnin = 50000, n.chains = 3, DIC = F)
+}
+# Save results
+write_csv(results.AdaptiveBYM, file = "Results/results.AdaptiveBYM-Miguel.csv")
+
 
 ```
 
