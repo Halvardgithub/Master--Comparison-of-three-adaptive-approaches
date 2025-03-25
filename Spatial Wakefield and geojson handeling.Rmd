@@ -200,10 +200,18 @@ AICAR_model <- inla.rgeneric.define(inla.rgeneric.AdaptiveICAR,
 # Load and preprocess the disease data
 
 ```{r}
-library(readxl) 
-
 library(readr)
-Expected_cases <- read_csv("ExpectedCasesMiguel.csv")
+# load("Expected.Rdata")
+# 
+# colnames(Expected) <- gsub("^\\d+\\s+", "", colnames(Expected))
+# rownames(Expected) <- gsub("^\\d+\\s+", "", rownames(Expected))
+# 
+# Expected2 <- as.data.frame(Expected)
+# 
+# saveRDS(Expected2, "ExpectedCasesMiguel.rds")
+
+ExpectedCases <- readRDS("ExpectedCasesMiguel.rds")
+
 
 #Mortality
 Mortality_df <- read.csv("Data/Mortality.csv", sep=";")

@@ -14,15 +14,33 @@ library(R2WinBUGS)
 
 #remotes::install_github("fisabio/pbugs")
 library(pbugs)
+
+library(readr)
 ```
 
 ### Loading data
 Load the data and spatial structures.
 ```{r}
+ExpectedCases <- readRDS("ExpectedCasesMiguel.rds")
+  
+
+
+#Spatial structure
+carto.nb <- poly2nb(carto) # Neighbours list of each geographic unit with class nb
+carto.wb <- nb2WB(carto.nb) # List with the adjacency vector (carto.wb$adj) and
+# the number of neighbors of each geographic unit (carto.wb$num) to use in WinBUGS
+index <- c(1, cumsum(carto.wb$num)) # Vector to identify the positions of the neighbors
+# of each geographic unit in the conditional distributions of spatial effects
+
+#Need to change causes, randomize from 1-102 and do not need sex I think
+causes <- c(1:2, 5, 7, 9:12, 15:21) # Studied mortality causes
+sex <- 1 # Mens
 
 ```
 
 ### Implement the multivariate adaptive model with WinBUGS
+
+Generally, i indicates a spatial region/province and j represents a disease or cause of death. 
 ```{r}
 # Multivariate adaptive BYM model, WinBUGS code
 AdaptiveBYM_model <- function() {
@@ -50,9 +68,9 @@ AdaptiveBYM_model <- function() {
   for (j in 1:Ndiseases) {
     prec.phi[1, j] <- pow(sd.phi[j], -2) * sqrt(c[1]) * sum(sqrt.c.adj[index[1]:index[2]])
     for (i in 2:Nareas) {
-      prec.phi[i, j] <- pow(sd.phi[j], -2) * sqrt(c[i]) * sum(sqrt.c.adj[(index[i] + 1):index[i + 1]])
-    }
-  }
+      prec.phi[i, j] <- pow(sd.phi[j], -2) * sqrt(c[i]) * sum(sqrt.c.adj[(index[i] + 1):index[i + 1]]) #the +1 is to correct the indexes, works as all regions have at least one neighbour
+    } 
+  } 
   # Mean of the conditional distribution of spatial effects
   for (j in 1:Ndiseases) {
     mean.phi[1, j] <- inprod2(sqrt.c.adj[index[1]:index[2]],
@@ -67,7 +85,7 @@ AdaptiveBYM_model <- function() {
   }
   # Prior distributions for c
   for (i in 1:Nareas) {
-    c[i] ~ dgamma(tau, tau) %_% I(0.001, )
+    c[i] ~ dgamma(tau, tau) %_% I(0.001, ) # %_% 0.001 ensures c[i] is above 0.001
   }
   tau <- pow(sd.c, -2)
   sd.c ~ dunif(0, 5)
@@ -78,6 +96,12 @@ AdaptiveBYM_model <- function() {
     mu[j] ~ dflat()
   }
 }
+```
+
+
+# Run the model
+
+```{r}
 # Object where the results for each set of diseases will be
 # saved
 results.AdaptiveBYM <- list()
@@ -113,10 +137,6 @@ write_csv(results.AdaptiveBYM, file = "Results/results.AdaptiveBYM-Miguel.csv")
 
 
 ```
-
-
-# Run the model
-
 
 
 
