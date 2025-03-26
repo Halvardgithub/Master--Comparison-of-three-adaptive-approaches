@@ -198,9 +198,14 @@ AICAR_model <- inla.rgeneric.define(inla.rgeneric.AdaptiveICAR,
 ```
 
 # Load and preprocess the disease data
+The data for male mortality cases nationally and at province level is collected in 5-year age bins for each disease. These must be aggregated to the total cases per disease in each province and summarised in a matrix called ObservedCases. Furthermore, we calculate the expected cases based on the population per age bin in each province, which is denoted as ExpectedCases. Lastly, some choice of the mortality causes must be done. For instance, some causes are extremely rare, for instance only 1 or 2 cases nationally. Therefore, we implemented a lower limit of an average of 2 cases per province, which for 47 provinces equald 94 cases nationally. Additionally, some of the mortality causes are not disease related, for instance homocides, and should also be removed. 
 
 ```{r}
 library(readr)
+library(tidyr)
+
+#Calculation of expected observation
+
 # load("Expected.Rdata")
 # 
 # colnames(Expected) <- gsub("^\\d+\\s+", "", colnames(Expected))
@@ -210,11 +215,8 @@ library(readr)
 # 
 # saveRDS(Expected2, "ExpectedCasesMiguel.rds")
 
-ExpectedCases <- readRDS("ExpectedCasesMiguel.rds")
-
-library(tidyr)
-
 #Mortality data
+
 # Mortality_df <- read_csv2("Mortality.csv")
 # 
 # Mortality_df <- Mortality_df[, c(1, 3, 4)]
@@ -226,13 +228,23 @@ library(tidyr)
 # 
 # df_matrix <- as.matrix(df_wide[, -1]) #remove the province column
 # 
-# ObservedCases <- as.matrix(ExpectedCases) #made sure everything aligned, both rows and cols
+# ObservedCases <- as.matrix(ExpectedCases) #I made sure everything aligned, both rows and cols
 # 
 # ObservedCases[1:47, 1:102] <- df_matrix[1:47, 1:102]
 # 
+# sparse_columns <- as.numeric(which(colSums(df_matrix) < 94)) # 47*2=94, was 16 columns
+# 
+# ObservedCases <- ObservedCases[, -sparse_columns] #removed the 16 sparse columns
+# 
 # saveRDS(ObservedCases, "ObservedCases.rds")
-
-ObservedCases <- readRDS("ObservedCases.rds")
+# 
+# ObservedCases <- readRDS("ObservedCases.rds")
+# 
+# ExpectedCases <- readRDS("ExpectedCasesMiguel.rds")
+# 
+# ExpectedCases <- ExpectedCases[, -sparse_columns]
+# 
+# saveRDS(ExpectedCases, "ExpectedCasesMiguel.rds")
 
 #Population data
 # Pop_data <- read_csv2("PopXProvincesXAge.csv")
@@ -246,8 +258,6 @@ ObservedCases <- readRDS("ObservedCases.rds")
 #   summarise(Total_Population = sum(Total, na.rm = TRUE))  # Sum Population column
 # 
 # saveRDS(Pop_data_total, "PopulationData.rds")
-
-PopulationData <- readRDS("PopulationData.rds")
 ```
 
 

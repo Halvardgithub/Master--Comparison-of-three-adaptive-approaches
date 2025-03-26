@@ -28,6 +28,7 @@ Load the data and spatial structures.
 ExpectedCases <- readRDS("ExpectedCasesMiguel.rds")
 ObservedCases <- readRDS("ObservedCases.rds")
 PopulationData <- readRDS("PopulationData.rds")
+nDiseasesTot <- as.numeric(ncol(ObservedCases)) #the number of causes
 
 shp_prov <- st_read("Data/Provinces/Provincias_ETRS89_30N.shp")
 colnames(shp_prov) <- c("Index", "ProvName", "ProvName1", "CCAA_Index", "CCAA_Name", "geometry")
@@ -43,9 +44,9 @@ index <- c(1, cumsum(carto.wb$num)) # Vector to identify the positions of the ne
 # of each geographic unit in the conditional distributions of spatial effects
 
 #Randomize disease from 1-102 and do not need sex I think, numbers are 10, 20 and 50
-get_causes <- function(n){
+get_causes <- function(n){ #nDiseasesTot is defined further up
   set.seed(12345)
-  subset <- sample(1:102, n, replace = FALSE) #there is a total of 102 diseases
+  subset <- sample(1:nDiseasesTot, n, replace = FALSE) #there is a total of 102 diseases
   return(sort(subset))
 }
 
@@ -134,7 +135,8 @@ AdaptiveBYM_model <- function() {
 results.AdaptiveBYM <- list()
 # Run multivariate adaptive BYM model for each set of
 # diseases
-for (i in 1:15) {
+causes <- causes10
+for (i in 1:10) { #corresponds to the n in the line above
   # Selection of mortality causes
   causes.id <- causes[-c(i)]
   # Data
