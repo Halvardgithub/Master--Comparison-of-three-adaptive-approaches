@@ -212,22 +212,33 @@ library(readr)
 
 ExpectedCases <- readRDS("ExpectedCasesMiguel.rds")
 
-library(readr)
 library(tidyr)
 
 #Mortality data
-Mortality_df <- read.csv("Data//Mortality.csv", sep=";")
-Mortality_df2 <- read_csv2("Data//Mortality.csv")
+# Mortality_df <- read_csv2("Mortality.csv")
+# 
+# Mortality_df <- Mortality_df[, c(1, 3, 4)]
+# colnames <- colnames(Mortality_df)
+# 
+# df_wide <- Mortality_df %>%
+#   pivot_wider(names_from = colnames[1], values_from = colnames[3], values_fill = list(cases = NA))
+# df_wide <- df_wide[, -43] #remove a joint column
+# 
+# df_matrix <- as.matrix(df_wide[, -1]) #remove the province column
+# 
+# ObservedCases <- as.matrix(ExpectedCases) #made sure everything aligned, both rows and cols
+# 
+# ObservedCases[1:47, 1:102] <- df_matrix[1:47, 1:102]
+# 
+# saveRDS(ObservedCases, "ObservedCases.rds")
 
-Mortality_df <- Mortality_df[, c(1, 3, 4)]
-colnames <- colnames(Mortality_df)
-
-df_wide <- Mortality_df %>%
-  pivot_wider(names_from = colnames[1], values_from = colnames[3], values_fill = list(cases = NA))
-
+ObservedCases <- readRDS("ObservedCases.rds")
 #Population data
 Pop_data <- read_csv2("PopXProvincesXAge.csv")
+typeof(Pop_data)
+typeof(Mortality_df3)
 
+Pop_data[45, 1]
 
 
 ```
