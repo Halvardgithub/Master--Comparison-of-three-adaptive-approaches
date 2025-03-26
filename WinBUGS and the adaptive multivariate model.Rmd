@@ -16,14 +16,24 @@ library(R2WinBUGS)
 library(pbugs)
 
 library(readr)
+
+library(sf)
+library(spdep)
+library(dplyr)
 ```
 
 ### Loading data
 Load the data and spatial structures.
 ```{r}
 ExpectedCases <- readRDS("ExpectedCasesMiguel.rds")
-  
+ObservedCases <- readRDS("ObservedCases.rds")
+PopulationData <- readRDS("PopulationData.rds")
 
+shp_prov <- st_read("Data/Provinces/Provincias_ETRS89_30N.shp")
+colnames(shp_prov) <- c("Index", "ProvName", "ProvName1", "CCAA_Index", "CCAA_Name", "geometry")
+CCAA_to_remove <- c("Illes Balears", "Canarias", "Ceuta", "Melilla")
+shp_prov <- filter(shp_prov, !CCAA_Name %in% CCAA_to_remove)
+carto <- shp_prov
 
 #Spatial structure
 carto.nb <- poly2nb(carto) # Neighbours list of each geographic unit with class nb
@@ -32,11 +42,28 @@ carto.wb <- nb2WB(carto.nb) # List with the adjacency vector (carto.wb$adj) and
 index <- c(1, cumsum(carto.wb$num)) # Vector to identify the positions of the neighbors
 # of each geographic unit in the conditional distributions of spatial effects
 
-#Need to change causes, randomize from 1-102 and do not need sex I think
-causes <- c(1:2, 5, 7, 9:12, 15:21) # Studied mortality causes
+#Randomize disease from 1-102 and do not need sex I think, numbers are 10, 20 and 50
+get_causes <- function(n){
+  set.seed(12345)
+  subset <- sample(1:102, n, replace = FALSE) #there is a total of 102 diseases
+  return(sort(subset))
+}
+
+causes10 <- get_causes(10) #the indexes corresponding to 10 random diseases, if n=20 we keep the first 10 and get 10 new ones
+causes20 <- get_causes(20)
+causes50 <- get_causes(50)
 sex <- 1 # Mens
 
+exp10 <- ExpectedCases[, causes10]
+exp20 <- ExpectedCases[, causes20]
+exp50 <- ExpectedCases[, causes50]
+
+obs10 <- ObservedCases[, causes10]
+obs20 <- ObservedCases[, causes20]
+obs50 <- ObservedCases[, causes50]
+
 ```
+Note that "Tumor Maligno del cruello del utero" in exp10 are all zero, so should be removed from the original datasets."Tumores in suto" is also extremely low. "XV.Embarazo, parto y puerpeira" as well. There is also some for homocides and maybe also accidents and such. 
 
 ### Implement the multivariate adaptive model with WinBUGS
 

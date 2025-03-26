@@ -233,14 +233,21 @@ library(tidyr)
 # saveRDS(ObservedCases, "ObservedCases.rds")
 
 ObservedCases <- readRDS("ObservedCases.rds")
+
 #Population data
-Pop_data <- read_csv2("PopXProvincesXAge.csv")
-typeof(Pop_data)
-typeof(Mortality_df3)
+# Pop_data <- read_csv2("PopXProvincesXAge.csv")
+# 
+# colnames(Pop_data)
+# 
+# library(dplyr)
+# 
+# Pop_data_total <- Pop_data |>
+#   group_by(Provinces) |>  # Group by Provinces
+#   summarise(Total_Population = sum(Total, na.rm = TRUE))  # Sum Population column
+# 
+# saveRDS(Pop_data_total, "PopulationData.rds")
 
-Pop_data[45, 1]
-
-
+PopulationData <- readRDS("PopulationData.rds")
 ```
 
 
