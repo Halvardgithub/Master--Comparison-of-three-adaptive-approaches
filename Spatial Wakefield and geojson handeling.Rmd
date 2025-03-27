@@ -240,11 +240,13 @@ library(tidyr)
 # 
 # ObservedCases <- readRDS("ObservedCases.rds")
 # 
-# ExpectedCases <- readRDS("ExpectedCasesMiguel.rds")
+#ExpectedCases <- readRDS("ExpectedCasesMiguel.rds")
+#
+#ExpectedCases <- as.matrix(ExpectedCases)
 # 
 # ExpectedCases <- ExpectedCases[, -sparse_columns]
 # 
-# saveRDS(ExpectedCases, "ExpectedCasesMiguel.rds")
+#saveRDS(ExpectedCases, "ExpectedCasesMiguel.rds")
 
 #Population data
 # Pop_data <- read_csv2("PopXProvincesXAge.csv")

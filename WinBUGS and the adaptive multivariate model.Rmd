@@ -53,7 +53,6 @@ get_causes <- function(n){ #nDiseasesTot is defined further up
 causes10 <- get_causes(10) #the indexes corresponding to 10 random diseases, if n=20 we keep the first 10 and get 10 new ones
 causes20 <- get_causes(20)
 causes50 <- get_causes(50)
-sex <- 1 # Mens
 
 exp10 <- ExpectedCases[, causes10]
 exp20 <- ExpectedCases[, causes20]
@@ -136,19 +135,18 @@ results.AdaptiveBYM <- list()
 # Run multivariate adaptive BYM model for each set of
 # diseases
 causes <- causes10
-for (i in 1:10) { #corresponds to the n in the line above
+for (i in 1:length(causes)) { #corresponds to the n in the line above
   # Selection of mortality causes
   causes.id <- causes[-c(i)]
   # Data
-  data <- list(O = apply(Obs[, sex, , causes.id], c(2, 3), sum), 
-               E = apply(Exp[, sex, , causes.id], c(2, 3), sum),
-               Nareas = dim(Obs)[3], Ndiseases = length(causes.id),
+  data <- list(O = ObservedCases, E = ExpectedCases,
+               Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
                n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index)
   # Initial values
   initials <- function() {
     list(mu = rnorm(data$Ndiseases, 0, 1), sd.phi = runif(data$Ndiseases,0, 1), 
          sd.theta = runif(data$Ndiseases, 0, 1), 
-         phi = matrix(rnorm(data$Nareasdata$Ndiseases), nrow = data$Nareas, 
+         phi = matrix(rnorm(data$Nareas * data$Ndiseases), nrow = data$Nareas, 
                 ncol = data$Ndiseases),
          theta = matrix(rnorm(data$Nareas * data$Ndiseases),
                 nrow = data$Nareas, ncol = data$Ndiseases), 
@@ -157,7 +155,7 @@ for (i in 1:10) { #corresponds to the n in the line above
   # Variables to retrieve
   param <- c("mu", "lambda", "sd.phi", "phi", "sd.theta", "theta","SMR", "c", "sd.c", "tau")
   # Calls to WinBUGS
-  results.AdaptiveBYM[[i]] <- pbugs(data = data, inits = initials,
+  results.AdaptiveBYM[[i]] <- bugs(data = data, inits = initials,
                                     parameters.to.save = param, model = AdaptiveBYM_model,
                                     n.iter = 2e+05, n.burnin = 50000, n.chains = 3, DIC = F)
 }
@@ -167,6 +165,7 @@ write_csv(results.AdaptiveBYM, file = "Results/results.AdaptiveBYM-Miguel.csv")
 
 ```
 
+It gave an error called trap 66, which means it failed in WinBUGS I believe.
 
 
 
