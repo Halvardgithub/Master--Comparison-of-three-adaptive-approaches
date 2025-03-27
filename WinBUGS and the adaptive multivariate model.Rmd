@@ -16,6 +16,7 @@ library(R2WinBUGS)
 library(pbugs)
 
 library(readr)
+library(ggplot2)
 
 library(sf)
 library(spdep)
@@ -129,7 +130,7 @@ AdaptiveBYM_model <- function() {
 # Run the model
 Now we are ready to run the model in WinBUGS. We choose the mortality causes, either 10, 20 or 50 causes and run the multivariate model.
 
-```{r}
+```{r, echo=FALSE}
 runtime <- rep(0, 3)
 
 # 10 causes
@@ -222,15 +223,15 @@ runtime[3] <- t1 - t0
 # Comparing runtimes
 
 runtime
-```
 
-```{r}
 result_list <- list(results.AdaptiveBYM.10, results.AdaptiveBYM.20, results.AdaptiveBYM.50)
 saveRDS(result_list, file = "Results//result_list.rds")
 ```
 
 
 ```{r}
+res_list <- readRDS("Results//result_list.rds")
+
 ss_provinces = read_sf("Data/Provinces/Provincias_ETRS89_30N.shp")
 
 ss_ar = read_sf("Data/AutonomousRegions/Comunidades_Autonomas_ETRS89_30N.shp")
@@ -247,11 +248,29 @@ ss_provinces = ss_provinces |> filter(!(Texto %in% out))
 
 ss_ar = ss_ar %>% filter(!(Texto %in% out2))
 
+ss_provinces$color10 <- res_list[[1]]$mean$c
+ss_provinces$color20 <- res_list[[2]]$mean$c
+ss_provinces$color50 <- res_list[[3]]$mean$c
+
 #can change the fill=NA to add colours
 ggplot() +
   geom_sf(data = ss_ar, color="black") + #do not really need this line
-  geom_sf(data=ss_provinces, fill=NA, color="grey") +
-  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4)
+  geom_sf(data=ss_provinces, aes(fill=color10), color="grey") +
+  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
+  ggtitle("Weights c for n=10 causes")
+
+ggplot() +
+  geom_sf(data = ss_ar, color="black") + #do not really need this line
+  geom_sf(data=ss_provinces, aes(fill=color20), color="grey") +
+  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
+  ggtitle("Weights c for n=20 causes")
+
+ggplot() +
+  geom_sf(data = ss_ar, color="black") + #do not really need this line
+  geom_sf(data=ss_provinces, aes(fill=color50), color="grey") +
+  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
+  ggtitle("Weights c for n=50 causes")
+
 ```
 
 
