@@ -127,7 +127,137 @@ AdaptiveBYM_model <- function() {
 
 
 # Run the model
+Now we are ready to run the model in WinBUGS. We choose the mortality causes, either 10, 20 or 50 causes and run the multivariate model.
 
+```{r}
+runtime <- rep(0, 3)
+
+# 10 causes
+
+t0 <- Sys.time()
+
+causes.id <- causes10
+# Data
+data <- list(O = ObservedCases, E = ExpectedCases,
+             Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
+             n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index)
+# Initial values
+initials <- function() {
+  list(mu = rnorm(data$Ndiseases, 0, 1), sd.phi = runif(data$Ndiseases,0, 1), 
+       sd.theta = runif(data$Ndiseases, 0, 1), 
+       phi = matrix(rnorm(data$Nareas * data$Ndiseases), nrow = data$Nareas, 
+              ncol = data$Ndiseases),
+       theta = matrix(rnorm(data$Nareas * data$Ndiseases),
+              nrow = data$Nareas, ncol = data$Ndiseases), 
+       c = runif(data$Nareas,0.9, 1.1), sd.c = runif(1, 0.5, 0.6))
+}
+# Variables to retrieve
+param <- c("mu", "lambda", "sd.phi", "phi", "sd.theta", "theta","SMR", "c", "sd.c", "tau")
+# Calls to WinBUGS
+results.AdaptiveBYM.10 <- pbugs(data = data, inits = initials,
+                              parameters.to.save = param, model = AdaptiveBYM_model,
+                              n.iter = 5000, n.burnin = 2000, n.chains = 3, DIC = F,
+                              debug = F)
+t1 <- Sys.time()
+runtime[1] <- t1 - t0
+
+# 20 causes
+
+t0 <- Sys.time()
+
+causes.id <- causes20
+# Data
+data <- list(O = ObservedCases, E = ExpectedCases,
+             Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
+             n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index)
+# Initial values
+initials <- function() {
+  list(mu = rnorm(data$Ndiseases, 0, 1), sd.phi = runif(data$Ndiseases,0, 1), 
+       sd.theta = runif(data$Ndiseases, 0, 1), 
+       phi = matrix(rnorm(data$Nareas * data$Ndiseases), nrow = data$Nareas, 
+              ncol = data$Ndiseases),
+       theta = matrix(rnorm(data$Nareas * data$Ndiseases),
+              nrow = data$Nareas, ncol = data$Ndiseases), 
+       c = runif(data$Nareas,0.9, 1.1), sd.c = runif(1, 0.5, 0.6))
+}
+# Variables to retrieve
+param <- c("mu", "lambda", "sd.phi", "phi", "sd.theta", "theta","SMR", "c", "sd.c", "tau")
+# Calls to WinBUGS
+results.AdaptiveBYM.20 <- pbugs(data = data, inits = initials,
+                              parameters.to.save = param, model = AdaptiveBYM_model,
+                              n.iter = 5000, n.burnin = 2000, n.chains = 3, DIC = F,
+                              debug = F)
+t1 <- Sys.time()
+runtime[2] <- t1 - t0
+
+# 50 causes
+
+t0 <- Sys.time()
+
+causes.id <- causes50
+# Data
+data <- list(O = ObservedCases, E = ExpectedCases,
+             Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
+             n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index)
+# Initial values
+initials <- function() {
+  list(mu = rnorm(data$Ndiseases, 0, 1), sd.phi = runif(data$Ndiseases,0, 1), 
+       sd.theta = runif(data$Ndiseases, 0, 1), 
+       phi = matrix(rnorm(data$Nareas * data$Ndiseases), nrow = data$Nareas, 
+              ncol = data$Ndiseases),
+       theta = matrix(rnorm(data$Nareas * data$Ndiseases),
+              nrow = data$Nareas, ncol = data$Ndiseases), 
+       c = runif(data$Nareas,0.9, 1.1), sd.c = runif(1, 0.5, 0.6))
+}
+# Variables to retrieve
+param <- c("mu", "lambda", "sd.phi", "phi", "sd.theta", "theta","SMR", "c", "sd.c", "tau")
+# Calls to WinBUGS
+results.AdaptiveBYM.50 <- pbugs(data = data, inits = initials,
+                              parameters.to.save = param, model = AdaptiveBYM_model,
+                              n.iter = 5000, n.burnin = 2000, n.chains = 3, DIC = F,
+                              debug = F)
+t1 <- Sys.time()
+runtime[3] <- t1 - t0
+
+# Comparing runtimes
+
+runtime
+```
+
+```{r}
+result_list <- list(results.AdaptiveBYM.10, results.AdaptiveBYM.20, results.AdaptiveBYM.50)
+saveRDS(result_list, file = "Results//result_list.rds")
+```
+
+
+```{r}
+ss_provinces = read_sf("Data/Provinces/Provincias_ETRS89_30N.shp")
+
+ss_ar = read_sf("Data/AutonomousRegions/Comunidades_Autonomas_ETRS89_30N.shp")
+
+ggplot() + geom_sf(data = ss_provinces) + geom_sf(data = ss_ar)
+
+# we only work with mainland Spain, remove the islands
+
+out = c("Islas Baleares", "Las Palmas", "Santa Cruz de Tenerife", "Ceuta", "Melilla")
+
+out2 = c("Canarias", "Islas Baleares", "Ceuta", "Melilla")
+
+ss_provinces = ss_provinces |> filter(!(Texto %in% out))
+
+ss_ar = ss_ar %>% filter(!(Texto %in% out2))
+
+#can change the fill=NA to add colours
+ggplot() +
+  geom_sf(data = ss_ar, color="black") + #do not really need this line
+  geom_sf(data=ss_provinces, fill=NA, color="grey") +
+  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4)
+```
+
+
+
+
+## For leave one out cross-validation for the diseases and simulation of the weight matrix
 ```{r}
 # Object where the results for each set of diseases will be
 # saved
@@ -157,7 +287,8 @@ for (i in 1:length(causes)) { #corresponds to the n in the line above
   # Calls to WinBUGS
   results.AdaptiveBYM[[i]] <- bugs(data = data, inits = initials,
                                     parameters.to.save = param, model = AdaptiveBYM_model,
-                                    n.iter = 2e+05, n.burnin = 50000, n.chains = 3, DIC = F)
+                                    n.iter = 20, n.burnin = 10, n.chains = 3, DIC = F,
+                                   debug = F)
 }
 # Save results
 write_csv(results.AdaptiveBYM, file = "Results/results.AdaptiveBYM-Miguel.csv")
@@ -166,7 +297,6 @@ write_csv(results.AdaptiveBYM, file = "Results/results.AdaptiveBYM-Miguel.csv")
 ```
 
 It gave an error called trap 66, which means it failed in WinBUGS I believe.
-
 
 
 

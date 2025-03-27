@@ -246,7 +246,7 @@ library(tidyr)
 # 
 # ExpectedCases <- ExpectedCases[, -sparse_columns]
 # 
-#saveRDS(ExpectedCases, "ExpectedCasesMiguel.rds")
+# saveRDS(ExpectedCases, "ExpectedCasesMiguel.rds")
 
 #Population data
 # Pop_data <- read_csv2("PopXProvincesXAge.csv")
