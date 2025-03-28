@@ -54,14 +54,16 @@ get_causes <- function(n){ #nDiseasesTot is defined further up
 causes10 <- get_causes(10) #the indexes corresponding to 10 random diseases, if n=20 we keep the first 10 and get 10 new ones
 causes20 <- get_causes(20)
 causes50 <- get_causes(50)
+causes86 <- get_causes(86)
 
-exp10 <- ExpectedCases[, causes10]
-exp20 <- ExpectedCases[, causes20]
-exp50 <- ExpectedCases[, causes50]
 
-obs10 <- ObservedCases[, causes10]
-obs20 <- ObservedCases[, causes20]
-obs50 <- ObservedCases[, causes50]
+# exp10 <- ExpectedCases[, causes10]
+# exp20 <- ExpectedCases[, causes20]
+# exp50 <- ExpectedCases[, causes50]
+# 
+# obs10 <- ObservedCases[, causes10]
+# obs20 <- ObservedCases[, causes20]
+# obs50 <- ObservedCases[, causes50]
 
 ```
 Note that "Tumor Maligno del cruello del utero" in exp10 are all zero, so should be removed from the original datasets."Tumores in suto" is also extremely low. "XV.Embarazo, parto y puerpeira" as well. There is also some for homocides and maybe also accidents and such. 
@@ -157,7 +159,7 @@ param <- c("mu", "lambda", "sd.phi", "phi", "sd.theta", "theta","SMR", "c", "sd.
 # Calls to WinBUGS
 results.AdaptiveBYM.10 <- pbugs(data = data, inits = initials,
                               parameters.to.save = param, model = AdaptiveBYM_model,
-                              n.iter = 5000, n.burnin = 2000, n.chains = 3, DIC = F,
+                              n.iter = 10000, n.burnin = 5000, n.chains = 3, DIC = F,
                               debug = F)
 t1 <- Sys.time()
 runtime[1] <- t1 - t0
@@ -186,7 +188,7 @@ param <- c("mu", "lambda", "sd.phi", "phi", "sd.theta", "theta","SMR", "c", "sd.
 # Calls to WinBUGS
 results.AdaptiveBYM.20 <- pbugs(data = data, inits = initials,
                               parameters.to.save = param, model = AdaptiveBYM_model,
-                              n.iter = 5000, n.burnin = 2000, n.chains = 3, DIC = F,
+                              n.iter = 10000, n.burnin = 5000, n.chains = 3, DIC = F,
                               debug = F)
 t1 <- Sys.time()
 runtime[2] <- t1 - t0
@@ -215,22 +217,54 @@ param <- c("mu", "lambda", "sd.phi", "phi", "sd.theta", "theta","SMR", "c", "sd.
 # Calls to WinBUGS
 results.AdaptiveBYM.50 <- pbugs(data = data, inits = initials,
                               parameters.to.save = param, model = AdaptiveBYM_model,
-                              n.iter = 5000, n.burnin = 2000, n.chains = 3, DIC = F,
+                              n.iter = 25000, n.burnin = 10000, n.chains = 3, DIC = F,
                               debug = F)
 t1 <- Sys.time()
 runtime[3] <- t1 - t0
+
+
+# All 86 causes
+
+t0 <- Sys.time()
+
+causes.id <- causes86
+# Data
+data <- list(O = ObservedCases, E = ExpectedCases,
+             Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
+             n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index)
+# Initial values
+initials <- function() {
+  list(mu = rnorm(data$Ndiseases, 0, 1), sd.phi = runif(data$Ndiseases,0, 1), 
+       sd.theta = runif(data$Ndiseases, 0, 1), 
+       phi = matrix(rnorm(data$Nareas * data$Ndiseases), nrow = data$Nareas, 
+              ncol = data$Ndiseases),
+       theta = matrix(rnorm(data$Nareas * data$Ndiseases),
+              nrow = data$Nareas, ncol = data$Ndiseases), 
+       c = runif(data$Nareas,0.9, 1.1), sd.c = runif(1, 0.5, 0.6))
+}
+# Variables to retrieve
+param <- c("mu", "lambda", "sd.phi", "phi", "sd.theta", "theta","SMR", "c", "sd.c", "tau")
+# Calls to WinBUGS
+results.AdaptiveBYM.86 <- pbugs(data = data, inits = initials,
+                              parameters.to.save = param, model = AdaptiveBYM_model,
+                              n.iter = 30000, n.burnin = 10000, n.chains = 3, DIC = F,
+                              debug = F)
+t1 <- Sys.time()
+runtime[4] <- t1 - t0
+
 
 # Comparing runtimes
 
 runtime
 
-result_list <- list(results.AdaptiveBYM.10, results.AdaptiveBYM.20, results.AdaptiveBYM.50)
-saveRDS(result_list, file = "Results//result_list.rds")
+result_list <- list(results.AdaptiveBYM.10, results.AdaptiveBYM.20, results.AdaptiveBYM.50, 
+                    results.AdaptiveBYM.86)
+saveRDS(result_list, file = "Results//result_list_longer_chains.rds")
 ```
 
 
 ```{r}
-res_list <- readRDS("Results//result_list.rds")
+res_list <- readRDS("Results//result_list_longer_chains.rds")
 
 ss_provinces = read_sf("Data/Provinces/Provincias_ETRS89_30N.shp")
 
@@ -251,6 +285,7 @@ ss_ar = ss_ar %>% filter(!(Texto %in% out2))
 ss_provinces$color10 <- res_list[[1]]$mean$c
 ss_provinces$color20 <- res_list[[2]]$mean$c
 ss_provinces$color50 <- res_list[[3]]$mean$c
+ss_provinces$color86 <- res_list[[4]]$mean$c
 
 #can change the fill=NA to add colours
 ggplot() +
@@ -271,6 +306,36 @@ ggplot() +
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
   ggtitle("Weights c for n=50 causes")
 
+ggplot() +
+  geom_sf(data = ss_ar, color="black") + #do not really need this line
+  geom_sf(data=ss_provinces, aes(fill=color86), color="grey") +
+  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
+  ggtitle("Weights c for all n=86 causes")
+
+```
+
+Assessing convergence and other properties of the MCMC simulations.
+```{r}
+#check the Rhat's for convergence, should be less than 1.1 for all parameters
+range(res_list[[1]]$summary[, "Rhat"])
+range(res_list[[2]]$summary[, "Rhat"])
+range(res_list[[3]]$summary[, "Rhat"])
+range(res_list[[4]]$summary[, "Rhat"])
+
+#Which(if any) are greater than 1.1
+which(res_list[[1]]$summary[, "Rhat"] > 1.1)
+which(res_list[[2]]$summary[, "Rhat"] > 1.1)
+which(res_list[[3]]$summary[, "Rhat"] > 1.1)
+which(res_list[[4]]$summary[, "Rhat"] > 1.1)
+
+#Check the parameter tau for the weights c with prior Gamma(tau, tau)
+res_list[[1]]$summary["tau",]
+res_list[[2]]$summary["tau",]
+res_list[[3]]$summary["tau",]
+res_list[[4]]$summary["tau",]
+
+#Correlation between the weights c for differing number of causes n
+cor(cbind(ss_provinces$color10, ss_provinces$color20, ss_provinces$color50, ss_provinces$color86))
 ```
 
 
@@ -318,7 +383,70 @@ write_csv(results.AdaptiveBYM, file = "Results/results.AdaptiveBYM-Miguel.csv")
 It gave an error called trap 66, which means it failed in WinBUGS I believe.
 
 
+Meeting at wednesday 9.15
+and monday at 11:00.
 
+
+
+# The more flexible adaptive multivariate model by Riddervoll/Jo
+This model instead uses an adaptive ICAR with an individual precision tau for each pair of neighbors i ~ j. Thus, the number of precision parameters equals the number of edges in the graph, or |E| compared to the number of regions in the model above by Miguel. All the precision have the same gamma prior, in their article with scaled data they used Gamma(1.0, 1.2) with a shape and scale parametrization.
+
+```{r}
+# Multivariate adaptive BYM model, WinBUGS code
+NSRW1_model <- function() {
+  # Likelihood
+  for (i in 1:Nareas) {
+    for (j in 1:Ndiseases) {
+      O[i, j] ~ dpois(lambda[i, j])
+      # Modeling of the mean for each census tract and disease
+      log(lambda[i, j]) <- log(E[i, j]) + mu[j] + phi[i,j] + sd.theta[j] * theta[i, j]
+      # SMR for each census tract and disease
+      SMR[i, j] <- exp(mu[j] + phi[i, j] + sd.theta[j] * theta[i, j])
+      # Prior distribution for spatial effects
+      phi[i, j] ~ dnorm(mean.phi[i, j], prec.phi[i, j])
+      # Prior distribution for non-spatial effects
+      theta[i, j] ~ dnorm(0, 1)
+    }
+  }
+  for (i in 1:n.adj) {
+    sqrt.c.adj[i] <- sqrt(c[adj[i]])
+    for (j in 1:Ndiseases) {
+      phi.adj[i, j] <- phi[adj[i], j]
+    }
+  }
+  # Precision of the conditional distribution of spatial effects
+  for (j in 1:Ndiseases) {
+    prec.phi[1, j] <- pow(sd.phi[j], -2) * sqrt(c[1]) * sum(sqrt.c.adj[index[1]:index[2]])
+    for (i in 2:Nareas) {
+      prec.phi[i, j] <- pow(sd.phi[j], -2) * sqrt(c[i]) * sum(sqrt.c.adj[(index[i] + 1):index[i + 1]]) #the +1 is to correct the indexes, works as all regions have at least one neighbour
+    } 
+  } 
+  # Mean of the conditional distribution of spatial effects
+  for (j in 1:Ndiseases) {
+    mean.phi[1, j] <- inprod2(sqrt.c.adj[index[1]:index[2]],
+      phi.adj[index[1]:index[2], j])/sum(sqrt.c.adj[index[1]:index[2]])
+    for (i in 2:Nareas) {
+      mean.phi[i, j] <- inprod2(sqrt.c.adj[(index[i] + 1):index[i + 1]], phi.adj[(index[i] + 1):index[i + 1], j])/sum(sqrt.c.adj[(index[i] + 1):index[i +1]])
+    }
+    # Sum-to-zero restriction for spatial effects
+    ceros[j] <- 0
+    ceros[j] ~ dnorm(sum.phi[j], 10)
+    sum.phi[j] <- sum(phi[, j])
+  }
+  # Prior distributions for c
+  for (i in 1:Nareas) {
+    c[i] ~ dgamma(tau, tau) %_% I(0.001, ) # %_% 0.001 ensures c[i] is above 0.001
+  }
+  tau <- pow(sd.c, -2)
+  sd.c ~ dunif(0, 5)
+  # Other prior distributions
+  for (j in 1:Ndiseases) {
+    sd.phi[j] ~ dunif(0, 5)
+    sd.theta[j] ~ dunif(0, 5)
+    mu[j] ~ dflat()
+  }
+}
+```
 
 
 
