@@ -392,6 +392,64 @@ and monday at 11:00.
 This model instead uses an adaptive ICAR with an individual precision tau for each pair of neighbors i ~ j. Thus, the number of precision parameters equals the number of edges in the graph, or |E| compared to the number of regions in the model above by Miguel. All the precision have the same gamma prior, in their article with scaled data they used Gamma(1.0, 1.2) with a shape and scale parametrization.
 
 ```{r}
+
+#before the WinBUGS code
+my_list <- vector("list", 47)
+for (i in 1:47) {
+  my_list[[i]] <- list()  # Initialize each element as an empty list
+}
+
+count_num <- 1
+
+#for i = 1
+for (j in (index[1]):index[2]){
+  my_list[[1]] <- my_list[[1]].append(count_num)
+  my_list[[j]] <- my_list[[j]].append(count_num)
+  count_num <- count_num + 1
+}
+
+# for i > 1
+for (i in 2:47){ #the number of regions
+  for (j in (index[i]+1):index[i+1]){
+    if (j>i){
+      my_list[[i]] <- my_list[[i]].append(count_num)
+      my_list[[j]] <- my_list[[j]].append(count_num)
+      count_num <- count_num + 1
+    }
+  }
+} 
+
+#in the WinBUGS code
+Tau2 <- rep(0, n.adj/2) #the number of edges, or neighbours divided by 2
+for (i in length(Tau2)){
+  Tau2[i] ~ dgamma(1, 1.2) #or something like that, could also have hyperparameters and priors
+}
+
+# Precision of the conditional distribution of spatial effects
+for (j in 1:Ndiseases) {
+    for (i in 1:Nareas) {
+      prec.phi[i, j] <- sum(Tau2[my_list[[i]]])
+    }
+}
+
+# Mean of the conditional distribution of spatial effects
+  for (j in 1:Ndiseases) {
+    mean.phi[1, j] <- inprod2(Tau2[my_list[[1]]],
+      phi.adj[index[1]:index[2], j])/sum(Tau2[my_list[[1]]])
+    for (i in 2:Nareas) {
+      mean.phi[i, j] <- inprod2(Tau2[my_list[[i]]], phi.adj[(index[i] + 1):index[i + 1], j])/sum(Tau2[my_list[[1]]])
+    }
+  }
+
+#Alternatively I make the list my_list outside the WinBUGS part and instead add indexes that
+# correspond to a position in the Tau2 vector in the WinBUGS code. That should work, and to 
+# find the taus for a specific region i i get the indexes from my_list as inputs to Tau2.
+# They will also be in increasing numbering for each i, which aligns with the other vars.
+```
+
+
+
+```{r}
 # Multivariate adaptive BYM model, WinBUGS code
 NSRW1_model <- function() {
   # Likelihood
@@ -408,37 +466,27 @@ NSRW1_model <- function() {
       theta[i, j] ~ dnorm(0, 1)
     }
   }
-  for (i in 1:n.adj) {
-    sqrt.c.adj[i] <- sqrt(c[adj[i]])
-    for (j in 1:Ndiseases) {
-      phi.adj[i, j] <- phi[adj[i], j]
-    }
-  }
-  # Precision of the conditional distribution of spatial effects
+
   for (j in 1:Ndiseases) {
-    prec.phi[1, j] <- pow(sd.phi[j], -2) * sqrt(c[1]) * sum(sqrt.c.adj[index[1]:index[2]])
-    for (i in 2:Nareas) {
-      prec.phi[i, j] <- pow(sd.phi[j], -2) * sqrt(c[i]) * sum(sqrt.c.adj[(index[i] + 1):index[i + 1]]) #the +1 is to correct the indexes, works as all regions have at least one neighbour
-    } 
-  } 
+      for (i in 1:Nareas) {
+        prec.phi[i, j] <- sum(Tau2[my_list[[i]]])
+      }
+  }
+
   # Mean of the conditional distribution of spatial effects
   for (j in 1:Ndiseases) {
-    mean.phi[1, j] <- inprod2(sqrt.c.adj[index[1]:index[2]],
-      phi.adj[index[1]:index[2], j])/sum(sqrt.c.adj[index[1]:index[2]])
+    mean.phi[1, j] <- inprod2(Tau2[my_list[[1]]],
+      phi.adj[index[1]:index[2], j])/sum(Tau2[my_list[[1]]])
     for (i in 2:Nareas) {
-      mean.phi[i, j] <- inprod2(sqrt.c.adj[(index[i] + 1):index[i + 1]], phi.adj[(index[i] + 1):index[i + 1], j])/sum(sqrt.c.adj[(index[i] + 1):index[i +1]])
+      mean.phi[i, j] <- inprod2(Tau2[my_list[[i]]], phi.adj[(index[i] + 1):index[i + 1], j])/sum(Tau2[my_list[[1]]])
     }
     # Sum-to-zero restriction for spatial effects
     ceros[j] <- 0
     ceros[j] ~ dnorm(sum.phi[j], 10)
     sum.phi[j] <- sum(phi[, j])
   }
-  # Prior distributions for c
-  for (i in 1:Nareas) {
-    c[i] ~ dgamma(tau, tau) %_% I(0.001, ) # %_% 0.001 ensures c[i] is above 0.001
-  }
-  tau <- pow(sd.c, -2)
-  sd.c ~ dunif(0, 5)
+  #Added stuff for the precisions Tau for all the pairs of neighbors
+  
   # Other prior distributions
   for (j in 1:Ndiseases) {
     sd.phi[j] ~ dunif(0, 5)
@@ -448,6 +496,7 @@ NSRW1_model <- function() {
 }
 ```
 
-
+NB:
+Was the national mortality data subtracted by the provinces we removed when calculating the expected cases?
 
 
