@@ -132,8 +132,8 @@ AdaptiveBYM_model <- function() {
 # Run the model
 Now we are ready to run the model in WinBUGS. We choose the mortality causes, either 10, 20 or 50 causes and run the multivariate model.
 
-```{r, echo=FALSE}
-runtime <- rep(0, 3)
+```{r, eval=TRUE}
+runtime_ABYM <- rep(0, 4)
 
 # 10 causes
 
@@ -162,7 +162,7 @@ results.AdaptiveBYM.10 <- pbugs(data = data, inits = initials,
                               n.iter = 10000, n.burnin = 5000, n.chains = 3, DIC = F,
                               debug = F)
 t1 <- Sys.time()
-runtime[1] <- t1 - t0
+runtime_ABYM[1] <- t1 - t0
 
 # 20 causes
 
@@ -173,25 +173,14 @@ causes.id <- causes20
 data <- list(O = ObservedCases, E = ExpectedCases,
              Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
              n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index)
-# Initial values
-initials <- function() {
-  list(mu = rnorm(data$Ndiseases, 0, 1), sd.phi = runif(data$Ndiseases,0, 1), 
-       sd.theta = runif(data$Ndiseases, 0, 1), 
-       phi = matrix(rnorm(data$Nareas * data$Ndiseases), nrow = data$Nareas, 
-              ncol = data$Ndiseases),
-       theta = matrix(rnorm(data$Nareas * data$Ndiseases),
-              nrow = data$Nareas, ncol = data$Ndiseases), 
-       c = runif(data$Nareas,0.9, 1.1), sd.c = runif(1, 0.5, 0.6))
-}
-# Variables to retrieve
-param <- c("mu", "lambda", "sd.phi", "phi", "sd.theta", "theta","SMR", "c", "sd.c", "tau")
+
 # Calls to WinBUGS
 results.AdaptiveBYM.20 <- pbugs(data = data, inits = initials,
                               parameters.to.save = param, model = AdaptiveBYM_model,
                               n.iter = 10000, n.burnin = 5000, n.chains = 3, DIC = F,
                               debug = F)
 t1 <- Sys.time()
-runtime[2] <- t1 - t0
+runtime_ABYM[2] <- t1 - t0
 
 # 50 causes
 
@@ -202,26 +191,14 @@ causes.id <- causes50
 data <- list(O = ObservedCases, E = ExpectedCases,
              Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
              n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index)
-# Initial values
-initials <- function() {
-  list(mu = rnorm(data$Ndiseases, 0, 1), sd.phi = runif(data$Ndiseases,0, 1), 
-       sd.theta = runif(data$Ndiseases, 0, 1), 
-       phi = matrix(rnorm(data$Nareas * data$Ndiseases), nrow = data$Nareas, 
-              ncol = data$Ndiseases),
-       theta = matrix(rnorm(data$Nareas * data$Ndiseases),
-              nrow = data$Nareas, ncol = data$Ndiseases), 
-       c = runif(data$Nareas,0.9, 1.1), sd.c = runif(1, 0.5, 0.6))
-}
-# Variables to retrieve
-param <- c("mu", "lambda", "sd.phi", "phi", "sd.theta", "theta","SMR", "c", "sd.c", "tau")
+
 # Calls to WinBUGS
 results.AdaptiveBYM.50 <- pbugs(data = data, inits = initials,
                               parameters.to.save = param, model = AdaptiveBYM_model,
                               n.iter = 25000, n.burnin = 10000, n.chains = 3, DIC = F,
                               debug = F)
 t1 <- Sys.time()
-runtime[3] <- t1 - t0
-
+runtime_ABYM[3] <- t1 - t0
 
 # All 86 causes
 
@@ -232,35 +209,29 @@ causes.id <- causes86
 data <- list(O = ObservedCases, E = ExpectedCases,
              Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
              n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index)
-# Initial values
-initials <- function() {
-  list(mu = rnorm(data$Ndiseases, 0, 1), sd.phi = runif(data$Ndiseases,0, 1), 
-       sd.theta = runif(data$Ndiseases, 0, 1), 
-       phi = matrix(rnorm(data$Nareas * data$Ndiseases), nrow = data$Nareas, 
-              ncol = data$Ndiseases),
-       theta = matrix(rnorm(data$Nareas * data$Ndiseases),
-              nrow = data$Nareas, ncol = data$Ndiseases), 
-       c = runif(data$Nareas,0.9, 1.1), sd.c = runif(1, 0.5, 0.6))
-}
-# Variables to retrieve
-param <- c("mu", "lambda", "sd.phi", "phi", "sd.theta", "theta","SMR", "c", "sd.c", "tau")
+
 # Calls to WinBUGS
 results.AdaptiveBYM.86 <- pbugs(data = data, inits = initials,
                               parameters.to.save = param, model = AdaptiveBYM_model,
                               n.iter = 30000, n.burnin = 10000, n.chains = 3, DIC = F,
                               debug = F)
 t1 <- Sys.time()
-runtime[4] <- t1 - t0
-
+runtime_ABYM[4] <- t1 - t0
 
 # Comparing runtimes
 
-runtime
+runtime_ABYM
 
-result_list <- list(results.AdaptiveBYM.10, results.AdaptiveBYM.20, results.AdaptiveBYM.50, 
-                    results.AdaptiveBYM.86)
-saveRDS(result_list, file = "Results//result_list_longer_chains.rds")
+result_list_ABYM <- list(results.AdaptiveBYM.10, results.AdaptiveBYM.20, 
+                         results.AdaptiveBYM.50, results.AdaptiveBYM.86)
+saveRDS(result_list_ABYM, file = "Results//result_list_longer_chains.rds")
 ```
+
+Runtimes: 
+10 casues takes 10 min
+20 causes takes 20 min
+50 causes takes 1h 30 min
+86 causes takes 5h 30 min
 
 
 ```{r}
@@ -396,50 +367,56 @@ This model instead uses an adaptive ICAR with an individual precision tau for ea
 #before the WinBUGS code
 my_list <- vector("list", 47)
 for (i in 1:47) {
-  my_list[[i]] <- list()  # Initialize each element as an empty list
+  my_list[i] <- rep(0, carto.wb$num[i])  # Initialize each element as an empty list
 }
 
 count_num <- 1
 
 #for i = 1
 for (j in (index[1]):index[2]){
-  my_list[[1]] <- my_list[[1]].append(count_num)
-  my_list[[j]] <- my_list[[j]].append(count_num)
+  my_list[[1]] <- append(my_list[[1]], count_num)
+  my_list[[carto.wb$adj[j]]] <- append(my_list[[carto.wb$adj[j]]], count_num)
   count_num <- count_num + 1
 }
 
 # for i > 1
 for (i in 2:47){ #the number of regions
   for (j in (index[i]+1):index[i+1]){
-    if (j>i){
-      my_list[[i]] <- my_list[[i]].append(count_num)
-      my_list[[j]] <- my_list[[j]].append(count_num)
+    if (carto.wb$adj[j]>i){
+      my_list[[i]] <- append(my_list[[i]], count_num)
+      my_list[[carto.wb$adj[j]]] <- append(my_list[[carto.wb$adj[j]]], count_num)
       count_num <- count_num + 1
     }
   }
 } 
 
+my_list <- unlist(my_list, use.names = FALSE)
+
+my_list <- as.integer(my_list[which(my_list != 0)])
+
+#length(carto.wb$adj)
+
 #in the WinBUGS code
-Tau2 <- rep(0, n.adj/2) #the number of edges, or neighbours divided by 2
-for (i in length(Tau2)){
-  Tau2[i] ~ dgamma(1, 1.2) #or something like that, could also have hyperparameters and priors
-}
+# Tau2 <- rep(0, n.adj/2) #the number of edges, or neighbours divided by 2
+# for (i in length(Tau2)){
+#   Tau2[i] ~ dgamma(1, 1.2) #or something like that, could also have hyperparameters and priors
+# }
 
-# Precision of the conditional distribution of spatial effects
-for (j in 1:Ndiseases) {
-    for (i in 1:Nareas) {
-      prec.phi[i, j] <- sum(Tau2[my_list[[i]]])
-    }
-}
-
-# Mean of the conditional distribution of spatial effects
-  for (j in 1:Ndiseases) {
-    mean.phi[1, j] <- inprod2(Tau2[my_list[[1]]],
-      phi.adj[index[1]:index[2], j])/sum(Tau2[my_list[[1]]])
-    for (i in 2:Nareas) {
-      mean.phi[i, j] <- inprod2(Tau2[my_list[[i]]], phi.adj[(index[i] + 1):index[i + 1], j])/sum(Tau2[my_list[[1]]])
-    }
-  }
+# # Precision of the conditional distribution of spatial effects
+# for (j in 1:Ndiseases) {
+#     for (i in 1:Nareas) {
+#       prec.phi[i, j] <- sum(Tau2[my_list[[i]]])
+#     }
+# }
+# 
+# # Mean of the conditional distribution of spatial effects
+#   for (j in 1:Ndiseases) {
+#     mean.phi[1, j] <- inprod2(Tau2[my_list[[1]]],
+#       phi.adj[index[1]:index[2], j])/sum(Tau2[my_list[[1]]])
+#     for (i in 2:Nareas) {
+#       mean.phi[i, j] <- inprod2(Tau2[my_list[[i]]], phi.adj[(index[i] + 1):index[i + 1], j])/sum(Tau2[my_list[[1]]])
+#     }
+#   }
 
 #Alternatively I make the list my_list outside the WinBUGS part and instead add indexes that
 # correspond to a position in the Tau2 vector in the WinBUGS code. That should work, and to 
@@ -468,17 +445,18 @@ NSRW1_model <- function() {
   }
 
   for (j in 1:Ndiseases) {
-      for (i in 1:Nareas) {
-        prec.phi[i, j] <- sum(Tau2[my_list[[i]]])
-      }
+     prec.phi[1, j] <- sum(Tau2[tau.list[index[1]:index[2]]])
+     for (i in 2:Nareas) {
+       prec.phi[i, j] <- sum(Tau2[tau.list[(index[i]+1):index[i+1]]])
+     }
   }
 
   # Mean of the conditional distribution of spatial effects
   for (j in 1:Ndiseases) {
-    mean.phi[1, j] <- inprod2(Tau2[my_list[[1]]],
-      phi.adj[index[1]:index[2], j])/sum(Tau2[my_list[[1]]])
+      mean.phi[1, j] <- inprod2(Tau2[tau.list[index[1]:index[2]]],
+      phi.adj[index[1]:index[2], j])/sum(Tau2[tau.list[index[1]:index[2]]])
     for (i in 2:Nareas) {
-      mean.phi[i, j] <- inprod2(Tau2[my_list[[i]]], phi.adj[(index[i] + 1):index[i + 1], j])/sum(Tau2[my_list[[1]]])
+      mean.phi[i, j] <- inprod2(Tau2[tau.list[(index[i]+1):index[i+1]]], phi.adj[(index[i] + 1):index[i + 1], j])/sum(Tau2[tau.list[(index[i]+1):index[i+1]]])
     }
     # Sum-to-zero restriction for spatial effects
     ceros[j] <- 0
@@ -486,7 +464,10 @@ NSRW1_model <- function() {
     sum.phi[j] <- sum(phi[, j])
   }
   #Added stuff for the precisions Tau for all the pairs of neighbors
-  
+  #Tau2 <- rep(1, n.adj/2) #the number of edges, or neighbours divided by 2
+  for (t in 1:length(Tau2)){
+    Tau2[t] ~ dgamma(1, 1.2) #or something like that, could also have hyperparameters and priors
+  }
   # Other prior distributions
   for (j in 1:Ndiseases) {
     sd.phi[j] ~ dunif(0, 5)
@@ -495,6 +476,104 @@ NSRW1_model <- function() {
   }
 }
 ```
+
+```{r}
+runtime_NSRW1 <- rep(0, 4)
+
+# 10 causes
+
+t0 <- Sys.time()
+
+causes.id <- causes10
+# Data
+data <- list(O = ObservedCases, E = ExpectedCases,
+             Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
+             n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index, tau.list = my_list)
+# Initial values
+initials_NSRW1 <- function() {
+  list(mu = rnorm(data$Ndiseases, 0, 1), sd.phi = runif(data$Ndiseases,0, 1), 
+       sd.theta = runif(data$Ndiseases, 0, 1), 
+       phi = matrix(rnorm(data$Nareas * data$Ndiseases), nrow = data$Nareas, 
+              ncol = data$Ndiseases),
+       theta = matrix(rnorm(data$Nareas * data$Ndiseases),
+              nrow = data$Nareas, ncol = data$Ndiseases), 
+       Tau2 = runif(data$n.adj/2, 0.5, 3))
+}
+
+# Variables to retrieve
+param_NSRW1 <- c("mu", "lambda", "sd.phi", "phi", "sd.theta", "theta","SMR", "Tau2")
+# Calls to WinBUGS
+results.NSRW1.10 <- pbugs(data = data, inits = initials_NSRW1,
+                              parameters.to.save = param_NSRW1, model = NSRW1_model,
+                              n.iter = 10000, n.burnin = 5000, n.chains = 3, DIC = F,
+                              debug = F)
+t1 <- Sys.time()
+runtime_NSRW1[1] <- t1 - t0
+
+# 20 causes
+
+t0 <- Sys.time()
+
+causes.id <- causes20
+# Data
+data <- list(O = ObservedCases, E = ExpectedCases,
+             Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
+             n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index)
+
+# Calls to WinBUGS
+results.NSRW1.20 <- pbugs(data = data, inits = initials_NSRW1,
+                              parameters.to.save = param_NSRW1, model = NSRW1_model,
+                              n.iter = 10000, n.burnin = 5000, n.chains = 3, DIC = F,
+                              debug = F)
+t1 <- Sys.time()
+runtime_NSRW1[2] <- t1 - t0
+
+# 50 causes
+
+t0 <- Sys.time()
+
+causes.id <- causes50
+# Data
+data <- list(O = ObservedCases, E = ExpectedCases,
+             Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
+             n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index)
+
+# Calls to WinBUGS
+results.NSRW1.50 <- pbugs(data = data, inits = initials_NSRW1,
+                              parameters.to.save = param_NSRW1, model = NSRW1_model,
+                              n.iter = 25000, n.burnin = 10000, n.chains = 3, DIC = F,
+                              debug = F)
+t1 <- Sys.time()
+runtime_NSRW1[3] <- t1 - t0
+
+# All 86 causes
+
+t0 <- Sys.time()
+
+causes.id <- causes86
+# Data
+data <- list(O = ObservedCases, E = ExpectedCases,
+             Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
+             n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index)
+
+# Calls to WinBUGS
+results.NSRW1.86 <- pbugs(data = data, inits = initials_NSRW1,
+                              parameters.to.save = param_NSRW1, model = NSRW1_model,
+                              n.iter = 30000, n.burnin = 10000, n.chains = 3, DIC = F,
+                              debug = F)
+t1 <- Sys.time()
+runtime_NSRW1[4] <- t1 - t0
+
+
+# Comparing runtimes
+
+runtime_NSRW1
+
+result_list_NSRW1 <- list(results.NSRW1.10, results.NSRW1.20, results.NSRW1.50, 
+                    results.NSRW1.86)
+saveRDS(result_list_NSRW1, file = "Results//result_list_NSRW1.rds")
+```
+
 
 NB:
 Was the national mortality data subtracted by the provinces we removed when calculating the expected cases?
