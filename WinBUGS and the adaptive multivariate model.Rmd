@@ -443,20 +443,30 @@ NSRW1_model <- function() {
       theta[i, j] ~ dnorm(0, 1)
     }
   }
+  
+  for (i in 1:n.adj) {
+    for (j in 1:Ndiseases) {
+      phi.adj[i, j] <- phi[adj[i], j]
+    }
+  }
 
   for (j in 1:Ndiseases) {
-     prec.phi[1, j] <- sum(Tau2[tau.list[index[1]:index[2]]])
+     prec.phi[1, j] <- sum(Tau2.tau.list[index[1]:index[2]])
      for (i in 2:Nareas) {
-       prec.phi[i, j] <- sum(Tau2[tau.list[(index[i]+1):index[i+1]]])
+       prec.phi[i, j] <- sum(Tau2.tau.list[(index[i]+1):index[i+1]])
      }
   }
+  for(i in 1:n.adj){ #to avoid nesting to many lists inside each other, causes crashes
+    Tau2.tau.list[i]<-Tau2[tau.list[i]]
+  }  
+  
 
   # Mean of the conditional distribution of spatial effects
   for (j in 1:Ndiseases) {
-      mean.phi[1, j] <- inprod2(Tau2[tau.list[index[1]:index[2]]],
-      phi.adj[index[1]:index[2], j])/sum(Tau2[tau.list[index[1]:index[2]]])
+      mean.phi[1, j] <- inprod2(Tau2.tau.list[index[1]:index[2]],
+      phi.adj[index[1]:index[2], j])/sum(Tau2.tau.list[index[1]:index[2]])
     for (i in 2:Nareas) {
-      mean.phi[i, j] <- inprod2(Tau2[tau.list[(index[i]+1):index[i+1]]], phi.adj[(index[i] + 1):index[i + 1], j])/sum(Tau2[tau.list[(index[i]+1):index[i+1]]])
+      mean.phi[i, j] <- inprod2(Tau2.tau.list[(index[i]+1):index[i+1]], phi.adj[(index[i] + 1):index[i + 1], j])/sum(Tau2.tau.list[(index[i]+1):index[i+1]])
     }
     # Sum-to-zero restriction for spatial effects
     ceros[j] <- 0
@@ -465,9 +475,13 @@ NSRW1_model <- function() {
   }
   #Added stuff for the precisions Tau for all the pairs of neighbors
   #Tau2 <- rep(1, n.adj/2) #the number of edges, or neighbours divided by 2
-  for (t in 1:length(Tau2)){
-    Tau2[t] ~ dgamma(1, 1.2) #or something like that, could also have hyperparameters and priors
+  for (t in 1:111){
+    Tau2[t] ~ dgamma(alpha, alpha) %_% I(0.001, ) #or something like that, could also have hyperparameters and priors
   }
+  # Prior distributions for 
+  alpha <- pow(sd.alpha, -2)
+  sd.alpha ~ dunif(0, 5)
+  
   # Other prior distributions
   for (j in 1:Ndiseases) {
     sd.phi[j] ~ dunif(0, 5)
@@ -480,6 +494,7 @@ NSRW1_model <- function() {
 ```{r}
 runtime_NSRW1 <- rep(0, 4)
 
+my_list[210:213]
 # 10 causes
 
 t0 <- Sys.time()
@@ -488,7 +503,8 @@ causes.id <- causes10
 # Data
 data <- list(O = ObservedCases, E = ExpectedCases,
              Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
-             n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index, tau.list = my_list)
+             n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index, 
+             tau.list = my_list)
 # Initial values
 initials_NSRW1 <- function() {
   list(mu = rnorm(data$Ndiseases, 0, 1), sd.phi = runif(data$Ndiseases,0, 1), 
@@ -501,12 +517,12 @@ initials_NSRW1 <- function() {
 }
 
 # Variables to retrieve
-param_NSRW1 <- c("mu", "lambda", "sd.phi", "phi", "sd.theta", "theta","SMR", "Tau2")
+param_NSRW1 <- c("mu", "lambda", "sd.phi", "phi", "sd.theta", "theta","SMR", "Tau2", "sd.alpha", "alpha")
 # Calls to WinBUGS
 results.NSRW1.10 <- pbugs(data = data, inits = initials_NSRW1,
                               parameters.to.save = param_NSRW1, model = NSRW1_model,
                               n.iter = 10000, n.burnin = 5000, n.chains = 3, DIC = F,
-                              debug = F)
+                              debug = T)
 t1 <- Sys.time()
 runtime_NSRW1[1] <- t1 - t0
 
