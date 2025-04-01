@@ -55,16 +55,6 @@ causes10 <- get_causes(10) #the indexes corresponding to 10 random diseases, if 
 causes20 <- get_causes(20)
 causes50 <- get_causes(50)
 causes86 <- get_causes(86)
-
-
-# exp10 <- ExpectedCases[, causes10]
-# exp20 <- ExpectedCases[, causes20]
-# exp50 <- ExpectedCases[, causes50]
-# 
-# obs10 <- ObservedCases[, causes10]
-# obs20 <- ObservedCases[, causes20]
-# obs50 <- ObservedCases[, causes50]
-
 ```
 Note that "Tumor Maligno del cruello del utero" in exp10 are all zero, so should be removed from the original datasets."Tumores in suto" is also extremely low. "XV.Embarazo, parto y puerpeira" as well. There is also some for homocides and maybe also accidents and such. 
 
@@ -218,7 +208,7 @@ results.AdaptiveBYM.86 <- pbugs(data = data, inits = initials,
 t1 <- Sys.time()
 runtime_ABYM[4] <- t1 - t0
 
-# Comparing runtimes
+# Comparing runtimes and writing to file
 
 runtime_ABYM
 
@@ -227,7 +217,7 @@ result_list_ABYM <- list(results.AdaptiveBYM.10, results.AdaptiveBYM.20,
 saveRDS(result_list_ABYM, file = "Results//result_list_longer_chains.rds")
 ```
 
-Runtimes: 
+Runtimes for Miguels model in WinBUGS(cirka): 
 10 casues takes 10 min
 20 causes takes 20 min
 50 causes takes 1h 30 min
@@ -311,6 +301,312 @@ cor(cbind(ss_provinces$color10, ss_provinces$color20, ss_provinces$color50, ss_p
 
 
 
+Meeting at wednesday 9.15
+and monday the following week at 11:00.
+
+
+# The more flexible adaptive multivariate model by Riddervoll/Jo
+This model instead uses an adaptive ICAR with an individual precision tau for each pair of neighbors i ~ j. Thus, the number of precision parameters equals the number of edges in the graph, or |E| compared to the number of regions in the model above by Miguel. All the precision have the same gamma prior, in their article with scaled data they used Gamma(1.0, 1.2) with a shape and scale parametrization.
+
+```{r}
+#before the WinBUGS code
+my_list <- vector("list", 47)
+for (i in 1:47) {
+  my_list[i] <- rep(0, carto.wb$num[i])  # Initialize each element as an empty list
+}
+
+count_num <- 1
+
+#for i = 1
+for (j in (index[1]):index[2]){
+  my_list[[1]] <- append(my_list[[1]], count_num)
+  my_list[[carto.wb$adj[j]]] <- append(my_list[[carto.wb$adj[j]]], count_num)
+  count_num <- count_num + 1
+}
+
+# for i > 1
+for (i in 2:47){ #the number of regions
+  for (j in (index[i]+1):index[i+1]){
+    if (carto.wb$adj[j]>i){
+      my_list[[i]] <- append(my_list[[i]], count_num)
+      my_list[[carto.wb$adj[j]]] <- append(my_list[[carto.wb$adj[j]]], count_num)
+      count_num <- count_num + 1
+    }
+  }
+} 
+
+my_list <- unlist(my_list, use.names = FALSE)
+
+my_list <- as.integer(my_list[which(my_list != 0)])
+```
+
+
+
+```{r}
+# Multivariate adaptive BYM model, WinBUGS code
+NSRW1_model <- function() {
+  # Likelihood
+  for (i in 1:Nareas) {
+    for (j in 1:Ndiseases) {
+      O[i, j] ~ dpois(lambda[i, j])
+      # Modeling of the mean for each census tract and disease
+      log(lambda[i, j]) <- log(E[i, j]) + mu[j] + phi[i,j] + sd.theta[j] * theta[i, j]
+      # SMR for each census tract and disease
+      SMR[i, j] <- exp(mu[j] + phi[i, j] + sd.theta[j] * theta[i, j])
+      # Prior distribution for spatial effects
+      phi[i, j] ~ dnorm(mean.phi[i, j], prec.phi[i, j])
+      # Prior distribution for non-spatial effects
+      theta[i, j] ~ dnorm(0, 1)
+    }
+  }
+  
+  for (i in 1:n.adj) {
+    for (j in 1:Ndiseases) {
+      phi.adj[i, j] <- phi[adj[i], j]
+    }
+  }
+
+  for (j in 1:Ndiseases) {
+     prec.phi[1, j] <- sum(Tau2.tau.list[index[1]:index[2]])
+     for (i in 2:Nareas) {
+       prec.phi[i, j] <- sum(Tau2.tau.list[(index[i]+1):index[i+1]])
+     }
+  }
+  for(i in 1:n.adj){ #to avoid nesting too many lists inside each other, causes crashes
+    Tau2.tau.list[i]<-Tau2[tau.list[i]]
+  }  
+  
+  # Mean of the conditional distribution of spatial effects
+  for (j in 1:Ndiseases) {
+      mean.phi[1, j] <- inprod2(Tau2.tau.list[index[1]:index[2]],
+      phi.adj[index[1]:index[2], j])/sum(Tau2.tau.list[index[1]:index[2]])
+    for (i in 2:Nareas) {
+      mean.phi[i, j] <- inprod2(Tau2.tau.list[(index[i]+1):index[i+1]], phi.adj[(index[i] + 1):index[i + 1], j])/sum(Tau2.tau.list[(index[i]+1):index[i+1]])
+    }
+    # Sum-to-zero restriction for spatial effects
+    ceros[j] <- 0
+    ceros[j] ~ dnorm(sum.phi[j], 10)
+    sum.phi[j] <- sum(phi[, j])
+  }
+  ## Prior distributions for Tau2 and its hyperparameters
+  for (t in 1:(n.adj/2)){
+    Tau2[t] ~ dgamma(alpha, alpha) %_% I(0.001, )
+  }
+  alpha <- pow(sd.alpha, -2)
+  sd.alpha ~ dunif(0, 5)
+  
+  # Other prior distributions
+  for (j in 1:Ndiseases) {
+    sd.phi[j] ~ dunif(0, 5)
+    sd.theta[j] ~ dunif(0, 5)
+    mu[j] ~ dflat()
+  }
+}
+```
+
+```{r}
+runtime_NSRW1 <- rep(0, 4)
+
+# 10 causes
+
+t0 <- Sys.time()
+
+causes.id <- causes10
+# Data
+data <- list(O = ObservedCases, E = ExpectedCases,
+             Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
+             n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index, 
+             tau.list = my_list)
+# Initial values
+initials_NSRW1 <- function() {
+  list(mu = rnorm(data$Ndiseases, 0, 1), sd.phi = runif(data$Ndiseases,0, 1), 
+       sd.theta = runif(data$Ndiseases, 0, 1), 
+       phi = matrix(rnorm(data$Nareas * data$Ndiseases), nrow = data$Nareas, 
+              ncol = data$Ndiseases),
+       theta = matrix(rnorm(data$Nareas * data$Ndiseases),
+              nrow = data$Nareas, ncol = data$Ndiseases), 
+       Tau2 = runif(data$n.adj/2, 0.5, 3))
+}
+
+# Variables to retrieve
+param_NSRW1 <- c("mu", "lambda", "sd.phi", "phi", "sd.theta", "theta","SMR", "Tau2", "sd.alpha", "alpha")
+# Calls to WinBUGS
+results.NSRW1.10 <- pbugs(data = data, inits = initials_NSRW1,
+                              parameters.to.save = param_NSRW1, model = NSRW1_model,
+                              n.iter = 10000, n.burnin = 5000, n.chains = 3, DIC = F,
+                              debug = F)
+t1 <- Sys.time()
+runtime_NSRW1[1] <- t1 - t0
+
+# 20 causes
+
+t0 <- Sys.time()
+
+causes.id <- causes20
+# Data
+data <- list(O = ObservedCases, E = ExpectedCases,
+             Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
+             n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index,
+             tau.list = my_list)
+
+# Calls to WinBUGS
+results.NSRW1.20 <- pbugs(data = data, inits = initials_NSRW1,
+                              parameters.to.save = param_NSRW1, model = NSRW1_model,
+                              n.iter = 10000, n.burnin = 5000, n.chains = 3, DIC = F,
+                              debug = F)
+t1 <- Sys.time()
+runtime_NSRW1[2] <- t1 - t0
+
+# 50 causes
+
+t0 <- Sys.time()
+
+causes.id <- causes50
+# Data
+data <- list(O = ObservedCases, E = ExpectedCases,
+             Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
+             n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index,
+             tau.list = my_list)
+
+# Calls to WinBUGS
+results.NSRW1.50 <- pbugs(data = data, inits = initials_NSRW1,
+                              parameters.to.save = param_NSRW1, model = NSRW1_model,
+                              n.iter = 25000, n.burnin = 10000, n.chains = 3, DIC = F,
+                              debug = F)
+t1 <- Sys.time()
+runtime_NSRW1[3] <- t1 - t0
+
+# All 86 causes
+
+t0 <- Sys.time()
+
+causes.id <- causes86
+# Data
+data <- list(O = ObservedCases, E = ExpectedCases,
+             Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
+             n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index,
+             tau.list = my_list)
+
+# Calls to WinBUGS
+results.NSRW1.86 <- pbugs(data = data, inits = initials_NSRW1,
+                              parameters.to.save = param_NSRW1, model = NSRW1_model,
+                              n.iter = 30000, n.burnin = 10000, n.chains = 3, DIC = F,
+                              debug = F)
+t1 <- Sys.time()
+runtime_NSRW1[4] <- t1 - t0
+
+
+# Comparing runtimes
+
+runtime_NSRW1
+
+result_list_NSRW1 <- list(results.NSRW1.10, results.NSRW1.20, results.NSRW1.50, 
+                    results.NSRW1.86)
+saveRDS(result_list_NSRW1, file = "Results//result_list_NSRW1.rds")
+```
+
+Assessing convergence and other properties of the MCMC simulations.
+
+```{r}
+res_list <- readRDS("Results//result_list_NSRW1.rds")
+
+#check the Rhat's for convergence, should be less than 1.1 for all parameters
+range(res_list[[1]]$summary[, "Rhat"])
+range(res_list[[2]]$summary[, "Rhat"])
+range(res_list[[3]]$summary[, "Rhat"])
+range(res_list[[4]]$summary[, "Rhat"])
+
+#Which(if any) are greater than 1.1
+which(res_list[[1]]$summary[, "Rhat"] > 1.1)
+which(res_list[[2]]$summary[, "Rhat"] > 1.1)
+which(res_list[[3]]$summary[, "Rhat"] > 1.1)
+which(res_list[[4]]$summary[, "Rhat"] > 1.1)
+
+#Check the parameter tau for the weights c with prior Gamma(tau, tau)
+res_list[[1]]$summary["alpha",]
+res_list[[2]]$summary["alpha",]
+res_list[[3]]$summary["alpha",]
+res_list[[4]]$summary["alpha",]
+
+res_list[[1]]$mean$Tau2
+
+#Correlation between the weights c for differing number of causes n
+#cor(cbind(ss_provinces$color10, ss_provinces$color20, ss_provinces$color50, ss_provinces$color86))
+```
+
+Plots and visualization of the results. The plot with colored provinces represents the precision in each region, which equals the sum of the precision of the connected edges. Additionally, the plot with colored edges represents the precision of each edge, not sure how to make this yet. Ideally the plot has different colors for the edges, and the autonomous region borders are also thicker, so they are visible in the figure. Maybe they are lower precision mostly??
+
+```{r}
+#Plot for the total precision of each region
+
+# 10 causes
+precision_list10 <- rep(0, length(carto.nb)) #maybe define nAreas at the start?
+tau_list <- res_list[[1]]$mean$Tau2
+
+precision_list10[1] <- sum(tau_list[my_list[index[1]:index[2]]])
+for (i in 2:length(carto.nb)){
+  precision_list10[i] <- sum(tau_list[my_list[(index[i] + 1):index[i + 1]]])
+}
+
+# 20 causes
+precision_list20 <- rep(0, length(carto.nb)) #maybe define nAreas at the start?
+tau_list <- res_list[[2]]$mean$Tau2
+
+precision_list20[1] <- sum(tau_list[my_list[index[1]:index[2]]])
+for (i in 2:length(carto.nb)){
+  precision_list20[i] <- sum(tau_list[my_list[(index[i] + 1):index[i + 1]]])
+}
+
+# 50 causes
+precision_list50 <- rep(0, length(carto.nb)) #maybe define nAreas at the start?
+tau_list <- res_list[[3]]$mean$Tau2
+
+precision_list50[1] <- sum(tau_list[my_list[index[1]:index[2]]])
+for (i in 2:length(carto.nb)){
+  precision_list50[i] <- sum(tau_list[my_list[(index[i] + 1):index[i + 1]]])
+}
+
+ss_provinces$color10_NSRW1 <- precision_list10
+ss_provinces$color20_NSRW1 <- precision_list20
+ss_provinces$color50_NSRW1 <- precision_list50
+
+#can change the fill=NA to add colours
+ggplot() +
+  geom_sf(data = ss_ar, color="black") + #do not really need this line
+  geom_sf(data=ss_provinces, aes(fill=color10_NSRW1), color="grey") +
+  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
+  ggtitle("Precision tau for n=10 causes with temporal NSRW1")
+
+ggplot() +
+  geom_sf(data = ss_ar, color="black") + #do not really need this line
+  geom_sf(data=ss_provinces, aes(fill=color20_NSRW1), color="grey") +
+  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
+  ggtitle("Precision tau for n=20 causes with temporal NSRW1")
+
+ggplot() +
+  geom_sf(data = ss_ar, color="black") + #do not really need this line
+  geom_sf(data=ss_provinces, aes(fill=color50_NSRW1), color="grey") +
+  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
+  ggtitle("Precision tau for n=50 causes with temporal NSRW1")
+
+
+```
+
+
+```{r}
+#Plots for the precision of each edge
+
+
+```
+
+
+NB:
+Was the national mortality data subtracted by the provinces we removed when calculating the expected cases?
+
+
+
+
+
 
 ## For leave one out cross-validation for the diseases and simulation of the weight matrix
 ```{r}
@@ -351,247 +647,6 @@ write_csv(results.AdaptiveBYM, file = "Results/results.AdaptiveBYM-Miguel.csv")
 
 ```
 
-It gave an error called trap 66, which means it failed in WinBUGS I believe.
 
-
-Meeting at wednesday 9.15
-and monday at 11:00.
-
-
-
-# The more flexible adaptive multivariate model by Riddervoll/Jo
-This model instead uses an adaptive ICAR with an individual precision tau for each pair of neighbors i ~ j. Thus, the number of precision parameters equals the number of edges in the graph, or |E| compared to the number of regions in the model above by Miguel. All the precision have the same gamma prior, in their article with scaled data they used Gamma(1.0, 1.2) with a shape and scale parametrization.
-
-```{r}
-
-#before the WinBUGS code
-my_list <- vector("list", 47)
-for (i in 1:47) {
-  my_list[i] <- rep(0, carto.wb$num[i])  # Initialize each element as an empty list
-}
-
-count_num <- 1
-
-#for i = 1
-for (j in (index[1]):index[2]){
-  my_list[[1]] <- append(my_list[[1]], count_num)
-  my_list[[carto.wb$adj[j]]] <- append(my_list[[carto.wb$adj[j]]], count_num)
-  count_num <- count_num + 1
-}
-
-# for i > 1
-for (i in 2:47){ #the number of regions
-  for (j in (index[i]+1):index[i+1]){
-    if (carto.wb$adj[j]>i){
-      my_list[[i]] <- append(my_list[[i]], count_num)
-      my_list[[carto.wb$adj[j]]] <- append(my_list[[carto.wb$adj[j]]], count_num)
-      count_num <- count_num + 1
-    }
-  }
-} 
-
-my_list <- unlist(my_list, use.names = FALSE)
-
-my_list <- as.integer(my_list[which(my_list != 0)])
-
-#length(carto.wb$adj)
-
-#in the WinBUGS code
-# Tau2 <- rep(0, n.adj/2) #the number of edges, or neighbours divided by 2
-# for (i in length(Tau2)){
-#   Tau2[i] ~ dgamma(1, 1.2) #or something like that, could also have hyperparameters and priors
-# }
-
-# # Precision of the conditional distribution of spatial effects
-# for (j in 1:Ndiseases) {
-#     for (i in 1:Nareas) {
-#       prec.phi[i, j] <- sum(Tau2[my_list[[i]]])
-#     }
-# }
-# 
-# # Mean of the conditional distribution of spatial effects
-#   for (j in 1:Ndiseases) {
-#     mean.phi[1, j] <- inprod2(Tau2[my_list[[1]]],
-#       phi.adj[index[1]:index[2], j])/sum(Tau2[my_list[[1]]])
-#     for (i in 2:Nareas) {
-#       mean.phi[i, j] <- inprod2(Tau2[my_list[[i]]], phi.adj[(index[i] + 1):index[i + 1], j])/sum(Tau2[my_list[[1]]])
-#     }
-#   }
-
-#Alternatively I make the list my_list outside the WinBUGS part and instead add indexes that
-# correspond to a position in the Tau2 vector in the WinBUGS code. That should work, and to 
-# find the taus for a specific region i i get the indexes from my_list as inputs to Tau2.
-# They will also be in increasing numbering for each i, which aligns with the other vars.
-```
-
-
-
-```{r}
-# Multivariate adaptive BYM model, WinBUGS code
-NSRW1_model <- function() {
-  # Likelihood
-  for (i in 1:Nareas) {
-    for (j in 1:Ndiseases) {
-      O[i, j] ~ dpois(lambda[i, j])
-      # Modeling of the mean for each census tract and disease
-      log(lambda[i, j]) <- log(E[i, j]) + mu[j] + phi[i,j] + sd.theta[j] * theta[i, j]
-      # SMR for each census tract and disease
-      SMR[i, j] <- exp(mu[j] + phi[i, j] + sd.theta[j] * theta[i, j])
-      # Prior distribution for spatial effects
-      phi[i, j] ~ dnorm(mean.phi[i, j], prec.phi[i, j])
-      # Prior distribution for non-spatial effects
-      theta[i, j] ~ dnorm(0, 1)
-    }
-  }
-  
-  for (i in 1:n.adj) {
-    for (j in 1:Ndiseases) {
-      phi.adj[i, j] <- phi[adj[i], j]
-    }
-  }
-
-  for (j in 1:Ndiseases) {
-     prec.phi[1, j] <- sum(Tau2.tau.list[index[1]:index[2]])
-     for (i in 2:Nareas) {
-       prec.phi[i, j] <- sum(Tau2.tau.list[(index[i]+1):index[i+1]])
-     }
-  }
-  for(i in 1:n.adj){ #to avoid nesting to many lists inside each other, causes crashes
-    Tau2.tau.list[i]<-Tau2[tau.list[i]]
-  }  
-  
-
-  # Mean of the conditional distribution of spatial effects
-  for (j in 1:Ndiseases) {
-      mean.phi[1, j] <- inprod2(Tau2.tau.list[index[1]:index[2]],
-      phi.adj[index[1]:index[2], j])/sum(Tau2.tau.list[index[1]:index[2]])
-    for (i in 2:Nareas) {
-      mean.phi[i, j] <- inprod2(Tau2.tau.list[(index[i]+1):index[i+1]], phi.adj[(index[i] + 1):index[i + 1], j])/sum(Tau2.tau.list[(index[i]+1):index[i+1]])
-    }
-    # Sum-to-zero restriction for spatial effects
-    ceros[j] <- 0
-    ceros[j] ~ dnorm(sum.phi[j], 10)
-    sum.phi[j] <- sum(phi[, j])
-  }
-  #Added stuff for the precisions Tau for all the pairs of neighbors
-  #Tau2 <- rep(1, n.adj/2) #the number of edges, or neighbours divided by 2
-  for (t in 1:111){
-    Tau2[t] ~ dgamma(alpha, alpha) %_% I(0.001, ) #or something like that, could also have hyperparameters and priors
-  }
-  # Prior distributions for 
-  alpha <- pow(sd.alpha, -2)
-  sd.alpha ~ dunif(0, 5)
-  
-  # Other prior distributions
-  for (j in 1:Ndiseases) {
-    sd.phi[j] ~ dunif(0, 5)
-    sd.theta[j] ~ dunif(0, 5)
-    mu[j] ~ dflat()
-  }
-}
-```
-
-```{r}
-runtime_NSRW1 <- rep(0, 4)
-
-my_list[210:213]
-# 10 causes
-
-t0 <- Sys.time()
-
-causes.id <- causes10
-# Data
-data <- list(O = ObservedCases, E = ExpectedCases,
-             Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
-             n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index, 
-             tau.list = my_list)
-# Initial values
-initials_NSRW1 <- function() {
-  list(mu = rnorm(data$Ndiseases, 0, 1), sd.phi = runif(data$Ndiseases,0, 1), 
-       sd.theta = runif(data$Ndiseases, 0, 1), 
-       phi = matrix(rnorm(data$Nareas * data$Ndiseases), nrow = data$Nareas, 
-              ncol = data$Ndiseases),
-       theta = matrix(rnorm(data$Nareas * data$Ndiseases),
-              nrow = data$Nareas, ncol = data$Ndiseases), 
-       Tau2 = runif(data$n.adj/2, 0.5, 3))
-}
-
-# Variables to retrieve
-param_NSRW1 <- c("mu", "lambda", "sd.phi", "phi", "sd.theta", "theta","SMR", "Tau2", "sd.alpha", "alpha")
-# Calls to WinBUGS
-results.NSRW1.10 <- pbugs(data = data, inits = initials_NSRW1,
-                              parameters.to.save = param_NSRW1, model = NSRW1_model,
-                              n.iter = 10000, n.burnin = 5000, n.chains = 3, DIC = F,
-                              debug = T)
-t1 <- Sys.time()
-runtime_NSRW1[1] <- t1 - t0
-
-# 20 causes
-
-t0 <- Sys.time()
-
-causes.id <- causes20
-# Data
-data <- list(O = ObservedCases, E = ExpectedCases,
-             Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
-             n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index)
-
-# Calls to WinBUGS
-results.NSRW1.20 <- pbugs(data = data, inits = initials_NSRW1,
-                              parameters.to.save = param_NSRW1, model = NSRW1_model,
-                              n.iter = 10000, n.burnin = 5000, n.chains = 3, DIC = F,
-                              debug = F)
-t1 <- Sys.time()
-runtime_NSRW1[2] <- t1 - t0
-
-# 50 causes
-
-t0 <- Sys.time()
-
-causes.id <- causes50
-# Data
-data <- list(O = ObservedCases, E = ExpectedCases,
-             Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
-             n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index)
-
-# Calls to WinBUGS
-results.NSRW1.50 <- pbugs(data = data, inits = initials_NSRW1,
-                              parameters.to.save = param_NSRW1, model = NSRW1_model,
-                              n.iter = 25000, n.burnin = 10000, n.chains = 3, DIC = F,
-                              debug = F)
-t1 <- Sys.time()
-runtime_NSRW1[3] <- t1 - t0
-
-# All 86 causes
-
-t0 <- Sys.time()
-
-causes.id <- causes86
-# Data
-data <- list(O = ObservedCases, E = ExpectedCases,
-             Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
-             n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index)
-
-# Calls to WinBUGS
-results.NSRW1.86 <- pbugs(data = data, inits = initials_NSRW1,
-                              parameters.to.save = param_NSRW1, model = NSRW1_model,
-                              n.iter = 30000, n.burnin = 10000, n.chains = 3, DIC = F,
-                              debug = F)
-t1 <- Sys.time()
-runtime_NSRW1[4] <- t1 - t0
-
-
-# Comparing runtimes
-
-runtime_NSRW1
-
-result_list_NSRW1 <- list(results.NSRW1.10, results.NSRW1.20, results.NSRW1.50, 
-                    results.NSRW1.86)
-saveRDS(result_list_NSRW1, file = "Results//result_list_NSRW1.rds")
-```
-
-
-NB:
-Was the national mortality data subtracted by the provinces we removed when calculating the expected cases?
 
 
