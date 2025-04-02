@@ -529,6 +529,7 @@ res_list[[3]]$summary["alpha",]
 res_list[[4]]$summary["alpha",]
 
 res_list[[1]]$mean$Tau2
+res_list[[4]]$mean$Tau2
 
 #Correlation between the weights c for differing number of causes n
 #cor(cbind(ss_provinces$color10, ss_provinces$color20, ss_provinces$color50, ss_provinces$color86))
@@ -566,9 +567,19 @@ for (i in 2:length(carto.nb)){
   precision_list50[i] <- sum(tau_list[my_list[(index[i] + 1):index[i + 1]]])
 }
 
+# 86 causes
+precision_list86 <- rep(0, length(carto.nb)) #maybe define nAreas at the start?
+tau_list <- res_list[[4]]$mean$Tau2
+
+precision_list86[1] <- sum(tau_list[my_list[index[1]:index[2]]])
+for (i in 2:length(carto.nb)){
+  precision_list86[i] <- sum(tau_list[my_list[(index[i] + 1):index[i + 1]]])
+}
+
 ss_provinces$color10_NSRW1 <- precision_list10
 ss_provinces$color20_NSRW1 <- precision_list20
 ss_provinces$color50_NSRW1 <- precision_list50
+ss_provinces$color86_NSRW1 <- precision_list86
 
 #can change the fill=NA to add colours
 ggplot() +
@@ -589,6 +600,13 @@ ggplot() +
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
   ggtitle("Precision tau for n=50 causes with temporal NSRW1")
 
+ggplot() +
+  geom_sf(data = ss_ar, color="black") + #do not really need this line
+  geom_sf(data=ss_provinces, aes(fill=color86_NSRW1), color="grey") +
+  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
+  ggtitle("Precision tau for n=86 causes with temporal NSRW1")
+
+
 
 ```
 
@@ -596,8 +614,102 @@ ggplot() +
 ```{r}
 #Plots for the precision of each edge
 
+library(sf)
+library(spdep)
+library(ggplot2)
+library(dplyr)
+
+# Load your spatial data (example: provinces in Spain)
+# ss_provinces <- st_read("your_shapefile.shp")
+
+# Step 1: Compute centroids
+centroids <- st_centroid(ss_provinces)
+
+# Step 2: Determine neighboring regions
+nb <- poly2nb(ss_provinces)  # Get adjacency list
+edges <- do.call(rbind, lapply(1:length(nb), function(i) {
+  neighbors <- nb[[i]]
+  if (length(neighbors) == 0) return(NULL)
+  
+  # Create a data frame of line segments
+  do.call(rbind, lapply(neighbors, function(j) {
+    st_sfc(st_linestring(rbind(st_coordinates(centroids[i, ]), 
+                               st_coordinates(centroids[j, ]))), 
+           crs = st_crs(ss_provinces))
+  }))
+}))
+
+# Convert edges into an sf object
+edges_sf <- st_sf(geometry = st_sfc(edges, crs = st_crs(ss_provinces)))
+
+# Step 3: Plot the edge graph
+ggplot() +
+  geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Plot regions
+  geom_sf(data = centroids, color = "red", size = 2) +  # Plot centroids
+  geom_sf(data = edges_sf, color = "blue", linewidth = 0.5) +  # Plot edges
+  theme_minimal()
+
+
 
 ```
+
+The indexing actually works out nicely. So, the way I constructed my_list aligns with how the edge_list gets the neighbors from the shape file (from chatGPT). 
+
+```{r}
+library(sf)
+library(spdep)
+library(ggplot2)
+library(dplyr)
+
+# Compute centroids
+centroids <- st_centroid(ss_provinces)
+
+# Create an adjacency list
+nb <- poly2nb(ss_provinces)
+
+# Create an empty list to store edges and metadata
+edge_list <- list()
+region_from <- c()
+region_to <- c()
+
+# Loop through each region to create edges and store region names/IDs
+for (i in seq_along(nb)) {
+  neighbors <- nb[[i]]
+  if (length(neighbors) == 0) next
+  
+  for (j in neighbors) {
+    # Store the line geometry
+    edge_list <- append(edge_list, 
+                        list(st_linestring(rbind(st_coordinates(centroids[i, ]), 
+                                                 st_coordinates(centroids[j, ])))))
+    
+    # Store region names or IDs
+    region_from <- c(region_from, i)  # Replace 'NAME' with the correct column name
+    region_to <- c(region_to, j)
+  }
+}
+
+# Convert to an sf object
+edges_sf <- st_sf(geometry = st_sfc(edge_list, crs = st_crs(ss_provinces)), 
+                  from = region_from, to = region_to)
+
+#Add the precisions/linewidth
+# tau_list is the 111 precisions for the edges
+edge_weight <- rep(0, nrow(edges_sf))
+edge_weight <- tau_list[my_list]
+
+edges_sf$edge_value <- edge_weight
+
+# Plot with varying edge widths
+ggplot() +
+  geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Regions
+  geom_sf(data = centroids, color = "red", size = 2) +  # Centroids
+  geom_sf(data = edges_sf, aes(linewidth = edge_value), color = "blue") +  # Variable-width edges
+  scale_linewidth(range = c(0.2, 3)) +  # Adjust thickness range
+  theme_minimal()
+
+```
+
 
 
 NB:
