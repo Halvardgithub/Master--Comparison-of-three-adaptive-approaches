@@ -225,7 +225,7 @@ Runtimes for Miguels model in WinBUGS(cirka):
 
 
 ```{r}
-res_list <- readRDS("Results//result_list_longer_chains.rds")
+res_list_ABYM <- readRDS("Results//result_list_longer_chains.rds")
 
 ss_provinces = read_sf("Data/Provinces/Provincias_ETRS89_30N.shp")
 
@@ -243,10 +243,10 @@ ss_provinces = ss_provinces |> filter(!(Texto %in% out))
 
 ss_ar = ss_ar %>% filter(!(Texto %in% out2))
 
-ss_provinces$color10 <- res_list[[1]]$mean$c
-ss_provinces$color20 <- res_list[[2]]$mean$c
-ss_provinces$color50 <- res_list[[3]]$mean$c
-ss_provinces$color86 <- res_list[[4]]$mean$c
+ss_provinces$color10 <- res_list_ABYM[[1]]$mean$c
+ss_provinces$color20 <- res_list_ABYM[[2]]$mean$c
+ss_provinces$color50 <- res_list_ABYM[[3]]$mean$c
+ss_provinces$color86 <- res_list_ABYM[[4]]$mean$c
 
 #can change the fill=NA to add colours
 ggplot() +
@@ -278,22 +278,22 @@ ggplot() +
 Assessing convergence and other properties of the MCMC simulations.
 ```{r}
 #check the Rhat's for convergence, should be less than 1.1 for all parameters
-range(res_list[[1]]$summary[, "Rhat"])
-range(res_list[[2]]$summary[, "Rhat"])
-range(res_list[[3]]$summary[, "Rhat"])
-range(res_list[[4]]$summary[, "Rhat"])
+range(res_list_ABYM[[1]]$summary[, "Rhat"])
+range(res_list_ABYM[[2]]$summary[, "Rhat"])
+range(res_list_ABYM[[3]]$summary[, "Rhat"])
+range(res_list_ABYM[[4]]$summary[, "Rhat"])
 
 #Which(if any) are greater than 1.1
-which(res_list[[1]]$summary[, "Rhat"] > 1.1)
-which(res_list[[2]]$summary[, "Rhat"] > 1.1)
-which(res_list[[3]]$summary[, "Rhat"] > 1.1)
-which(res_list[[4]]$summary[, "Rhat"] > 1.1)
+which(res_list_ABYM[[1]]$summary[, "Rhat"] > 1.1)
+which(res_list_ABYM[[2]]$summary[, "Rhat"] > 1.1)
+which(res_list_ABYM[[3]]$summary[, "Rhat"] > 1.1)
+which(res_list_ABYM[[4]]$summary[, "Rhat"] > 1.1)
 
 #Check the parameter tau for the weights c with prior Gamma(tau, tau)
-res_list[[1]]$summary["tau",]
-res_list[[2]]$summary["tau",]
-res_list[[3]]$summary["tau",]
-res_list[[4]]$summary["tau",]
+res_list_ABYM[[1]]$summary["tau",]
+res_list_ABYM[[2]]$summary["tau",]
+res_list_ABYM[[3]]$summary["tau",]
+res_list_ABYM[[4]]$summary["tau",]
 
 #Correlation between the weights c for differing number of causes n
 cor(cbind(ss_provinces$color10, ss_provinces$color20, ss_provinces$color50, ss_provinces$color86))
@@ -508,28 +508,28 @@ saveRDS(result_list_NSRW1, file = "Results//result_list_NSRW1.rds")
 Assessing convergence and other properties of the MCMC simulations.
 
 ```{r}
-res_list <- readRDS("Results//result_list_NSRW1.rds")
+res_list_NSRW1 <- readRDS("Results//result_list_NSRW1.rds")
 
 #check the Rhat's for convergence, should be less than 1.1 for all parameters
-range(res_list[[1]]$summary[, "Rhat"])
-range(res_list[[2]]$summary[, "Rhat"])
-range(res_list[[3]]$summary[, "Rhat"])
-range(res_list[[4]]$summary[, "Rhat"])
+range(res_list_NSRW1[[1]]$summary[, "Rhat"])
+range(res_list_NSRW1[[2]]$summary[, "Rhat"])
+range(res_list_NSRW1[[3]]$summary[, "Rhat"])
+range(res_list_NSRW1[[4]]$summary[, "Rhat"])
 
 #Which(if any) are greater than 1.1
-which(res_list[[1]]$summary[, "Rhat"] > 1.1)
-which(res_list[[2]]$summary[, "Rhat"] > 1.1)
-which(res_list[[3]]$summary[, "Rhat"] > 1.1)
-which(res_list[[4]]$summary[, "Rhat"] > 1.1)
+which(res_list_NSRW1[[1]]$summary[, "Rhat"] > 1.1)
+which(res_list_NSRW1[[2]]$summary[, "Rhat"] > 1.1)
+which(res_list_NSRW1[[3]]$summary[, "Rhat"] > 1.1)
+which(res_list_NSRW1[[4]]$summary[, "Rhat"] > 1.1)
 
 #Check the parameter tau for the weights c with prior Gamma(tau, tau)
-res_list[[1]]$summary["alpha",]
-res_list[[2]]$summary["alpha",]
-res_list[[3]]$summary["alpha",]
-res_list[[4]]$summary["alpha",]
+res_list_NSRW1[[1]]$summary["alpha",]
+res_list_NSRW1[[2]]$summary["alpha",]
+res_list_NSRW1[[3]]$summary["alpha",]
+res_list_NSRW1[[4]]$summary["alpha",]
 
-res_list[[1]]$mean$Tau2
-res_list[[4]]$mean$Tau2
+res_list_NSRW1[[1]]$mean$Tau2
+res_list_NSRW1[[4]]$mean$Tau2
 
 #Correlation between the weights c for differing number of causes n
 #cor(cbind(ss_provinces$color10, ss_provinces$color20, ss_provinces$color50, ss_provinces$color86))
@@ -542,7 +542,7 @@ Plots and visualization of the results. The plot with colored provinces represen
 
 # 10 causes
 precision_list10 <- rep(0, length(carto.nb)) #maybe define nAreas at the start?
-tau_list <- res_list[[1]]$mean$Tau2
+tau_list <- res_list_NSRW1[[1]]$mean$Tau2
 
 precision_list10[1] <- sum(tau_list[my_list[index[1]:index[2]]])
 for (i in 2:length(carto.nb)){
@@ -551,7 +551,7 @@ for (i in 2:length(carto.nb)){
 
 # 20 causes
 precision_list20 <- rep(0, length(carto.nb)) #maybe define nAreas at the start?
-tau_list <- res_list[[2]]$mean$Tau2
+tau_list <- res_list_NSRW1[[2]]$mean$Tau2
 
 precision_list20[1] <- sum(tau_list[my_list[index[1]:index[2]]])
 for (i in 2:length(carto.nb)){
@@ -560,7 +560,7 @@ for (i in 2:length(carto.nb)){
 
 # 50 causes
 precision_list50 <- rep(0, length(carto.nb)) #maybe define nAreas at the start?
-tau_list <- res_list[[3]]$mean$Tau2
+tau_list <- res_list_NSRW1[[3]]$mean$Tau2
 
 precision_list50[1] <- sum(tau_list[my_list[index[1]:index[2]]])
 for (i in 2:length(carto.nb)){
@@ -569,7 +569,7 @@ for (i in 2:length(carto.nb)){
 
 # 86 causes
 precision_list86 <- rep(0, length(carto.nb)) #maybe define nAreas at the start?
-tau_list <- res_list[[4]]$mean$Tau2
+tau_list <- res_list_NSRW1[[4]]$mean$Tau2
 
 precision_list86[1] <- sum(tau_list[my_list[index[1]:index[2]]])
 for (i in 2:length(carto.nb)){
@@ -610,52 +610,10 @@ ggplot() +
 
 ```
 
-
-```{r}
-#Plots for the precision of each edge
-
-library(sf)
-library(spdep)
-library(ggplot2)
-library(dplyr)
-
-# Load your spatial data (example: provinces in Spain)
-# ss_provinces <- st_read("your_shapefile.shp")
-
-# Step 1: Compute centroids
-centroids <- st_centroid(ss_provinces)
-
-# Step 2: Determine neighboring regions
-nb <- poly2nb(ss_provinces)  # Get adjacency list
-edges <- do.call(rbind, lapply(1:length(nb), function(i) {
-  neighbors <- nb[[i]]
-  if (length(neighbors) == 0) return(NULL)
-  
-  # Create a data frame of line segments
-  do.call(rbind, lapply(neighbors, function(j) {
-    st_sfc(st_linestring(rbind(st_coordinates(centroids[i, ]), 
-                               st_coordinates(centroids[j, ]))), 
-           crs = st_crs(ss_provinces))
-  }))
-}))
-
-# Convert edges into an sf object
-edges_sf <- st_sf(geometry = st_sfc(edges, crs = st_crs(ss_provinces)))
-
-# Step 3: Plot the edge graph
-ggplot() +
-  geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Plot regions
-  geom_sf(data = centroids, color = "red", size = 2) +  # Plot centroids
-  geom_sf(data = edges_sf, color = "blue", linewidth = 0.5) +  # Plot edges
-  theme_minimal()
-
-
-
-```
-
 The indexing actually works out nicely. So, the way I constructed my_list aligns with how the edge_list gets the neighbors from the shape file (from chatGPT). 
 
 ```{r}
+#Plots for the precision of each edge
 library(sf)
 library(spdep)
 library(ggplot2)
@@ -695,30 +653,199 @@ edges_sf <- st_sf(geometry = st_sfc(edge_list, crs = st_crs(ss_provinces)),
 
 #Add the precisions/linewidth
 # tau_list is the 111 precisions for the edges
-edge_weight <- rep(0, nrow(edges_sf))
-edge_weight <- tau_list[my_list]
+example_tau_list <- c(rep(1, 50), rep(3, 61))
+#edge_weight <- rep(0, nrow(edges_sf))
+#edge_weight <- tau_list[my_list] #so 222 edge weights, two equal weights for each edge
 
-edges_sf$edge_value <- edge_weight
+#edges_sf$edge_value <- edge_weight
+edges_sf$example_edge_value <- example_tau_list[my_list]
+edges_sf$edge_value_NSRW1_10 <- res_list_NSRW1[[1]]$mean$Tau2[my_list]
+edges_sf$edge_value_NSRW1_20 <- res_list_NSRW1[[2]]$mean$Tau2[my_list]
+edges_sf$edge_value_NSRW1_50 <- res_list_NSRW1[[3]]$mean$Tau2[my_list]
+edges_sf$edge_value_NSRW1_86 <- res_list_NSRW1[[4]]$mean$Tau2[my_list]
 
-# Plot with varying edge widths
+# Example plot with varying edge widths
 ggplot() +
-  geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Regions
-  geom_sf(data = centroids, color = "red", size = 2) +  # Centroids
-  geom_sf(data = edges_sf, aes(linewidth = edge_value), color = "blue") +  # Variable-width edges
-  scale_linewidth(range = c(0.2, 3)) +  # Adjust thickness range
+  geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Provinces
+  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
+  geom_sf(data = centroids, color = "red", size = 3) +  # Centroids
+  geom_sf(data = edges_sf, aes(linewidth = example_edge_value), color = "blue") + 
+  scale_linewidth(range = c(0.2, 1.7)) +  # Adjust thickness range
+  ggtitle("Example plot for edges with different precisions") +
   theme_minimal()
 
+# 10 causes
+edgeplot_NSRW1_10 <- ggplot() +
+  geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Provinces
+  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
+  geom_sf(data = centroids, color = "red", size = 3) +  # Centroids
+  geom_sf(data = edges_sf, aes(linewidth = edge_value_NSRW1_10), color = "blue") + 
+  scale_linewidth(range = c(0.2, 1.7)) +  # Adjust thickness range
+  theme_minimal() +
+  theme(axis.text = element_blank(),axis.ticks = element_blank(),  
+        axis.title = element_blank()) 
+  
+# 20 causes
+edgeplot_NSRW1_20 <- ggplot() +
+  geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Provinces
+  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
+  geom_sf(data = centroids, color = "red", size = 3) +  # Centroids
+  geom_sf(data = edges_sf, aes(linewidth = edge_value_NSRW1_20), color = "blue") + 
+  scale_linewidth(range = c(0.2, 1.7)) +  # Adjust thickness range
+  theme_minimal() +
+  theme(axis.text = element_blank(),axis.ticks = element_blank(),  
+        axis.title = element_blank()) 
+
+# 50 causes
+edgeplot_NSRW1_50 <- ggplot() +
+  geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Provinces
+  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
+  geom_sf(data = centroids, color = "red", size = 3) +  # Centroids
+  geom_sf(data = edges_sf, aes(linewidth = edge_value_NSRW1_50), color = "blue") + 
+  scale_linewidth(range = c(0.2, 1.7)) +  # Adjust thickness range
+  theme_minimal() +
+  theme(axis.text = element_blank(),axis.ticks = element_blank(),  
+        axis.title = element_blank()) 
+  
+# 86 causes
+edgeplot_NSRW1_86 <- ggplot() +
+  geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Provinces
+  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
+  geom_sf(data = centroids, color = "red", size = 3) +  # Centroids
+  geom_sf(data = edges_sf, aes(linewidth = edge_value_NSRW1_86), color = "blue") + 
+  scale_linewidth(range = c(0.2, 1.7)) +  # Adjust thickness range
+  theme_minimal() +
+  theme(axis.text = element_blank(),axis.ticks = element_blank(),  
+        axis.title = element_blank()) 
 ```
+
+
+# Edge plots for Miguels adaptive BYM
+For this model the outputs are the weights c, one for each region. The precision for a given edge between neighbors is then the product of the c's in the two provinces. We get the following relation between $\tau_{ij}$ and $c_i$ and $c_j$:
+$$
+\tau_{ij} = \sqrt{c_i*c_j}
+$$
+Additionally, it is important that the calculated tau's match with the positions from the NSRW1 model above. Now lets calculate the tau's.
+```{r}
+nAreas <- length(carto.wb$num)
+
+# 10 causes
+count_num <- 1
+tau_list_ABYM_10 <- rep(0, sum(carto.wb$num))
+for (i in 1:nAreas){
+  for (j in carto.nb[[i]]){
+    tau_list_ABYM_10[count_num] <- sqrt(res_list_ABYM[[1]]$mean$c[i]*
+                                          res_list_ABYM[[1]]$mean$c[j])
+    count_num <- count_num + 1
+  }
+}
+
+# 20 causes
+count_num <- 1
+tau_list_ABYM_20 <- rep(0, sum(carto.wb$num))
+for (i in 1:nAreas){
+  for (j in carto.nb[[i]]){
+    tau_list_ABYM_20[count_num] <- sqrt(res_list_ABYM[[2]]$mean$c[i]*
+                                          res_list_ABYM[[2]]$mean$c[j])
+    count_num <- count_num + 1
+  }
+}
+
+# 50 causes
+count_num <- 1
+tau_list_ABYM_50 <- rep(0, sum(carto.wb$num))
+for (i in 1:nAreas){
+  for (j in carto.nb[[i]]){
+    tau_list_ABYM_50[count_num] <- sqrt(res_list_ABYM[[3]]$mean$c[i]*
+                                          res_list_ABYM[[3]]$mean$c[j])
+    count_num <- count_num + 1
+  }
+}
+
+# 86 causes
+count_num <- 1
+tau_list_ABYM_86 <- rep(0, sum(carto.wb$num))
+for (i in 1:nAreas){
+  for (j in carto.nb[[i]]){
+    tau_list_ABYM_86[count_num] <- sqrt(res_list_ABYM[[4]]$mean$c[i]*
+                                          res_list_ABYM[[4]]$mean$c[j])
+    count_num <- count_num + 1
+  }
+}
+
+edges_sf$edge_value_ABYM_10 <- tau_list_ABYM_10
+edges_sf$edge_value_ABYM_20 <- tau_list_ABYM_20
+edges_sf$edge_value_ABYM_50 <- tau_list_ABYM_50
+edges_sf$edge_value_ABYM_86 <- tau_list_ABYM_86
+
+#Making the plots
+
+# 10 causes
+edgeplot_ABYM_10 <- ggplot() +
+  geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Provinces
+  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
+  geom_sf(data = centroids, color = "red", size = 3) +  # Centroids
+  geom_sf(data = edges_sf, aes(linewidth = edge_value_ABYM_10), color = "blue") + 
+  scale_linewidth(range = c(0.2, 1.7)) +  # Adjust thickness range
+  theme_minimal() +
+  theme(axis.text = element_blank(),axis.ticks = element_blank(),  
+        axis.title = element_blank()) 
+  
+# 20 causes
+edgeplot_ABYM_20 <- ggplot() +
+  geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Provinces
+  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
+  geom_sf(data = centroids, color = "red", size = 3) +  # Centroids
+  geom_sf(data = edges_sf, aes(linewidth = edge_value_ABYM_20), color = "blue") + 
+  scale_linewidth(range = c(0.2, 1.7)) +  # Adjust thickness range
+  theme_minimal() +
+  theme(axis.text = element_blank(),axis.ticks = element_blank(),  
+        axis.title = element_blank()) 
+
+# 50 causes
+edgeplot_ABYM_50 <- ggplot() +
+  geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Provinces
+  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
+  geom_sf(data = centroids, color = "red", size = 3) +  # Centroids
+  geom_sf(data = edges_sf, aes(linewidth = edge_value_ABYM_50), color = "blue") + 
+  scale_linewidth(range = c(0.2, 1.7)) +  # Adjust thickness range
+  theme_minimal() +
+  theme(axis.text = element_blank(),axis.ticks = element_blank(),  
+        axis.title = element_blank()) 
+  
+# 86 causes
+edgeplot_ABYM_86 <- ggplot() +
+  geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Provinces
+  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
+  geom_sf(data = centroids, color = "red", size = 3) +  # Centroids
+  geom_sf(data = edges_sf, aes(linewidth = edge_value_ABYM_86), color = "blue") + 
+  scale_linewidth(range = c(0.2, 1.7)) +  # Adjust thickness range
+  theme_minimal() +
+  theme(axis.text = element_blank(),axis.ticks = element_blank(),  
+        axis.title = element_blank()) 
+
+```
+
+Now lets collect all the plots in an edgeplot figure:
+```{r}
+library(ggpubr)
+
+# Define row and column names
+row_labels <- c("n = 10", "n = 20", "n = 50", "n = 86")
+col_labels <- c("ABYM", "NSRW1")
+
+edgeplots <- list(edgeplot_ABYM_10, edgeplot_NSRW1_10, edgeplot_ABYM_20, edgeplot_NSRW1_20,
+               edgeplot_ABYM_50, edgeplot_NSRW1_50, edgeplot_ABYM_86, edgeplot_NSRW1_86)
+
+edgeplot <- ggarrange(plotlist = edgeplots, ncol = 2, nrow = 4, labels = NULL)
+```
+
+
 
 
 
 NB:
 Was the national mortality data subtracted by the provinces we removed when calculating the expected cases?
-
-
-
-
-
 
 ## For leave one out cross-validation for the diseases and simulation of the weight matrix
 ```{r}
