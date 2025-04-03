@@ -535,80 +535,15 @@ res_list_NSRW1[[4]]$mean$Tau2
 #cor(cbind(ss_provinces$color10, ss_provinces$color20, ss_provinces$color50, ss_provinces$color86))
 ```
 
+#Plots and visualization of results
+
 Plots and visualization of the results. The plot with colored provinces represents the precision in each region, which equals the sum of the precision of the connected edges. Additionally, the plot with colored edges represents the precision of each edge, not sure how to make this yet. Ideally the plot has different colors for the edges, and the autonomous region borders are also thicker, so they are visible in the figure. Maybe they are lower precision mostly??
 
-```{r}
-#Plot for the total precision of each region
 
-# 10 causes
-precision_list10 <- rep(0, length(carto.nb)) #maybe define nAreas at the start?
-tau_list <- res_list_NSRW1[[1]]$mean$Tau2
+#Edgeplots for the WinBUGS models by Miguel and Jo
+Lets make the edgeplots for each number n of causes for each of the two models and summarise it in a 4X2 figure.
 
-precision_list10[1] <- sum(tau_list[my_list[index[1]:index[2]]])
-for (i in 2:length(carto.nb)){
-  precision_list10[i] <- sum(tau_list[my_list[(index[i] + 1):index[i + 1]]])
-}
-
-# 20 causes
-precision_list20 <- rep(0, length(carto.nb)) #maybe define nAreas at the start?
-tau_list <- res_list_NSRW1[[2]]$mean$Tau2
-
-precision_list20[1] <- sum(tau_list[my_list[index[1]:index[2]]])
-for (i in 2:length(carto.nb)){
-  precision_list20[i] <- sum(tau_list[my_list[(index[i] + 1):index[i + 1]]])
-}
-
-# 50 causes
-precision_list50 <- rep(0, length(carto.nb)) #maybe define nAreas at the start?
-tau_list <- res_list_NSRW1[[3]]$mean$Tau2
-
-precision_list50[1] <- sum(tau_list[my_list[index[1]:index[2]]])
-for (i in 2:length(carto.nb)){
-  precision_list50[i] <- sum(tau_list[my_list[(index[i] + 1):index[i + 1]]])
-}
-
-# 86 causes
-precision_list86 <- rep(0, length(carto.nb)) #maybe define nAreas at the start?
-tau_list <- res_list_NSRW1[[4]]$mean$Tau2
-
-precision_list86[1] <- sum(tau_list[my_list[index[1]:index[2]]])
-for (i in 2:length(carto.nb)){
-  precision_list86[i] <- sum(tau_list[my_list[(index[i] + 1):index[i + 1]]])
-}
-
-ss_provinces$color10_NSRW1 <- precision_list10
-ss_provinces$color20_NSRW1 <- precision_list20
-ss_provinces$color50_NSRW1 <- precision_list50
-ss_provinces$color86_NSRW1 <- precision_list86
-
-#can change the fill=NA to add colours
-ggplot() +
-  geom_sf(data = ss_ar, color="black") + #do not really need this line
-  geom_sf(data=ss_provinces, aes(fill=color10_NSRW1), color="grey") +
-  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
-  ggtitle("Precision tau for n=10 causes with temporal NSRW1")
-
-ggplot() +
-  geom_sf(data = ss_ar, color="black") + #do not really need this line
-  geom_sf(data=ss_provinces, aes(fill=color20_NSRW1), color="grey") +
-  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
-  ggtitle("Precision tau for n=20 causes with temporal NSRW1")
-
-ggplot() +
-  geom_sf(data = ss_ar, color="black") + #do not really need this line
-  geom_sf(data=ss_provinces, aes(fill=color50_NSRW1), color="grey") +
-  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
-  ggtitle("Precision tau for n=50 causes with temporal NSRW1")
-
-ggplot() +
-  geom_sf(data = ss_ar, color="black") + #do not really need this line
-  geom_sf(data=ss_provinces, aes(fill=color86_NSRW1), color="grey") +
-  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
-  ggtitle("Precision tau for n=86 causes with temporal NSRW1")
-
-
-
-```
+## Edgeplots for the temporal NSRW1 model
 
 The indexing actually works out nicely. So, the way I constructed my_list aligns with how the edge_list gets the neighbors from the shape file (from chatGPT). 
 
@@ -678,49 +613,54 @@ ggplot() +
 edgeplot_NSRW1_10 <- ggplot() +
   geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Provinces
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
-  geom_sf(data = centroids, color = "red", size = 3) +  # Centroids
+  geom_sf(data = centroids, color = "red", size = 2) +  # Centroids
   geom_sf(data = edges_sf, aes(linewidth = edge_value_NSRW1_10), color = "blue") + 
-  scale_linewidth(range = c(0.2, 1.7)) +  # Adjust thickness range
+  scale_linewidth(range = c(0.2, 1.7), breaks = pretty_breaks(n = 4)) +  
   theme_minimal() +
   theme(axis.text = element_blank(),axis.ticks = element_blank(),  
-        axis.title = element_blank()) 
+        axis.title = element_blank())  +
+   guides(linewidth = guide_legend(title = "Width mapping"))
   
 # 20 causes
 edgeplot_NSRW1_20 <- ggplot() +
   geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Provinces
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
-  geom_sf(data = centroids, color = "red", size = 3) +  # Centroids
+  geom_sf(data = centroids, color = "red", size = 2) +  # Centroids
   geom_sf(data = edges_sf, aes(linewidth = edge_value_NSRW1_20), color = "blue") + 
-  scale_linewidth(range = c(0.2, 1.7)) +  # Adjust thickness range
+  scale_linewidth(range = c(0.2, 1.7), breaks = pretty_breaks(n = 4)) +  
   theme_minimal() +
   theme(axis.text = element_blank(),axis.ticks = element_blank(),  
-        axis.title = element_blank()) 
+        axis.title = element_blank())  +
+   guides(linewidth = guide_legend(title = "Width mapping"))
 
 # 50 causes
 edgeplot_NSRW1_50 <- ggplot() +
   geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Provinces
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
-  geom_sf(data = centroids, color = "red", size = 3) +  # Centroids
+  geom_sf(data = centroids, color = "red", size = 2) +  # Centroids
   geom_sf(data = edges_sf, aes(linewidth = edge_value_NSRW1_50), color = "blue") + 
-  scale_linewidth(range = c(0.2, 1.7)) +  # Adjust thickness range
+  scale_linewidth(range = c(0.2, 1.7), breaks = pretty_breaks(n = 4)) +  
   theme_minimal() +
   theme(axis.text = element_blank(),axis.ticks = element_blank(),  
-        axis.title = element_blank()) 
+        axis.title = element_blank()) +
+   guides(linewidth = guide_legend(title = "Width mapping"))
   
 # 86 causes
 edgeplot_NSRW1_86 <- ggplot() +
   geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Provinces
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
-  geom_sf(data = centroids, color = "red", size = 3) +  # Centroids
+  geom_sf(data = centroids, color = "red", size = 2) +  # Centroids
   geom_sf(data = edges_sf, aes(linewidth = edge_value_NSRW1_86), color = "blue") + 
-  scale_linewidth(range = c(0.2, 1.7)) +  # Adjust thickness range
+  scale_linewidth(range = c(0.2, 1.7), breaks = pretty_breaks(n = 4)) +  
+  labs(x = "Temporal NSRW1") +
   theme_minimal() +
-  theme(axis.text = element_blank(),axis.ticks = element_blank(),  
-        axis.title = element_blank()) 
+  theme(axis.text = element_blank(),axis.ticks = element_blank(),
+        axis.title.x = element_text(size = 18))  +
+   guides(linewidth = guide_legend(title = "Width mapping"))
 ```
 
 
-# Edge plots for Miguels adaptive BYM
+## Edge plots for Miguels adaptive BYM and for Jo's NSRW1 model
 For this model the outputs are the weights c, one for each region. The precision for a given edge between neighbors is then the product of the c's in the two provinces. We get the following relation between $\tau_{ij}$ and $c_i$ and $c_j$:
 $$
 \tau_{ij} = \sqrt{c_i*c_j}
@@ -784,68 +724,245 @@ edges_sf$edge_value_ABYM_86 <- tau_list_ABYM_86
 edgeplot_ABYM_10 <- ggplot() +
   geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Provinces
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
-  geom_sf(data = centroids, color = "red", size = 3) +  # Centroids
+  geom_sf(data = centroids, color = "red", size = 2) +  # Centroids
   geom_sf(data = edges_sf, aes(linewidth = edge_value_ABYM_10), color = "blue") + 
-  scale_linewidth(range = c(0.2, 1.7)) +  # Adjust thickness range
+  scale_linewidth(range = c(0.2, 1.7), breaks = pretty_breaks(n = 4)) +  
+  labs(y = "n = 10") +
   theme_minimal() +
-  theme(axis.text = element_blank(),axis.ticks = element_blank(),  
-        axis.title = element_blank()) 
+  theme(axis.text = element_blank(),axis.ticks = element_blank(),
+        axis.title.y = element_text(size = 18))  +
+   guides(linewidth = guide_legend(title = "Width mapping"))
   
 # 20 causes
 edgeplot_ABYM_20 <- ggplot() +
   geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Provinces
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
-  geom_sf(data = centroids, color = "red", size = 3) +  # Centroids
+  geom_sf(data = centroids, color = "red", size = 2) +  # Centroids
   geom_sf(data = edges_sf, aes(linewidth = edge_value_ABYM_20), color = "blue") + 
-  scale_linewidth(range = c(0.2, 1.7)) +  # Adjust thickness range
+  scale_linewidth(range = c(0.2, 1.7), breaks = pretty_breaks(n = 4)) + 
+  labs(y = "n = 20") +
   theme_minimal() +
-  theme(axis.text = element_blank(),axis.ticks = element_blank(),  
-        axis.title = element_blank()) 
+  theme(axis.text = element_blank(),axis.ticks = element_blank(),
+        axis.title.y = element_text(size = 18))  +
+   guides(linewidth = guide_legend(title = "Width mapping"))
 
 # 50 causes
 edgeplot_ABYM_50 <- ggplot() +
   geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Provinces
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
-  geom_sf(data = centroids, color = "red", size = 3) +  # Centroids
+  geom_sf(data = centroids, color = "red", size = 2) +  # Centroids
   geom_sf(data = edges_sf, aes(linewidth = edge_value_ABYM_50), color = "blue") + 
-  scale_linewidth(range = c(0.2, 1.7)) +  # Adjust thickness range
+  scale_linewidth(range = c(0.2, 1.7), breaks = pretty_breaks(n = 4)) + 
+  labs(y = "n = 50") +
   theme_minimal() +
-  theme(axis.text = element_blank(),axis.ticks = element_blank(),  
-        axis.title = element_blank()) 
+  theme(axis.text = element_blank(),axis.ticks = element_blank(),
+        axis.title.y = element_text(size = 18))  +
+   guides(linewidth = guide_legend(title = "Width mapping"))
   
 # 86 causes
 edgeplot_ABYM_86 <- ggplot() +
   geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Provinces
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
-  geom_sf(data = centroids, color = "red", size = 3) +  # Centroids
+  geom_sf(data = centroids, color = "red", size = 2) +  # Centroids
   geom_sf(data = edges_sf, aes(linewidth = edge_value_ABYM_86), color = "blue") + 
-  scale_linewidth(range = c(0.2, 1.7)) +  # Adjust thickness range
+  scale_linewidth(range = c(0.2, 1.7), breaks = pretty_breaks(n = 4)) +  
+  labs(x = "Adaptive BYM",y = "n = 86") +
   theme_minimal() +
-  theme(axis.text = element_blank(),axis.ticks = element_blank(),  
-        axis.title = element_blank()) 
+  theme(axis.text = element_blank(),axis.ticks = element_blank(),
+        axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18)) +
+   guides(linewidth = guide_legend(title = "Width mapping"))
 
 ```
+
+## Plot them all together in one figure
 
 Now lets collect all the plots in an edgeplot figure:
 ```{r}
 library(ggpubr)
 
-# Define row and column names
-row_labels <- c("n = 10", "n = 20", "n = 50", "n = 86")
-col_labels <- c("ABYM", "NSRW1")
-
 edgeplots <- list(edgeplot_ABYM_10, edgeplot_NSRW1_10, edgeplot_ABYM_20, edgeplot_NSRW1_20,
                edgeplot_ABYM_50, edgeplot_NSRW1_50, edgeplot_ABYM_86, edgeplot_NSRW1_86)
 
 edgeplot <- ggarrange(plotlist = edgeplots, ncol = 2, nrow = 4, labels = NULL)
+
+final_edgeplot <- annotate_figure(edgeplot,
+                              top = text_grob("Precision for each edge in the graph", 
+                              face = "bold", size = 30))
+
+ggsave("Plots//edgeFigure.png", plot = final_edgeplot, height = 24, 
+  width = 21,  units = "cm",  dpi = 300)
+```
+
+
+# Plots of the total precision for each regions for the WinBUGS models
+Plot of the total precision, i.e. the sum of the precision of the connected edges for all regions. Lets start with making the plots for the temporal NSRW1 by Jo and Riddervold.
+
+## Total precision per region for temporal NSRW1
+
+As this model calculates the precision tau for each edge, the precision for each region is simply the sum of the connecting edges. Lets first compute these sums before making the plots for each number of causes $n$.
+
+```{r}
+#Plot for the total precision of each region
+
+# 10 causes
+precision_list10 <- rep(0, nAreas) 
+tau_list <- res_list_NSRW1[[1]]$mean$Tau2
+
+precision_list10[1] <- sum(tau_list[my_list[index[1]:index[2]]])
+for (i in 2:nAreas){
+  precision_list10[i] <- sum(tau_list[my_list[(index[i] + 1):index[i + 1]]])
+}
+
+# 20 causes
+precision_list20 <- rep(0, nAreas) #maybe define nAreas at the start?
+tau_list <- res_list_NSRW1[[2]]$mean$Tau2
+
+precision_list20[1] <- sum(tau_list[my_list[index[1]:index[2]]])
+for (i in 2:nAreas){
+  precision_list20[i] <- sum(tau_list[my_list[(index[i] + 1):index[i + 1]]])
+}
+
+# 50 causes
+precision_list50 <- rep(0, nAreas) #maybe define nAreas at the start?
+tau_list <- res_list_NSRW1[[3]]$mean$Tau2
+
+precision_list50[1] <- sum(tau_list[my_list[index[1]:index[2]]])
+for (i in 2:nAreas){
+  precision_list50[i] <- sum(tau_list[my_list[(index[i] + 1):index[i + 1]]])
+}
+
+# 86 causes
+precision_list86 <- rep(0, nAreas) #maybe define nAreas at the start?
+tau_list <- res_list_NSRW1[[4]]$mean$Tau2
+
+precision_list86[1] <- sum(tau_list[my_list[index[1]:index[2]]])
+for (i in 2:nAreas){
+  precision_list86[i] <- sum(tau_list[my_list[(index[i] + 1):index[i + 1]]])
+}
+
+ss_provinces$color10_NSRW1 <- precision_list10
+ss_provinces$color20_NSRW1 <- precision_list20
+ss_provinces$color50_NSRW1 <- precision_list50
+ss_provinces$color86_NSRW1 <- precision_list86
+
+#can change the fill=NA to add colours
+precplot_NSRW1_10 <- ggplot() +
+  geom_sf(data = ss_ar, color="black") + #do not really need this line
+  geom_sf(data=ss_provinces, aes(fill=color10_NSRW1), color="grey") +
+  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
+  ggtitle("Precision tau for n=10 causes with temporal NSRW1")
+
+precplot_NSRW1_20 <- ggplot() +
+  geom_sf(data = ss_ar, color="black") + #do not really need this line
+  geom_sf(data=ss_provinces, aes(fill=color20_NSRW1), color="grey") +
+  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
+  ggtitle("Precision tau for n=20 causes with temporal NSRW1")
+
+precplot_NSRW1_50 <- ggplot() +
+  geom_sf(data = ss_ar, color="black") + #do not really need this line
+  geom_sf(data=ss_provinces, aes(fill=color50_NSRW1), color="grey") +
+  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
+  ggtitle("Precision tau for n=50 causes with temporal NSRW1")
+
+precplot_NSRW1_86 <- ggplot() +
+  geom_sf(data = ss_ar, color="black") + #do not really need this line
+  geom_sf(data=ss_provinces, aes(fill=color86_NSRW1), color="grey") +
+  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
+  ggtitle("Precision tau for n=86 causes with temporal NSRW1")
+```
+
+## Precision plots for the adaptive BYM by Miguel
+
+
+```{r}
+#Plot for the total precision of each region
+
+# 10 causes
+precision_list10 <- rep(0, nAreas) 
+
+precision_list10[1] <- sum(tau_list_ABYM_10[index[1]:index[2]])
+for (i in 2:nAreas){
+  precision_list10[i] <- sum(tau_list_ABYM_10[(index[i] + 1):index[i + 1]])
+}
+
+# 20 causes
+precision_list20 <- rep(0, nAreas)
+
+precision_list20[1] <- sum(tau_list_ABYM_20[index[1]:index[2]])
+for (i in 2:nAreas){
+  precision_list20[i] <- sum(tau_list_ABYM_20[(index[i] + 1):index[i + 1]])
+}
+
+# 50 causes
+precision_list50 <- rep(0, nAreas) 
+
+precision_list50[1] <- sum(tau_list_ABYM_50[index[1]:index[2]])
+for (i in 2:nAreas){
+  precision_list50[i] <- sum(tau_list_ABYM_50[(index[i] + 1):index[i + 1]])
+}
+
+# 86 causes
+precision_list86 <- rep(0, nAreas) 
+
+precision_list86[1] <- sum(tau_list_ABYM_86[index[1]:index[2]])
+for (i in 2:nAreas){
+  precision_list86[i] <- sum(tau_list_ABYM_86[(index[i] + 1):index[i + 1]])
+}
+
+ss_provinces$color10_ABYM <- precision_list10
+ss_provinces$color20_ABYM <- precision_list20
+ss_provinces$color50_ABYM <- precision_list50
+ss_provinces$color86_ABYM <- precision_list86
+
+#can change the fill=NA to add colours
+precplot_ABYM_10 <- ggplot() +
+  geom_sf(data = ss_ar, color="black") + #do not really need this line
+  geom_sf(data=ss_provinces, aes(fill=color10_ABYM), color="grey") +
+  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
+  ggtitle("Precision tau for n=10 causes with the adaptive BYM")
+
+precplot_ABYM_20 <- ggplot() +
+  geom_sf(data = ss_ar, color="black") + #do not really need this line
+  geom_sf(data=ss_provinces, aes(fill=color20_ABYM), color="grey") +
+  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
+  ggtitle("Precision tau for n=20 causes with the adaptive BYM")
+
+precplot_ABYM_50 <- ggplot() +
+  geom_sf(data = ss_ar, color="black") + #do not really need this line
+  geom_sf(data=ss_provinces, aes(fill=color50_ABYM), color="grey") +
+  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
+  ggtitle("Precision tau for n=50 causes with the adaptive BYM")
+
+precplot_ABYM_86 <- ggplot() +
+  geom_sf(data = ss_ar, color="black") + #do not really need this line
+  geom_sf(data=ss_provinces, aes(fill=color86_ABYM), color="grey") +
+  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
+  ggtitle("Precision tau for n=86 causes with the adaptive BYM")
+```
+
+## Collecting the 8 plots in the same figure
+
+```{r}
+precplots <- list(precplot_ABYM_10, precplot_NSRW1_10, precplot_ABYM_20, precplot_NSRW1_20,
+               precplot_ABYM_50, precplot_NSRW1_50, precplot_ABYM_86, precplot_NSRW1_86)
+
+precplot <- ggarrange(plotlist = precplots, ncol = 2, nrow = 4, labels = NULL)
+
+final_precplot <- annotate_figure(precplot,
+                              top = text_grob("Total precision for each province", 
+                              face = "bold", size = 30))
+
+ggsave("Plots//precFigure.png", plot = final_precplot, height = 24, 
+  width = 21,  units = "cm",  dpi = 300)
 ```
 
 
 
-
-
 NB:
+Was i supposed to run the models without an iid effect? At the moment I have a random effect for each province and disease I think.
 Was the national mortality data subtracted by the provinces we removed when calculating the expected cases?
+Pretty breaks did nothing in the edgeplots
+
 
 ## For leave one out cross-validation for the diseases and simulation of the weight matrix
 ```{r}
