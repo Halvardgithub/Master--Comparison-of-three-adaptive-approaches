@@ -789,8 +789,7 @@ final_edgeplot <- annotate_figure(edgeplot,
                               top = text_grob("Precision for each edge in the graph", 
                               face = "bold", size = 30))
 
-ggsave("Plots//edgeFigure.png", plot = final_edgeplot, height = 24, 
-  width = 21,  units = "cm",  dpi = 300)
+#ggsave("Plots//edgeFigure.png", plot = final_edgeplot, height = 24, width = 21,  units = "cm",  dpi = 300)
 ```
 
 
@@ -850,25 +849,38 @@ precplot_NSRW1_10 <- ggplot() +
   geom_sf(data = ss_ar, color="black") + #do not really need this line
   geom_sf(data=ss_provinces, aes(fill=color10_NSRW1), color="grey") +
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
-  ggtitle("Precision tau for n=10 causes with temporal NSRW1")
+  theme_minimal() +
+  theme(axis.text = element_blank(),axis.ticks = element_blank(),
+        axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18)) +
+   guides(fill = guide_colorbar(title = "Color mapping"))
 
 precplot_NSRW1_20 <- ggplot() +
   geom_sf(data = ss_ar, color="black") + #do not really need this line
   geom_sf(data=ss_provinces, aes(fill=color20_NSRW1), color="grey") +
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
-  ggtitle("Precision tau for n=20 causes with temporal NSRW1")
+  theme_minimal() +
+  theme(axis.text = element_blank(),axis.ticks = element_blank(),
+        axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18)) +
+   guides(fill = guide_colorbar(title = "Color mapping"))
 
 precplot_NSRW1_50 <- ggplot() +
   geom_sf(data = ss_ar, color="black") + #do not really need this line
   geom_sf(data=ss_provinces, aes(fill=color50_NSRW1), color="grey") +
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
-  ggtitle("Precision tau for n=50 causes with temporal NSRW1")
+  theme_minimal() +
+  theme(axis.text = element_blank(),axis.ticks = element_blank(),
+        axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18)) +
+   guides(fill = guide_colorbar(title = "Color mapping"))
 
 precplot_NSRW1_86 <- ggplot() +
   geom_sf(data = ss_ar, color="black") + #do not really need this line
   geom_sf(data=ss_provinces, aes(fill=color86_NSRW1), color="grey") +
-  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
-  ggtitle("Precision tau for n=86 causes with temporal NSRW1")
+  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4)  +
+  labs(x = "Temporal NSRW1") +
+  theme_minimal() +
+  theme(axis.text = element_blank(),axis.ticks = element_blank(),
+        axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18)) +
+   guides(fill = guide_colorbar(title = "Color mapping"))
 ```
 
 ## Precision plots for the adaptive BYM by Miguel
@@ -919,25 +931,41 @@ precplot_ABYM_10 <- ggplot() +
   geom_sf(data = ss_ar, color="black") + #do not really need this line
   geom_sf(data=ss_provinces, aes(fill=color10_ABYM), color="grey") +
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
-  ggtitle("Precision tau for n=10 causes with the adaptive BYM")
+  labs(y = "n = 10") +
+  theme_minimal() +
+  theme(axis.text = element_blank(),axis.ticks = element_blank(),
+        axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18)) +
+   guides(fill = guide_colorbar(title = "Color mapping"))
 
 precplot_ABYM_20 <- ggplot() +
   geom_sf(data = ss_ar, color="black") + #do not really need this line
   geom_sf(data=ss_provinces, aes(fill=color20_ABYM), color="grey") +
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
-  ggtitle("Precision tau for n=20 causes with the adaptive BYM")
+  labs(y = "n = 20") +
+  theme_minimal() +
+  theme(axis.text = element_blank(),axis.ticks = element_blank(),
+        axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18)) +
+   guides(fill = guide_colorbar(title = "Color mapping"))
 
 precplot_ABYM_50 <- ggplot() +
   geom_sf(data = ss_ar, color="black") + #do not really need this line
   geom_sf(data=ss_provinces, aes(fill=color50_ABYM), color="grey") +
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
-  ggtitle("Precision tau for n=50 causes with the adaptive BYM")
+  labs(y = "n = 50") +
+  theme_minimal() +
+  theme(axis.text = element_blank(),axis.ticks = element_blank(),
+        axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18)) +
+   guides(fill = guide_colorbar(title = "Color mapping"))
 
 precplot_ABYM_86 <- ggplot() +
   geom_sf(data = ss_ar, color="black") + #do not really need this line
   geom_sf(data=ss_provinces, aes(fill=color86_ABYM), color="grey") +
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
-  ggtitle("Precision tau for n=86 causes with the adaptive BYM")
+  labs(x = "Adaptive BYM",y = "n = 86") +
+  theme_minimal() +
+  theme(axis.text = element_blank(),axis.ticks = element_blank(),
+        axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18)) +
+   guides(fill = guide_colorbar(title = "Color mapping"))
 ```
 
 ## Collecting the 8 plots in the same figure
@@ -952,8 +980,7 @@ final_precplot <- annotate_figure(precplot,
                               top = text_grob("Total precision for each province", 
                               face = "bold", size = 30))
 
-ggsave("Plots//precFigure.png", plot = final_precplot, height = 24, 
-  width = 21,  units = "cm",  dpi = 300)
+#ggsave("Plots//precFigure.png", plot = final_precplot, height = 24, width = 21,  units = "cm",  dpi = 300)
 ```
 
 
