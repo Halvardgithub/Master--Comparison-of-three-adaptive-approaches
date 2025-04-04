@@ -1018,7 +1018,7 @@ Lets now make the four plots for the different number of causes n.
 # 10 causes
 cor_edges_10 <- cor(edges_sf$edge_value_ABYM_10, edges_sf$edge_value_NSRW1_10)
 
-ggplot(edges_sf, aes(x = edge_value_ABYM_10, y = edge_value_NSRW1_10, 
+SCplot_edges_10 <- ggplot(edges_sf, aes(x = edge_value_ABYM_10, y = edge_value_NSRW1_10, 
                      color = factor(inter_region_edges))) +
   geom_point() +
   labs(x = "Adaptive BYM", y = "Temporal NSRW1", 
@@ -1029,7 +1029,7 @@ ggplot(edges_sf, aes(x = edge_value_ABYM_10, y = edge_value_NSRW1_10,
 # 20 causes
 cor_edges_20 <- cor(edges_sf$edge_value_ABYM_20, edges_sf$edge_value_NSRW1_20)
 
-ggplot(edges_sf, aes(x = edge_value_ABYM_20, y = edge_value_NSRW1_20, 
+SCplot_edges_20 <- ggplot(edges_sf, aes(x = edge_value_ABYM_20, y = edge_value_NSRW1_20, 
                      color = factor(inter_region_edges))) +
   geom_point() +
   labs(x = "Adaptive BYM", y = "Temporal NSRW1", 
@@ -1040,7 +1040,7 @@ ggplot(edges_sf, aes(x = edge_value_ABYM_20, y = edge_value_NSRW1_20,
 # 50 causes
 cor_edges_50 <- cor(edges_sf$edge_value_ABYM_50, edges_sf$edge_value_NSRW1_50)
 
-ggplot(edges_sf, aes(x = edge_value_ABYM_50, y = edge_value_NSRW1_50, 
+SCplot_edges_50 <- ggplot(edges_sf, aes(x = edge_value_ABYM_50, y = edge_value_NSRW1_50, 
                      color = factor(inter_region_edges))) +
   geom_point() +
   labs(x = "Adaptive BYM", y = "Temporal NSRW1", 
@@ -1051,7 +1051,7 @@ ggplot(edges_sf, aes(x = edge_value_ABYM_50, y = edge_value_NSRW1_50,
 # 86 causes
 cor_edges_86 <- cor(edges_sf$edge_value_ABYM_86, edges_sf$edge_value_NSRW1_86)
 
-ggplot(edges_sf, aes(x = edge_value_ABYM_86, y = edge_value_NSRW1_86, 
+SCplot_edges_86 <- ggplot(edges_sf, aes(x = edge_value_ABYM_86, y = edge_value_NSRW1_86, 
                      color = factor(inter_region_edges))) +
   geom_point() +
   labs(x = "Adaptive BYM", y = "Temporal NSRW1", 
@@ -1061,6 +1061,151 @@ ggplot(edges_sf, aes(x = edge_value_ABYM_86, y = edge_value_NSRW1_86,
 
 ```
 For the above plots, red correspond to edges between different autonomous regions while blue are edges inside the same autonomous region.
+
+## Scatter plots for total precision in each region
+
+```{r}
+# 10 causes
+cor_prec_10 <- cor(ss_provinces$color10_ABYM, ss_provinces$color10_NSRW1)
+
+SCplot_prec_10 <- ggplot(ss_provinces, aes(x = color10_ABYM, y = color10_NSRW1)) +
+  geom_point() +
+  labs(x = "Adaptive BYM", y = "Temporal NSRW1", 
+       title = paste("Cor =", round(cor_prec_10, 3)))
+
+# 20 causes
+cor_prec_20 <- cor(ss_provinces$color20_ABYM, ss_provinces$color20_NSRW1)
+
+SCplot_prec_20 <- ggplot(ss_provinces, aes(x = color20_ABYM, y = color20_NSRW1)) +
+  geom_point() +
+  labs(x = "Adaptive BYM", y = "Temporal NSRW1", 
+       title = paste("Cor =", round(cor_prec_20, 3)))
+
+# 50 causes
+cor_prec_50 <- cor(ss_provinces$color50_ABYM, ss_provinces$color50_NSRW1)
+
+SCplot_prec_50 <- ggplot(ss_provinces, aes(x = color50_ABYM, y = color50_NSRW1)) +
+  geom_point() +
+  labs(x = "Adaptive BYM", y = "Temporal NSRW1", 
+       title = paste("Cor =", round(cor_prec_50, 3)))
+
+# 86 causes
+cor_prec_86 <- cor(ss_provinces$color86_ABYM, ss_provinces$color86_NSRW1)
+
+SCplot_prec_86 <- ggplot(ss_provinces, aes(x = color86_ABYM, y = color86_NSRW1)) +
+  geom_point() +
+  labs(x = "Adaptive BYM", y = "Temporal NSRW1", 
+       title = paste("Cor =", round(cor_prec_86, 3)))
+```
+
+## Collecting the 8 scatterplots in the same figure
+
+```{r}
+
+# ann1 <- ggplot() + 
+#   geom_text(aes(x=0, y=0, label = "bold(Edges)"), 
+#             parse = TRUE, size = 5, hjust = 0) +
+#   theme_void()
+# 
+# ann2 <- ggplot() + 
+#   geom_text(aes(x=0, y=0, label = "bold(Regions)"), 
+#             parse = TRUE, size = 5, hjust = 0) +
+#   theme_void()
+
+scatterplots <- list(SCplot_edges_10, SCplot_prec_10, SCplot_edges_20, SCplot_prec_20,
+                     SCplot_edges_50, SCplot_prec_50, SCplot_edges_86, SCplot_prec_86)
+
+scatterplot <- ggarrange(plotlist = scatterplots, ncol = 2, nrow = 4, labels = NULL)
+
+final_scatterplot <- annotate_figure(scatterplot,
+                        top = text_grob("Edges and precision per Province", 
+                        face = "bold", size = 30))
+final_scatterplot
+
+#ggsave("Plots//scatterFigure.png", plot = final_scatterplot, height = 24, width = 21,  units = "cm",  dpi = 300)
+```
+
+
+#Anova test for edges for differing number of causes n
+
+```{r}
+library(ggpubr)
+
+anova_NSRW1_10 <- summary(aov(edges_sf$edge_value_NSRW1_10 ~ edges_sf$between_region_edges))
+anova_NSRW1_20 <- summary(aov(edges_sf$edge_value_NSRW1_20 ~ edges_sf$between_region_edges))
+anova_NSRW1_50 <- summary(aov(edges_sf$edge_value_NSRW1_50 ~ edges_sf$between_region_edges))
+anova_NSRW1_86 <- summary(aov(edges_sf$edge_value_NSRW1_86 ~ edges_sf$between_region_edges))
+
+anova_ABYM_10 <- summary(aov(edges_sf$edge_value_ABYM_10 ~ edges_sf$between_region_edges))
+anova_ABYM_20 <- summary(aov(edges_sf$edge_value_ABYM_20 ~ edges_sf$between_region_edges))
+anova_ABYM_50 <- summary(aov(edges_sf$edge_value_ABYM_50 ~ edges_sf$between_region_edges))
+anova_ABYM_86 <- summary(aov(edges_sf$edge_value_ABYM_86 ~ edges_sf$between_region_edges))
+
+anova_result <- c(anova_NSRW1_10[[1]][1, "Pr(>F)"], anova_NSRW1_20[[1]][1, "Pr(>F)"], 
+                  anova_NSRW1_50[[1]][1, "Pr(>F)"], anova_NSRW1_86[[1]][1, "Pr(>F)"],
+                  anova_ABYM_10[[1]][1, "Pr(>F)"], anova_ABYM_20[[1]][1, "Pr(>F)"],
+                  anova_ABYM_50[[1]][1, "Pr(>F)"], anova_ABYM_86[[1]][1, "Pr(>F)"])
+
+anova_result <- round(anova_result,  4)
+
+anova_df <- data.frame(Adaptive_BYM = anova_result[5:8],
+                       NSRW1 = anova_result[1:4])
+
+row.names(anova_df) <- c("n=10", "n=20", "n=50", "n=86")
+colnames(anova_df) <- c("Adaptive BYM", "Temporal NSRW1")
+
+anova_edge_table <- ggtexttable(anova_df, theme = ttheme("mOrange"))
+
+anova_edge_table_figure <- annotate_figure(anova_edge_table, top = text_grob("p-values for edges", face = "bold", size = 14))
+
+#ggsave("Plots//anovaFigure.png", plot = anova_edge_table_figure, height = 12, width = 10,  units = "cm",  dpi = 300)
+```
+
+
+At the log scale for the precisions!
+
+```{r}
+
+anova_NSRW1_10 <- summary(aov(log(edges_sf$edge_value_NSRW1_10) ~ 
+                                edges_sf$between_region_edges))
+anova_NSRW1_20 <- summary(aov(log(edges_sf$edge_value_NSRW1_20) ~
+                                edges_sf$between_region_edges))
+anova_NSRW1_50 <- summary(aov(log(edges_sf$edge_value_NSRW1_50) ~
+                                edges_sf$between_region_edges))
+anova_NSRW1_86 <- summary(aov(log(edges_sf$edge_value_NSRW1_86) ~
+                                edges_sf$between_region_edges))
+
+anova_ABYM_10 <- summary(aov(log(edges_sf$edge_value_ABYM_10) ~
+                               edges_sf$between_region_edges))
+anova_ABYM_20 <- summary(aov(log(edges_sf$edge_value_ABYM_20) ~
+                               edges_sf$between_region_edges))
+anova_ABYM_50 <- summary(aov(log(edges_sf$edge_value_ABYM_50) ~
+                               edges_sf$between_region_edges))
+anova_ABYM_86 <- summary(aov(log(edges_sf$edge_value_ABYM_86) ~
+                               edges_sf$between_region_edges))
+
+anova_result_log <- c(anova_NSRW1_10[[1]][1, "Pr(>F)"], anova_NSRW1_20[[1]][1, "Pr(>F)"], 
+                  anova_NSRW1_50[[1]][1, "Pr(>F)"], anova_NSRW1_86[[1]][1, "Pr(>F)"],
+                  anova_ABYM_10[[1]][1, "Pr(>F)"], anova_ABYM_20[[1]][1, "Pr(>F)"],
+                  anova_ABYM_50[[1]][1, "Pr(>F)"], anova_ABYM_86[[1]][1, "Pr(>F)"])
+
+anova_result_log <- round(anova_result_log,  4)
+
+anova_log_df <- data.frame(Adaptive_BYM = anova_result_log[5:8],
+                       NSRW1 = anova_result_log[1:4])
+
+row.names(anova_log_df) <- c("n=10", "n=20", "n=50", "n=86")
+colnames(anova_log_df) <- c("Adaptive BYM", "Temporal NSRW1")
+
+anova_log_edge_table <- ggtexttable(anova_log_df, theme = ttheme("mOrange"))
+
+anova_log_edge_table_figure <- annotate_figure(anova_log_edge_table, top = text_grob("p-values for log of the edges", face = "bold", size = 14))
+
+#ggsave("Plots//anovaLogFigure.png", plot = anova_log_edge_table_figure, height = 12, width = 10,  units = "cm",  dpi = 300)
+```
+
+
+
 
 NB:
 Was i supposed to run the models without an iid effect? At the moment I have a random effect for each province and disease I think.
