@@ -1208,9 +1208,10 @@ anova_log_edge_table_figure <- annotate_figure(anova_log_edge_table, top = text_
 
 
 NB:
+Should Autonomous regions and Provinces start with a capital letter? upper case
 Was i supposed to run the models without an iid effect? At the moment I have a random effect for each province and disease I think.
 Was the national mortality data subtracted by the provinces we removed when calculating the expected cases?
-Pretty breaks did nothing in the edgeplots
+Need to choose appropriate names for the models, preferably consistent across text and figures. Any ideas? By author? NSRW1 or AICAR_E, AICAR_2, AICAR_I, EW-ICAR (edge weighted), RW-ICAR(region weighted), BW-ICAR (borders weighted)
 
 
 ## For leave one out cross-validation for the diseases and simulation of the weight matrix
