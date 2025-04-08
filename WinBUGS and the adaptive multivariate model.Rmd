@@ -62,7 +62,7 @@ Note that "Tumor Maligno del cruello del utero" in exp10 are all zero, so should
 
 Generally, i indicates a spatial region/province and j represents a disease or cause of death. 
 ```{r}
-# Multivariate adaptive BYM model, WinBUGS code
+# Multivariate adaptive BYM model, WinBUGS code, with iid effect theta
 AdaptiveBYM_model <- function() {
   # Likelihood
   for (i in 1:Nareas) {
@@ -117,6 +117,62 @@ AdaptiveBYM_model <- function() {
   }
 }
 ```
+
+The model without the spatial iid effect theta.
+```{r}
+# Multivariate adaptive BYM model, WinBUGS code, without iid effect theta
+AdaptiveBYM_model_NOiid <- function() {
+  # Likelihood
+  for (i in 1:Nareas) {
+    for (j in 1:Ndiseases) {
+      O[i, j] ~ dpois(lambda[i, j])
+      # Modeling of the mean for each census tract and disease
+      log(lambda[i, j]) <- log(E[i, j]) + mu[j] + phi[i,j]
+      # SMR for each census tract and disease
+      SMR[i, j] <- exp(mu[j] + phi[i, j])
+      # Prior distribution for spatial effects
+      phi[i, j] ~ dnorm(mean.phi[i, j], prec.phi[i, j])
+    }
+  }
+  for (i in 1:n.adj) {
+    sqrt.c.adj[i] <- sqrt(c[adj[i]])
+    for (j in 1:Ndiseases) {
+      phi.adj[i, j] <- phi[adj[i], j]
+    }
+  }
+  # Precision of the conditional distribution of spatial effects
+  for (j in 1:Ndiseases) {
+    prec.phi[1, j] <- pow(sd.phi[j], -2) * sqrt(c[1]) * sum(sqrt.c.adj[index[1]:index[2]])
+    for (i in 2:Nareas) {
+      prec.phi[i, j] <- pow(sd.phi[j], -2) * sqrt(c[i]) * sum(sqrt.c.adj[(index[i] + 1):index[i + 1]]) #the +1 is to correct the indexes, works as all regions have at least one neighbour
+    } 
+  } 
+  # Mean of the conditional distribution of spatial effects
+  for (j in 1:Ndiseases) {
+    mean.phi[1, j] <- inprod2(sqrt.c.adj[index[1]:index[2]],
+      phi.adj[index[1]:index[2], j])/sum(sqrt.c.adj[index[1]:index[2]])
+    for (i in 2:Nareas) {
+      mean.phi[i, j] <- inprod2(sqrt.c.adj[(index[i] + 1):index[i + 1]], phi.adj[(index[i] + 1):index[i + 1], j])/sum(sqrt.c.adj[(index[i] + 1):index[i +1]])
+    }
+    # Sum-to-zero restriction for spatial effects
+    ceros[j] <- 0
+    ceros[j] ~ dnorm(sum.phi[j], 10)
+    sum.phi[j] <- sum(phi[, j])
+  }
+  # Prior distributions for c
+  for (i in 1:Nareas) {
+    c[i] ~ dgamma(tau, tau) %_% I(0.001, ) # %_% 0.001 ensures c[i] is above 0.001
+  }
+  tau <- pow(sd.c, -2)
+  sd.c ~ dunif(0, 5)
+  # Other prior distributions
+  for (j in 1:Ndiseases) {
+    sd.phi[j] ~ dunif(0, 5)
+    mu[j] ~ dflat()
+  }
+}
+```
+I removed sd.theta and theta, so they should also not be passed to the model!
 
 
 # Run the model
@@ -343,7 +399,7 @@ my_list <- as.integer(my_list[which(my_list != 0)])
 
 
 ```{r}
-# Multivariate adaptive BYM model, WinBUGS code
+# Multivariate adaptive BYM model, WinBUGS code and iid spatial effect theta
 NSRW1_model <- function() {
   # Likelihood
   for (i in 1:Nareas) {
@@ -367,9 +423,9 @@ NSRW1_model <- function() {
   }
 
   for (j in 1:Ndiseases) {
-     prec.phi[1, j] <- sum(Tau2.tau.list[index[1]:index[2]])
+     prec.phi[1, j] <- pow(sd.phi[j], -2) * sum(Tau2.tau.list[index[1]:index[2]])
      for (i in 2:Nareas) {
-       prec.phi[i, j] <- sum(Tau2.tau.list[(index[i]+1):index[i+1]])
+       prec.phi[i, j] <- pow(sd.phi[j], -2) * sum(Tau2.tau.list[(index[i]+1):index[i+1]])
      }
   }
   for(i in 1:n.adj){ #to avoid nesting too many lists inside each other, causes crashes
@@ -403,6 +459,68 @@ NSRW1_model <- function() {
   }
 }
 ```
+
+The model without spatial iid effect theta to focus on the spatially structured effect phi.
+
+```{r}
+# Multivariate adaptive BYM model, WinBUGS code without spatial iid effect theta
+NSRW1_model_NOiid <- function() {
+  # Likelihood
+  for (i in 1:Nareas) {
+    for (j in 1:Ndiseases) {
+      O[i, j] ~ dpois(lambda[i, j])
+      # Modeling of the mean for each census tract and disease
+      log(lambda[i, j]) <- log(E[i, j]) + mu[j] + phi[i,j]
+      # SMR for each census tract and disease
+      SMR[i, j] <- exp(mu[j] + phi[i, j])
+      # Prior distribution for spatial effects
+      phi[i, j] ~ dnorm(mean.phi[i, j], prec.phi[i, j])
+    }
+  }
+  
+  for (i in 1:n.adj) {
+    for (j in 1:Ndiseases) {
+      phi.adj[i, j] <- phi[adj[i], j]
+    }
+  }
+
+  for (j in 1:Ndiseases) {
+     prec.phi[1, j] <- pow(sd.phi[j], -2) * sum(Tau2.tau.list[index[1]:index[2]])
+     for (i in 2:Nareas) {
+       prec.phi[i, j] <- pow(sd.phi[j], -2) * sum(Tau2.tau.list[(index[i]+1):index[i+1]])
+     }
+  }
+  for(i in 1:n.adj){ #to avoid nesting too many lists inside each other, causes crashes
+    Tau2.tau.list[i]<-Tau2[tau.list[i]]
+  }  
+  
+  # Mean of the conditional distribution of spatial effects
+  for (j in 1:Ndiseases) {
+      mean.phi[1, j] <- inprod2(Tau2.tau.list[index[1]:index[2]],
+      phi.adj[index[1]:index[2], j])/sum(Tau2.tau.list[index[1]:index[2]])
+    for (i in 2:Nareas) {
+      mean.phi[i, j] <- inprod2(Tau2.tau.list[(index[i]+1):index[i+1]], phi.adj[(index[i] + 1):index[i + 1], j])/sum(Tau2.tau.list[(index[i]+1):index[i+1]])
+    }
+    # Sum-to-zero restriction for spatial effects
+    ceros[j] <- 0
+    ceros[j] ~ dnorm(sum.phi[j], 10)
+    sum.phi[j] <- sum(phi[, j])
+  }
+  ## Prior distributions for Tau2 and its hyperparameters
+  for (t in 1:(n.adj/2)){
+    Tau2[t] ~ dgamma(alpha, alpha) %_% I(0.001, )
+  }
+  alpha <- pow(sd.alpha, -2)
+  sd.alpha ~ dunif(0, 5)
+  
+  # Other prior distributions
+  for (j in 1:Ndiseases) {
+    sd.phi[j] ~ dunif(0, 5)
+    mu[j] ~ dflat()
+  }
+}
+```
+
 
 ```{r}
 runtime_NSRW1 <- rep(0, 4)
