@@ -902,11 +902,7 @@ library(ggpubr)
 edgeplots <- list(edgeplot_ABYM_10, edgeplot_NSRW1_10, edgeplot_ABYM_20, edgeplot_NSRW1_20,
                edgeplot_ABYM_50, edgeplot_NSRW1_50, edgeplot_ABYM_86, edgeplot_NSRW1_86)
 
-edgeplot <- ggarrange(plotlist = edgeplots, ncol = 2, nrow = 4, labels = NULL)
-
-final_edgeplot <- annotate_figure(edgeplot,
-                              top = text_grob("Precision for each edge in the graph", 
-                              face = "bold", size = 30))
+final_edgeplot <- ggarrange(plotlist = edgeplots, ncol = 2, nrow = 4, labels = NULL)
 
 #ggsave("Plots//edgeFigure.png", plot = final_edgeplot, height = 24, width = 21,  units = "cm",  dpi = 300)
 ```
@@ -1093,11 +1089,7 @@ precplot_ABYM_86 <- ggplot() +
 precplots <- list(precplot_ABYM_10, precplot_NSRW1_10, precplot_ABYM_20, precplot_NSRW1_20,
                precplot_ABYM_50, precplot_NSRW1_50, precplot_ABYM_86, precplot_NSRW1_86)
 
-precplot <- ggarrange(plotlist = precplots, ncol = 2, nrow = 4, labels = NULL)
-
-final_precplot <- annotate_figure(precplot,
-                              top = text_grob("Total precision for each province", 
-                              face = "bold", size = 30))
+final_precplot <- ggarrange(plotlist = precplots, ncol = 2, nrow = 4, labels = NULL)
 
 #ggsave("Plots//precFigure.png", plot = final_precplot, height = 24, width = 21,  units = "cm",  dpi = 300)
 ```
@@ -1140,7 +1132,7 @@ SCplot_edges_10 <- ggplot(edges_sf, aes(x = edge_value_ABYM_10, y = edge_value_N
                      color = factor(inter_region_edges))) +
   geom_point() +
   labs(x = "Adaptive BYM", y = "Temporal NSRW1", 
-       title = paste("Cor =", round(cor_edges_10, 3))) + 
+       title = paste("Cor =", round(cor_edges_10, 3), "(n = 10)")) + 
   scale_color_manual(values = c("0" = "red", "1" = "blue")) +
   guides(color = "none")
 
@@ -1151,7 +1143,7 @@ SCplot_edges_20 <- ggplot(edges_sf, aes(x = edge_value_ABYM_20, y = edge_value_N
                      color = factor(inter_region_edges))) +
   geom_point() +
   labs(x = "Adaptive BYM", y = "Temporal NSRW1", 
-       title = paste("Cor =", round(cor_edges_20, 3))) + 
+       title = paste("Cor =", round(cor_edges_20, 3), "(n = 20)")) + 
   scale_color_manual(values = c("0" = "red", "1" = "blue")) +
   guides(color = "none")
 
@@ -1162,7 +1154,7 @@ SCplot_edges_50 <- ggplot(edges_sf, aes(x = edge_value_ABYM_50, y = edge_value_N
                      color = factor(inter_region_edges))) +
   geom_point() +
   labs(x = "Adaptive BYM", y = "Temporal NSRW1", 
-       title = paste("Cor =", round(cor_edges_50, 3))) + 
+       title = paste("Cor =", round(cor_edges_50, 3), "(n = 50)")) + 
   scale_color_manual(values = c("0" = "red", "1" = "blue")) +
   guides(color = "none")
 
@@ -1173,7 +1165,7 @@ SCplot_edges_86 <- ggplot(edges_sf, aes(x = edge_value_ABYM_86, y = edge_value_N
                      color = factor(inter_region_edges))) +
   geom_point() +
   labs(x = "Adaptive BYM", y = "Temporal NSRW1", 
-       title = paste("Cor =", round(cor_edges_86, 3))) + 
+       title = paste("Cor =", round(cor_edges_86, 3), "(n = 86)")) + 
   scale_color_manual(values = c("0" = "red", "1" = "blue")) +
   guides(color = "none")
 
@@ -1189,7 +1181,7 @@ cor_prec_10 <- cor(ss_provinces$color10_ABYM, ss_provinces$color10_NSRW1)
 SCplot_prec_10 <- ggplot(ss_provinces, aes(x = color10_ABYM, y = color10_NSRW1)) +
   geom_point() +
   labs(x = "Adaptive BYM", y = "Temporal NSRW1", 
-       title = paste("Cor =", round(cor_prec_10, 3)))
+       title = paste("Cor =", round(cor_prec_10, 3), "(n = 10)"))
 
 # 20 causes
 cor_prec_20 <- cor(ss_provinces$color20_ABYM, ss_provinces$color20_NSRW1)
@@ -1197,7 +1189,7 @@ cor_prec_20 <- cor(ss_provinces$color20_ABYM, ss_provinces$color20_NSRW1)
 SCplot_prec_20 <- ggplot(ss_provinces, aes(x = color20_ABYM, y = color20_NSRW1)) +
   geom_point() +
   labs(x = "Adaptive BYM", y = "Temporal NSRW1", 
-       title = paste("Cor =", round(cor_prec_20, 3)))
+       title = paste("Cor =", round(cor_prec_20, 3), "(n = 20)"))
 
 # 50 causes
 cor_prec_50 <- cor(ss_provinces$color50_ABYM, ss_provinces$color50_NSRW1)
@@ -1205,7 +1197,7 @@ cor_prec_50 <- cor(ss_provinces$color50_ABYM, ss_provinces$color50_NSRW1)
 SCplot_prec_50 <- ggplot(ss_provinces, aes(x = color50_ABYM, y = color50_NSRW1)) +
   geom_point() +
   labs(x = "Adaptive BYM", y = "Temporal NSRW1", 
-       title = paste("Cor =", round(cor_prec_50, 3)))
+       title = paste("Cor =", round(cor_prec_50, 3), "(n = 50)"))
 
 # 86 causes
 cor_prec_86 <- cor(ss_provinces$color86_ABYM, ss_provinces$color86_NSRW1)
@@ -1213,32 +1205,16 @@ cor_prec_86 <- cor(ss_provinces$color86_ABYM, ss_provinces$color86_NSRW1)
 SCplot_prec_86 <- ggplot(ss_provinces, aes(x = color86_ABYM, y = color86_NSRW1)) +
   geom_point() +
   labs(x = "Adaptive BYM", y = "Temporal NSRW1", 
-       title = paste("Cor =", round(cor_prec_86, 3)))
+       title = paste("Cor =", round(cor_prec_86, 3), "(n = 86)"))
 ```
 
 ## Collecting the 8 scatterplots in the same figure
 
 ```{r}
-
-# ann1 <- ggplot() + 
-#   geom_text(aes(x=0, y=0, label = "bold(Edges)"), 
-#             parse = TRUE, size = 5, hjust = 0) +
-#   theme_void()
-# 
-# ann2 <- ggplot() + 
-#   geom_text(aes(x=0, y=0, label = "bold(Regions)"), 
-#             parse = TRUE, size = 5, hjust = 0) +
-#   theme_void()
-
 scatterplots <- list(SCplot_edges_10, SCplot_prec_10, SCplot_edges_20, SCplot_prec_20,
                      SCplot_edges_50, SCplot_prec_50, SCplot_edges_86, SCplot_prec_86)
 
-scatterplot <- ggarrange(plotlist = scatterplots, ncol = 2, nrow = 4, labels = NULL)
-
-final_scatterplot <- annotate_figure(scatterplot,
-                        top = text_grob("Edges and precision per Province", 
-                        face = "bold", size = 30))
-final_scatterplot
+final_scatterplot <- ggarrange(plotlist = scatterplots, ncol = 2, nrow = 4, labels = NULL)
 
 #ggsave("Plots//scatterFigure.png", plot = final_scatterplot, height = 24, width = 21,  units = "cm",  dpi = 300)
 ```
@@ -1274,9 +1250,7 @@ colnames(anova_df) <- c("Adaptive BYM", "Temporal NSRW1")
 
 anova_edge_table <- ggtexttable(anova_df, theme = ttheme("mOrange"))
 
-anova_edge_table_figure <- annotate_figure(anova_edge_table, top = text_grob("p-values for edges", face = "bold", size = 14))
-
-#ggsave("Plots//anovaFigure.png", plot = anova_edge_table_figure, height = 12, width = 10,  units = "cm",  dpi = 300)
+#ggsave("Plots//anovaFigure.png", plot = anova_edge_table, height = 12, width = 10,  units = "cm",  dpi = 300)
 ```
 
 
@@ -1317,9 +1291,7 @@ colnames(anova_log_df) <- c("Adaptive BYM", "Temporal NSRW1")
 
 anova_log_edge_table <- ggtexttable(anova_log_df, theme = ttheme("mOrange"))
 
-anova_log_edge_table_figure <- annotate_figure(anova_log_edge_table, top = text_grob("p-values for log of the edges", face = "bold", size = 14))
-
-#ggsave("Plots//anovaLogFigure.png", plot = anova_log_edge_table_figure, height = 12, width = 10,  units = "cm",  dpi = 300)
+#ggsave("Plots//anovaLogFigure.png", plot = anova_log_edge_table, height = 12, width = 10,  units = "cm",  dpi = 300)
 ```
 
 
