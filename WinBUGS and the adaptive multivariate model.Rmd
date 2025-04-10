@@ -270,7 +270,7 @@ runtime_ABYM
 
 result_list_ABYM <- list(results.AdaptiveBYM.10, results.AdaptiveBYM.20, 
                          results.AdaptiveBYM.50, results.AdaptiveBYM.86)
-saveRDS(result_list_ABYM, file = "Results//result_list_longer_chains.rds")
+#saveRDS(result_list_ABYM, file = "Results//result_list_longer_chains.rds")
 ```
 
 Runtimes for Miguels model in WinBUGS(cirka): 
@@ -298,6 +298,11 @@ out2 = c("Canarias", "Islas Baleares", "Ceuta", "Melilla")
 ss_provinces = ss_provinces |> filter(!(Texto %in% out))
 
 ss_ar = ss_ar %>% filter(!(Texto %in% out2))
+
+# edgeplot_ABYM_10
+# edgeplot_ABYM_20
+# edgeplot_ABYM_50
+# edgeplot_ABYM_86
 
 ss_provinces$color10 <- res_list_ABYM[[1]]$mean$c
 ss_provinces$color20 <- res_list_ABYM[[2]]$mean$c
@@ -619,8 +624,8 @@ runtime_NSRW1[4] <- t1 - t0
 runtime_NSRW1
 
 result_list_NSRW1 <- list(results.NSRW1.10, results.NSRW1.20, results.NSRW1.50, 
-                    results.NSRW1.86)
-saveRDS(result_list_NSRW1, file = "Results//result_list_NSRW1.rds")
+                    results.NSRW1.86, runtime_NSRW1)
+#saveRDS(result_list_NSRW1, file = "Results//result_list_NSRW1.rds")
 ```
 
 Assessing convergence and other properties of the MCMC simulations.
@@ -712,10 +717,14 @@ example_tau_list <- c(rep(1, 50), rep(3, 61))
 
 #edges_sf$edge_value <- edge_weight
 edges_sf$example_edge_value <- example_tau_list[my_list]
-edges_sf$edge_value_NSRW1_10 <- res_list_NSRW1[[1]]$mean$Tau2[my_list]
-edges_sf$edge_value_NSRW1_20 <- res_list_NSRW1[[2]]$mean$Tau2[my_list]
-edges_sf$edge_value_NSRW1_50 <- res_list_NSRW1[[3]]$mean$Tau2[my_list]
-edges_sf$edge_value_NSRW1_86 <- res_list_NSRW1[[4]]$mean$Tau2[my_list]
+edges_sf$edge_value_NSRW1_10 <- res_list_NSRW1[[1]]$mean$Tau2[my_list]*
+      mean(1/(res_list_NSRW1[[1]]$mean$sd.phi)^2)
+edges_sf$edge_value_NSRW1_20 <- res_list_NSRW1[[2]]$mean$Tau2[my_list]*
+      mean(1/(res_list_NSRW1[[2]]$mean$sd.phi)^2)
+edges_sf$edge_value_NSRW1_50 <- res_list_NSRW1[[3]]$mean$Tau2[my_list]*
+      mean(1/(res_list_NSRW1[[3]]$mean$sd.phi)^2)
+edges_sf$edge_value_NSRW1_86 <- res_list_NSRW1[[4]]$mean$Tau2[my_list]*
+      mean(1/(res_list_NSRW1[[4]]$mean$sd.phi)^2)
 
 # Example plot with varying edge widths
 ggplot() +
@@ -788,13 +797,19 @@ Additionally, it is important that the calculated tau's match with the positions
 nAreas <- length(carto.wb$num)
 nEdges <- length(carto.wb$adj)/2
 
+#the scaling tau averaged over all the causes of death for each n
+# mean(1/(res_list_ABYM[[1]]$mean$sd.phi)^2)
+# mean(1/(res_list_ABYM[[2]]$mean$sd.phi)^2)
+# mean(1/(res_list_ABYM[[3]]$mean$sd.phi)^2)
+# mean(1/(res_list_ABYM[[4]]$mean$sd.phi)^2)
+
 # 10 causes
 count_num <- 1
 tau_list_ABYM_10 <- rep(0, sum(carto.wb$num))
 for (i in 1:nAreas){
   for (j in carto.nb[[i]]){
     tau_list_ABYM_10[count_num] <- sqrt(res_list_ABYM[[1]]$mean$c[i]*
-                                          res_list_ABYM[[1]]$mean$c[j])
+              res_list_ABYM[[1]]$mean$c[j]) * mean(1/(res_list_ABYM[[1]]$mean$sd.phi)^2)
     count_num <- count_num + 1
   }
 }
@@ -805,7 +820,7 @@ tau_list_ABYM_20 <- rep(0, sum(carto.wb$num))
 for (i in 1:nAreas){
   for (j in carto.nb[[i]]){
     tau_list_ABYM_20[count_num] <- sqrt(res_list_ABYM[[2]]$mean$c[i]*
-                                          res_list_ABYM[[2]]$mean$c[j])
+            res_list_ABYM[[2]]$mean$c[j])*mean(1/(res_list_ABYM[[2]]$mean$sd.phi)^2)
     count_num <- count_num + 1
   }
 }
@@ -816,7 +831,7 @@ tau_list_ABYM_50 <- rep(0, sum(carto.wb$num))
 for (i in 1:nAreas){
   for (j in carto.nb[[i]]){
     tau_list_ABYM_50[count_num] <- sqrt(res_list_ABYM[[3]]$mean$c[i]*
-                                          res_list_ABYM[[3]]$mean$c[j])
+              res_list_ABYM[[3]]$mean$c[j])*mean(1/(res_list_ABYM[[3]]$mean$sd.phi)^2)
     count_num <- count_num + 1
   }
 }
@@ -827,7 +842,7 @@ tau_list_ABYM_86 <- rep(0, sum(carto.wb$num))
 for (i in 1:nAreas){
   for (j in carto.nb[[i]]){
     tau_list_ABYM_86[count_num] <- sqrt(res_list_ABYM[[4]]$mean$c[i]*
-                                          res_list_ABYM[[4]]$mean$c[j])
+            res_list_ABYM[[4]]$mean$c[j])*mean(1/(res_list_ABYM[[4]]$mean$sd.phi)^2)
     count_num <- count_num + 1
   }
 }

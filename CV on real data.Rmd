@@ -1,0 +1,68 @@
+---
+title: "CV on real data"
+author: "Halvard"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Implementing the adaptive ICARS with rgeneric
+Both EW-ICAR and RW-ICAR can easily compute a list of all the taus for the edges. From this it is possible to construct the precision matrix Q, maybe along with the index set as well. I will start by experimenting with the creation of Q before implementing the whole matrix in rgeneric. After the models are defined in rgeneric I will perform cross validation for all the diseases, and further investigate the scarce and prominent cause of death, maybe also total mortality. The comparison of the models will be done for all n, which is always one for Wakefield, and a choice concerning test diseases for lower n, i.e. 10, 20, 50 must be made in regards to using a known disease or not in the training data.
+
+```{r}
+#res_list_testing <- readRDS("Results//result_list_ABYM.rds")
+
+#define nAreas and maybe nDiseases
+
+# constuct tau_list as in the other file, then make Q
+# also make index, maybe from carto.wb as in the other file
+
+# maybe even first W, and then D, and then Q = D - W, or when adding a weight, also add at the diag for that row, maybe easier
+Q_ABYM10 <- matrix(0, nrow = nAreas, ncol = nAreas)
+
+index2 <- index
+index2[1] <- 0
+
+#assuming index2 starts with 0 and not with 1!!!
+count_num <- 1
+for (i in 1:nAreas){
+  for (j in carto.wb$adj[(index2[i]+1):index2[i+1]]){
+    if (i < j){ #only need to constuct the upper half of Q for INLA
+      Q_ABYM10[i, j] <- -tau_list_ABYM_10[count_num]
+      Q_ABYM10[i, i] <- Q_ABYM10[i, i] + tau_list_ABYM_10[count_num]
+    }
+    count_num <- count_num + 1
+  }
+}
+
+
+#as a function
+constructQ <- function(tau, indexes, nAreas, adj){
+  #tau is a list of each edge, 222 elements, indexes keeps track of the indexes for the adj list, which contains all the indexes of neighbors. nAreas is the number of areas.
+  Q <- matrix(0, nrow = nAreas, ncol = nAreas)
+  count_num <- 1
+  for (i in 1:nAreas){
+    for (j in adj[(indexes[i]+1):indexes[i+1]]){
+      if (i < j){ #only need to construct the upper half of Q for INLA
+        Q[i, j] <- -tau[count_num]
+        Q[i, i] <- Q[i, i] + tau[count_num]
+      }
+      count_num <- count_num + 1
+    }
+  }
+  return(Q)
+}
+
+#example
+Q_ABYM10 <- constructQ(tau_list_ABYM_10, index2, nAreas, carto.wb$adj)
+Q_ABYM20 <- constructQ(tau_list_ABYM_20, index2, nAreas, carto.wb$adj)
+Q_ABYM50 <- constructQ(tau_list_ABYM_50, index2, nAreas, carto.wb$adj)
+Q_ABYM86 <- constructQ(tau_list_ABYM_86, index2, nAreas, carto.wb$adj)
+
+```
+
+
+
