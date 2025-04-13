@@ -179,6 +179,20 @@ I removed sd.theta and theta, so they should also not be passed to the model!
 Now we are ready to run the model in WinBUGS. We choose the mortality causes, either 10, 20 or 50 causes and run the multivariate model.
 
 ```{r, eval=FALSE}
+#For the model with iid theta, the spatial random effect
+# # Initial values
+# initials <- function() {
+#   list(mu = rnorm(data$Ndiseases, 0, 1), sd.phi = runif(data$Ndiseases,0, 1), 
+#        sd.theta = runif(data$Ndiseases, 0, 1), 
+#        phi = matrix(rnorm(data$Nareas * data$Ndiseases), nrow = data$Nareas, 
+#               ncol = data$Ndiseases),
+#        theta = matrix(rnorm(data$Nareas * data$Ndiseases),
+#               nrow = data$Nareas, ncol = data$Ndiseases), 
+#        c = runif(data$Nareas,0.9, 1.1), sd.c = runif(1, 0.5, 0.6))
+# }
+# # Variables to retrieve
+# param <- c("mu", "lambda", "sd.phi", "phi", "sd.theta", "theta","SMR", "c", "sd.c", "tau")
+
 runtime_ABYM <- rep(0, 4)
 
 # 10 causes
@@ -191,20 +205,17 @@ data <- list(O = ObservedCases, E = ExpectedCases,
              Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
              n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index)
 # Initial values
-initials <- function() {
+initials <- function(){
   list(mu = rnorm(data$Ndiseases, 0, 1), sd.phi = runif(data$Ndiseases,0, 1), 
-       sd.theta = runif(data$Ndiseases, 0, 1), 
        phi = matrix(rnorm(data$Nareas * data$Ndiseases), nrow = data$Nareas, 
-              ncol = data$Ndiseases),
-       theta = matrix(rnorm(data$Nareas * data$Ndiseases),
-              nrow = data$Nareas, ncol = data$Ndiseases), 
+              ncol = data$Ndiseases), 
        c = runif(data$Nareas,0.9, 1.1), sd.c = runif(1, 0.5, 0.6))
 }
 # Variables to retrieve
-param <- c("mu", "lambda", "sd.phi", "phi", "sd.theta", "theta","SMR", "c", "sd.c", "tau")
+param <- c("mu", "lambda", "sd.phi", "phi","SMR", "c", "sd.c", "tau")
 # Calls to WinBUGS
 results.AdaptiveBYM.10 <- pbugs(data = data, inits = initials,
-                              parameters.to.save = param, model = AdaptiveBYM_model,
+                              parameters.to.save = param, model = AdaptiveBYM_model_NOiid,
                               n.iter = 10000, n.burnin = 5000, n.chains = 3, DIC = F,
                               debug = F)
 t1 <- Sys.time()
@@ -222,7 +233,7 @@ data <- list(O = ObservedCases, E = ExpectedCases,
 
 # Calls to WinBUGS
 results.AdaptiveBYM.20 <- pbugs(data = data, inits = initials,
-                              parameters.to.save = param, model = AdaptiveBYM_model,
+                              parameters.to.save = param, model = AdaptiveBYM_model_NOiid,
                               n.iter = 10000, n.burnin = 5000, n.chains = 3, DIC = F,
                               debug = F)
 t1 <- Sys.time()
@@ -240,7 +251,7 @@ data <- list(O = ObservedCases, E = ExpectedCases,
 
 # Calls to WinBUGS
 results.AdaptiveBYM.50 <- pbugs(data = data, inits = initials,
-                              parameters.to.save = param, model = AdaptiveBYM_model,
+                              parameters.to.save = param, model = AdaptiveBYM_model_NOiid,
                               n.iter = 25000, n.burnin = 10000, n.chains = 3, DIC = F,
                               debug = F)
 t1 <- Sys.time()
@@ -258,7 +269,7 @@ data <- list(O = ObservedCases, E = ExpectedCases,
 
 # Calls to WinBUGS
 results.AdaptiveBYM.86 <- pbugs(data = data, inits = initials,
-                              parameters.to.save = param, model = AdaptiveBYM_model,
+                              parameters.to.save = param, model = AdaptiveBYM_model_NOiid,
                               n.iter = 30000, n.burnin = 10000, n.chains = 3, DIC = F,
                               debug = F)
 t1 <- Sys.time()
@@ -269,8 +280,8 @@ runtime_ABYM[4] <- t1 - t0
 runtime_ABYM
 
 result_list_ABYM <- list(results.AdaptiveBYM.10, results.AdaptiveBYM.20, 
-                         results.AdaptiveBYM.50, results.AdaptiveBYM.86)
-#saveRDS(result_list_ABYM, file = "Results//result_list_ABYM.rds")
+                         results.AdaptiveBYM.50, results.AdaptiveBYM.86, runtime_ABYM)
+saveRDS(result_list_ABYM, file = "Results//result_list_ABYM.rds")
 ```
 
 Runtimes for Miguels model in WinBUGS(cirka): 
@@ -281,7 +292,7 @@ Runtimes for Miguels model in WinBUGS(cirka):
 
 
 ```{r}
-res_list_ABYM <- readRDS("Results_withoutScaling_and_with_iidTheta//result_list_longer_chains.rds")
+res_list_ABYM <- readRDS("Results//result_list_ABYM.rds")
 
 #res_list_ABYM <- readRDS("Results//result_list_longer_chains.rds")
 
@@ -300,11 +311,6 @@ out2 = c("Canarias", "Islas Baleares", "Ceuta", "Melilla")
 ss_provinces = ss_provinces |> filter(!(Texto %in% out))
 
 ss_ar = ss_ar %>% filter(!(Texto %in% out2))
-
-# edgeplot_ABYM_10
-# edgeplot_ABYM_20
-# edgeplot_ABYM_50
-# edgeplot_ABYM_86
 
 ss_provinces$color10 <- res_list_ABYM[[1]]$mean$c
 ss_provinces$color20 <- res_list_ABYM[[2]]$mean$c
