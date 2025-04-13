@@ -178,7 +178,7 @@ I removed sd.theta and theta, so they should also not be passed to the model!
 # Run the model
 Now we are ready to run the model in WinBUGS. We choose the mortality causes, either 10, 20 or 50 causes and run the multivariate model.
 
-```{r, eval=TRUE}
+```{r, eval=FALSE}
 runtime_ABYM <- rep(0, 4)
 
 # 10 causes
@@ -270,7 +270,7 @@ runtime_ABYM
 
 result_list_ABYM <- list(results.AdaptiveBYM.10, results.AdaptiveBYM.20, 
                          results.AdaptiveBYM.50, results.AdaptiveBYM.86)
-#saveRDS(result_list_ABYM, file = "Results//result_list_longer_chains.rds")
+#saveRDS(result_list_ABYM, file = "Results//result_list_ABYM.rds")
 ```
 
 Runtimes for Miguels model in WinBUGS(cirka): 
@@ -281,7 +281,9 @@ Runtimes for Miguels model in WinBUGS(cirka):
 
 
 ```{r}
-res_list_ABYM <- readRDS("Results//result_list_longer_chains.rds")
+res_list_ABYM <- readRDS("Results_withoutScaling_and_with_iidTheta//result_list_longer_chains.rds")
+
+#res_list_ABYM <- readRDS("Results//result_list_longer_chains.rds")
 
 ss_provinces = read_sf("Data/Provinces/Provincias_ETRS89_30N.shp")
 
@@ -527,7 +529,7 @@ NSRW1_model_NOiid <- function() {
 ```
 
 
-```{r}
+```{r, eval=FALSE}
 runtime_NSRW1 <- rep(0, 4)
 
 # 10 causes
@@ -742,7 +744,7 @@ edgeplot_NSRW1_10 <- ggplot() +
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
   geom_sf(data = centroids, color = "red", size = 2) +  # Centroids
   geom_sf(data = edges_sf, aes(linewidth = edge_value_NSRW1_10), color = "blue") + 
-  scale_linewidth(range = c(0.2, 1.7), breaks = pretty_breaks(n = 4)) +  
+  scale_linewidth(range = c(0.2, 1.7)) +  
   theme_minimal() +
   theme(axis.text = element_blank(),axis.ticks = element_blank(),  
         axis.title = element_blank())  +
@@ -754,7 +756,7 @@ edgeplot_NSRW1_20 <- ggplot() +
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
   geom_sf(data = centroids, color = "red", size = 2) +  # Centroids
   geom_sf(data = edges_sf, aes(linewidth = edge_value_NSRW1_20), color = "blue") + 
-  scale_linewidth(range = c(0.2, 1.7), breaks = pretty_breaks(n = 4)) +  
+  scale_linewidth(range = c(0.2, 1.7)) +  
   theme_minimal() +
   theme(axis.text = element_blank(),axis.ticks = element_blank(),  
         axis.title = element_blank())  +
@@ -766,7 +768,7 @@ edgeplot_NSRW1_50 <- ggplot() +
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
   geom_sf(data = centroids, color = "red", size = 2) +  # Centroids
   geom_sf(data = edges_sf, aes(linewidth = edge_value_NSRW1_50), color = "blue") + 
-  scale_linewidth(range = c(0.2, 1.7), breaks = pretty_breaks(n = 4)) +  
+  scale_linewidth(range = c(0.2, 1.7)) +  
   theme_minimal() +
   theme(axis.text = element_blank(),axis.ticks = element_blank(),  
         axis.title = element_blank()) +
@@ -778,8 +780,8 @@ edgeplot_NSRW1_86 <- ggplot() +
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
   geom_sf(data = centroids, color = "red", size = 2) +  # Centroids
   geom_sf(data = edges_sf, aes(linewidth = edge_value_NSRW1_86), color = "blue") + 
-  scale_linewidth(range = c(0.2, 1.7), breaks = pretty_breaks(n = 4)) +  
-  labs(x = "Temporal NSRW1") +
+  scale_linewidth(range = c(0.2, 1.7)) +  
+  labs(x = "EW-ICAR") +
   theme_minimal() +
   theme(axis.text = element_blank(),axis.ticks = element_blank(),
         axis.title.x = element_text(size = 18))  +
@@ -860,7 +862,7 @@ edgeplot_ABYM_10 <- ggplot() +
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
   geom_sf(data = centroids, color = "red", size = 2) +  # Centroids
   geom_sf(data = edges_sf, aes(linewidth = edge_value_ABYM_10), color = "blue") + 
-  scale_linewidth(range = c(0.2, 1.7), breaks = pretty_breaks(n = 4)) +  
+  scale_linewidth(range = c(0.2, 1.7)) +  
   labs(y = "n = 10") +
   theme_minimal() +
   theme(axis.text = element_blank(),axis.ticks = element_blank(),
@@ -873,7 +875,7 @@ edgeplot_ABYM_20 <- ggplot() +
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
   geom_sf(data = centroids, color = "red", size = 2) +  # Centroids
   geom_sf(data = edges_sf, aes(linewidth = edge_value_ABYM_20), color = "blue") + 
-  scale_linewidth(range = c(0.2, 1.7), breaks = pretty_breaks(n = 4)) + 
+  scale_linewidth(range = c(0.2, 1.7)) + 
   labs(y = "n = 20") +
   theme_minimal() +
   theme(axis.text = element_blank(),axis.ticks = element_blank(),
@@ -886,7 +888,7 @@ edgeplot_ABYM_50 <- ggplot() +
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
   geom_sf(data = centroids, color = "red", size = 2) +  # Centroids
   geom_sf(data = edges_sf, aes(linewidth = edge_value_ABYM_50), color = "blue") + 
-  scale_linewidth(range = c(0.2, 1.7), breaks = pretty_breaks(n = 4)) + 
+  scale_linewidth(range = c(0.2, 1.7)) + 
   labs(y = "n = 50") +
   theme_minimal() +
   theme(axis.text = element_blank(),axis.ticks = element_blank(),
@@ -899,8 +901,8 @@ edgeplot_ABYM_86 <- ggplot() +
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
   geom_sf(data = centroids, color = "red", size = 2) +  # Centroids
   geom_sf(data = edges_sf, aes(linewidth = edge_value_ABYM_86), color = "blue") + 
-  scale_linewidth(range = c(0.2, 1.7), breaks = pretty_breaks(n = 4)) +  
-  labs(x = "Adaptive BYM",y = "n = 86") +
+  scale_linewidth(range = c(0.2, 1.7)) +  
+  labs(x = "RW-ICAR", y = "n = 86") +
   theme_minimal() +
   theme(axis.text = element_blank(),axis.ticks = element_blank(),
         axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18)) +
@@ -1006,7 +1008,7 @@ precplot_NSRW1_86 <- ggplot() +
   geom_sf(data = ss_ar, color="black") + #do not really need this line
   geom_sf(data=ss_provinces, aes(fill=color86_NSRW1), color="grey") +
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4)  +
-  labs(x = "Temporal NSRW1") +
+  labs(x = "EW-ICAR") +
   theme_minimal() +
   theme(axis.text = element_blank(),axis.ticks = element_blank(),
         axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18)) +
@@ -1091,7 +1093,7 @@ precplot_ABYM_86 <- ggplot() +
   geom_sf(data = ss_ar, color="black") + #do not really need this line
   geom_sf(data=ss_provinces, aes(fill=color86_ABYM), color="grey") +
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
-  labs(x = "Adaptive BYM",y = "n = 86") +
+  labs(x = "RW-ICAR",y = "n = 86") +
   theme_minimal() +
   theme(axis.text = element_blank(),axis.ticks = element_blank(),
         axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18)) +
@@ -1146,7 +1148,7 @@ cor_edges_10 <- cor(edges_sf$edge_value_ABYM_10, edges_sf$edge_value_NSRW1_10)
 SCplot_edges_10 <- ggplot(edges_sf, aes(x = edge_value_ABYM_10, y = edge_value_NSRW1_10, 
                      color = factor(inter_region_edges))) +
   geom_point() +
-  labs(x = "Adaptive BYM", y = "Temporal NSRW1", 
+  labs(x = "RW-ICAR", y = "EW-ICAR", 
        title = paste("Cor =", round(cor_edges_10, 3), "(n = 10)")) + 
   scale_color_manual(values = c("0" = "red", "1" = "blue")) +
   guides(color = "none")
@@ -1157,7 +1159,7 @@ cor_edges_20 <- cor(edges_sf$edge_value_ABYM_20, edges_sf$edge_value_NSRW1_20)
 SCplot_edges_20 <- ggplot(edges_sf, aes(x = edge_value_ABYM_20, y = edge_value_NSRW1_20, 
                      color = factor(inter_region_edges))) +
   geom_point() +
-  labs(x = "Adaptive BYM", y = "Temporal NSRW1", 
+  labs(x = "RW-ICAR", y = "EW-ICAR", 
        title = paste("Cor =", round(cor_edges_20, 3), "(n = 20)")) + 
   scale_color_manual(values = c("0" = "red", "1" = "blue")) +
   guides(color = "none")
@@ -1168,7 +1170,7 @@ cor_edges_50 <- cor(edges_sf$edge_value_ABYM_50, edges_sf$edge_value_NSRW1_50)
 SCplot_edges_50 <- ggplot(edges_sf, aes(x = edge_value_ABYM_50, y = edge_value_NSRW1_50, 
                      color = factor(inter_region_edges))) +
   geom_point() +
-  labs(x = "Adaptive BYM", y = "Temporal NSRW1", 
+  labs(x = "RW-ICAR", y = "EW-ICAR", 
        title = paste("Cor =", round(cor_edges_50, 3), "(n = 50)")) + 
   scale_color_manual(values = c("0" = "red", "1" = "blue")) +
   guides(color = "none")
@@ -1179,7 +1181,7 @@ cor_edges_86 <- cor(edges_sf$edge_value_ABYM_86, edges_sf$edge_value_NSRW1_86)
 SCplot_edges_86 <- ggplot(edges_sf, aes(x = edge_value_ABYM_86, y = edge_value_NSRW1_86, 
                      color = factor(inter_region_edges))) +
   geom_point() +
-  labs(x = "Adaptive BYM", y = "Temporal NSRW1", 
+  labs(x = "RW-ICAR", y = "EW-ICAR", 
        title = paste("Cor =", round(cor_edges_86, 3), "(n = 86)")) + 
   scale_color_manual(values = c("0" = "red", "1" = "blue")) +
   guides(color = "none")
@@ -1195,7 +1197,7 @@ cor_prec_10 <- cor(ss_provinces$color10_ABYM, ss_provinces$color10_NSRW1)
 
 SCplot_prec_10 <- ggplot(ss_provinces, aes(x = color10_ABYM, y = color10_NSRW1)) +
   geom_point() +
-  labs(x = "Adaptive BYM", y = "Temporal NSRW1", 
+  labs(x = "RW-ICAR", y = "EW-ICAR", 
        title = paste("Cor =", round(cor_prec_10, 3), "(n = 10)"))
 
 # 20 causes
@@ -1203,7 +1205,7 @@ cor_prec_20 <- cor(ss_provinces$color20_ABYM, ss_provinces$color20_NSRW1)
 
 SCplot_prec_20 <- ggplot(ss_provinces, aes(x = color20_ABYM, y = color20_NSRW1)) +
   geom_point() +
-  labs(x = "Adaptive BYM", y = "Temporal NSRW1", 
+  labs(x = "RW-ICAR", y = "EW-ICAR",
        title = paste("Cor =", round(cor_prec_20, 3), "(n = 20)"))
 
 # 50 causes
@@ -1211,7 +1213,7 @@ cor_prec_50 <- cor(ss_provinces$color50_ABYM, ss_provinces$color50_NSRW1)
 
 SCplot_prec_50 <- ggplot(ss_provinces, aes(x = color50_ABYM, y = color50_NSRW1)) +
   geom_point() +
-  labs(x = "Adaptive BYM", y = "Temporal NSRW1", 
+  labs(x = "RW-ICAR", y = "EW-ICAR",
        title = paste("Cor =", round(cor_prec_50, 3), "(n = 50)"))
 
 # 86 causes
@@ -1219,7 +1221,7 @@ cor_prec_86 <- cor(ss_provinces$color86_ABYM, ss_provinces$color86_NSRW1)
 
 SCplot_prec_86 <- ggplot(ss_provinces, aes(x = color86_ABYM, y = color86_NSRW1)) +
   geom_point() +
-  labs(x = "Adaptive BYM", y = "Temporal NSRW1", 
+  labs(x = "RW-ICAR", y = "EW-ICAR",
        title = paste("Cor =", round(cor_prec_86, 3), "(n = 86)"))
 ```
 
