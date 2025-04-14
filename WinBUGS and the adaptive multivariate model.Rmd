@@ -954,7 +954,7 @@ As this model calculates the precision tau for each edge, the precision for each
 
 # 10 causes
 precision_list10 <- rep(0, nAreas) 
-tau_list <- res_list_NSRW1[[1]]$mean$Tau2
+tau_list <- res_list_NSRW1[[1]]$mean$Tau2*mean(1/(res_list_NSRW1[[1]]$mean$sd.phi)^2)
 
 precision_list10[1] <- sum(tau_list[my_list[index[1]:index[2]]])
 for (i in 2:nAreas){
@@ -963,7 +963,7 @@ for (i in 2:nAreas){
 
 # 20 causes
 precision_list20 <- rep(0, nAreas) #maybe define nAreas at the start?
-tau_list <- res_list_NSRW1[[2]]$mean$Tau2
+tau_list <- res_list_NSRW1[[2]]$mean$Tau2*mean(1/(res_list_NSRW1[[2]]$mean$sd.phi)^2)
 
 precision_list20[1] <- sum(tau_list[my_list[index[1]:index[2]]])
 for (i in 2:nAreas){
@@ -972,7 +972,7 @@ for (i in 2:nAreas){
 
 # 50 causes
 precision_list50 <- rep(0, nAreas) #maybe define nAreas at the start?
-tau_list <- res_list_NSRW1[[3]]$mean$Tau2
+tau_list <- res_list_NSRW1[[3]]$mean$Tau2*mean(1/(res_list_NSRW1[[3]]$mean$sd.phi)^2)
 
 precision_list50[1] <- sum(tau_list[my_list[index[1]:index[2]]])
 for (i in 2:nAreas){
@@ -981,7 +981,7 @@ for (i in 2:nAreas){
 
 # 86 causes
 precision_list86 <- rep(0, nAreas) #maybe define nAreas at the start?
-tau_list <- res_list_NSRW1[[4]]$mean$Tau2
+tau_list <- res_list_NSRW1[[4]]$mean$Tau2*mean(1/(res_list_NSRW1[[4]]$mean$sd.phi)^2)
 
 precision_list86[1] <- sum(tau_list[my_list[index[1]:index[2]]])
 for (i in 2:nAreas){
