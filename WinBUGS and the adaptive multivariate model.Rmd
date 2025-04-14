@@ -294,6 +294,8 @@ Runtimes for Miguels model in WinBUGS(cirka):
 ```{r}
 res_list_ABYM <- readRDS("Results//result_list_ABYM.rds")
 
+res_list_ABYM[[5]]
+
 #res_list_ABYM <- readRDS("Results//result_list_longer_chains.rds")
 
 ss_provinces = read_sf("Data/Provinces/Provincias_ETRS89_30N.shp")
@@ -368,10 +370,6 @@ res_list_ABYM[[4]]$summary["tau",]
 cor(cbind(ss_provinces$color10, ss_provinces$color20, ss_provinces$color50, ss_provinces$color86))
 ```
 
-
-
-Meeting at wednesday 9.15
-and monday the following week at 11:00.
 
 
 # The more flexible adaptive multivariate model by Riddervoll/Jo
@@ -548,22 +546,35 @@ data <- list(O = ObservedCases, E = ExpectedCases,
              Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
              n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index, 
              tau.list = my_list)
+#For the model with iid spatial effect theta
+# # Initial values
+# initials_NSRW1 <- function() {
+#   list(mu = rnorm(data$Ndiseases, 0, 1), sd.phi = runif(data$Ndiseases,0, 1), 
+#        sd.theta = runif(data$Ndiseases, 0, 1), 
+#        phi = matrix(rnorm(data$Nareas * data$Ndiseases), nrow = data$Nareas, 
+#               ncol = data$Ndiseases),
+#        theta = matrix(rnorm(data$Nareas * data$Ndiseases),
+#               nrow = data$Nareas, ncol = data$Ndiseases), 
+#        Tau2 = runif(data$n.adj/2, 0.5, 3))
+# }
+# 
+# # Variables to retrieve
+# param_NSRW1 <- c("mu", "lambda", "sd.phi", "phi", "sd.theta", "theta","SMR", "Tau2", "sd.alpha", "alpha")
+
 # Initial values
 initials_NSRW1 <- function() {
-  list(mu = rnorm(data$Ndiseases, 0, 1), sd.phi = runif(data$Ndiseases,0, 1), 
-       sd.theta = runif(data$Ndiseases, 0, 1), 
-       phi = matrix(rnorm(data$Nareas * data$Ndiseases), nrow = data$Nareas, 
+  list(mu = rnorm(data$Ndiseases, 0, 1), sd.phi = runif(data$Ndiseases,0, 1),
+       phi = matrix(rnorm(data$Nareas * data$Ndiseases), nrow = data$Nareas,
               ncol = data$Ndiseases),
-       theta = matrix(rnorm(data$Nareas * data$Ndiseases),
-              nrow = data$Nareas, ncol = data$Ndiseases), 
        Tau2 = runif(data$n.adj/2, 0.5, 3))
 }
 
 # Variables to retrieve
-param_NSRW1 <- c("mu", "lambda", "sd.phi", "phi", "sd.theta", "theta","SMR", "Tau2", "sd.alpha", "alpha")
+param_NSRW1 <- c("mu", "lambda", "sd.phi", "phi","SMR", "Tau2", "sd.alpha", "alpha")
+
 # Calls to WinBUGS
 results.NSRW1.10 <- pbugs(data = data, inits = initials_NSRW1,
-                              parameters.to.save = param_NSRW1, model = NSRW1_model,
+                              parameters.to.save = param_NSRW1, model = NSRW1_model_NOiid,
                               n.iter = 10000, n.burnin = 5000, n.chains = 3, DIC = F,
                               debug = F)
 t1 <- Sys.time()
@@ -582,7 +593,7 @@ data <- list(O = ObservedCases, E = ExpectedCases,
 
 # Calls to WinBUGS
 results.NSRW1.20 <- pbugs(data = data, inits = initials_NSRW1,
-                              parameters.to.save = param_NSRW1, model = NSRW1_model,
+                              parameters.to.save = param_NSRW1, model = NSRW1_model_NOiid,
                               n.iter = 10000, n.burnin = 5000, n.chains = 3, DIC = F,
                               debug = F)
 t1 <- Sys.time()
@@ -601,7 +612,7 @@ data <- list(O = ObservedCases, E = ExpectedCases,
 
 # Calls to WinBUGS
 results.NSRW1.50 <- pbugs(data = data, inits = initials_NSRW1,
-                              parameters.to.save = param_NSRW1, model = NSRW1_model,
+                              parameters.to.save = param_NSRW1, model = NSRW1_model_NOiid,
                               n.iter = 25000, n.burnin = 10000, n.chains = 3, DIC = F,
                               debug = F)
 t1 <- Sys.time()
@@ -620,7 +631,7 @@ data <- list(O = ObservedCases, E = ExpectedCases,
 
 # Calls to WinBUGS
 results.NSRW1.86 <- pbugs(data = data, inits = initials_NSRW1,
-                              parameters.to.save = param_NSRW1, model = NSRW1_model,
+                              parameters.to.save = param_NSRW1, model = NSRW1_model_NOiid,
                               n.iter = 30000, n.burnin = 10000, n.chains = 3, DIC = F,
                               debug = F)
 t1 <- Sys.time()
@@ -633,7 +644,7 @@ runtime_NSRW1
 
 result_list_NSRW1 <- list(results.NSRW1.10, results.NSRW1.20, results.NSRW1.50, 
                     results.NSRW1.86, runtime_NSRW1)
-#saveRDS(result_list_NSRW1, file = "Results//result_list_NSRW1.rds")
+saveRDS(result_list_NSRW1, file = "Results//result_list_NSRW1.rds")
 ```
 
 Assessing convergence and other properties of the MCMC simulations.
@@ -927,7 +938,7 @@ edgeplots <- list(edgeplot_ABYM_10, edgeplot_NSRW1_10, edgeplot_ABYM_20, edgeplo
 
 final_edgeplot <- ggarrange(plotlist = edgeplots, ncol = 2, nrow = 4, labels = NULL)
 
-#ggsave("Plots//edgeFigure.png", plot = final_edgeplot, height = 24, width = 21,  units = "cm",  dpi = 300)
+ggsave("Plots//edgeFigure.png", plot = final_edgeplot, height = 24, width = 21,  units = "cm",  dpi = 300)
 ```
 
 
@@ -1114,7 +1125,7 @@ precplots <- list(precplot_ABYM_10, precplot_NSRW1_10, precplot_ABYM_20, precplo
 
 final_precplot <- ggarrange(plotlist = precplots, ncol = 2, nrow = 4, labels = NULL)
 
-#ggsave("Plots//precFigure.png", plot = final_precplot, height = 24, width = 21,  units = "cm",  dpi = 300)
+ggsave("Plots//precFigure.png", plot = final_precplot, height = 24, width = 21,  units = "cm",  dpi = 300)
 ```
 
 
@@ -1239,7 +1250,7 @@ scatterplots <- list(SCplot_edges_10, SCplot_prec_10, SCplot_edges_20, SCplot_pr
 
 final_scatterplot <- ggarrange(plotlist = scatterplots, ncol = 2, nrow = 4, labels = NULL)
 
-#ggsave("Plots//scatterFigure.png", plot = final_scatterplot, height = 24, width = 21,  units = "cm",  dpi = 300)
+ggsave("Plots//scatterFigure.png", plot = final_scatterplot, height = 24, width = 21,  units = "cm",  dpi = 300)
 ```
 
 
@@ -1273,7 +1284,7 @@ colnames(anova_df) <- c("Adaptive BYM", "Temporal NSRW1")
 
 anova_edge_table <- ggtexttable(anova_df, theme = ttheme("mOrange"))
 
-#ggsave("Plots//anovaFigure.png", plot = anova_edge_table, height = 12, width = 10,  units = "cm",  dpi = 300)
+ggsave("Plots//anovaFigure.png", plot = anova_edge_table, height = 12, width = 10,  units = "cm",  dpi = 300)
 ```
 
 
@@ -1314,7 +1325,7 @@ colnames(anova_log_df) <- c("Adaptive BYM", "Temporal NSRW1")
 
 anova_log_edge_table <- ggtexttable(anova_log_df, theme = ttheme("mOrange"))
 
-#ggsave("Plots//anovaLogFigure.png", plot = anova_log_edge_table, height = 12, width = 10,  units = "cm",  dpi = 300)
+ggsave("Plots//anovaLogFigure.png", plot = anova_log_edge_table, height = 12, width = 10,  units = "cm",  dpi = 300)
 ```
 
 
@@ -1328,7 +1339,7 @@ Need to choose appropriate names for the models, preferably consistent across te
 
 
 ## For leave one out cross-validation for the diseases and simulation of the weight matrix
-```{r}
+```{r, eval=FALSE}
 # Object where the results for each set of diseases will be
 # saved
 results.AdaptiveBYM <- list()
