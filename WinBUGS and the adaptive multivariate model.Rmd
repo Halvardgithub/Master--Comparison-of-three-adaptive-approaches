@@ -1251,6 +1251,9 @@ scatterplots <- list(SCplot_edges_10, SCplot_prec_10, SCplot_edges_20, SCplot_pr
 final_scatterplot <- ggarrange(plotlist = scatterplots, ncol = 2, nrow = 4, labels = NULL)
 
 ggsave("Plots//scatterFigure.png", plot = final_scatterplot, height = 24, width = 21,  units = "cm",  dpi = 300)
+
+#save the edges_sf for use in the CV
+#saveRDS(edges_sf, file = "Edges_df//Edges_W_scaling_WO_theta")
 ```
 
 

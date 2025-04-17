@@ -20,24 +20,8 @@ Both EW-ICAR and RW-ICAR can easily compute a list of all the taus for the edges
 # constuct tau_list as in the other file, then make Q
 # also make index, maybe from carto.wb as in the other file
 
-# maybe even first W, and then D, and then Q = D - W, or when adding a weight, also add at the diag for that row, maybe easier
-Q_ABYM10 <- matrix(0, nrow = nAreas, ncol = nAreas)
-
 index2 <- index
 index2[1] <- 0
-
-#assuming index2 starts with 0 and not with 1!!!
-count_num <- 1
-for (i in 1:nAreas){
-  for (j in carto.wb$adj[(index2[i]+1):index2[i+1]]){
-    if (i < j){ #only need to constuct the upper half of Q for INLA
-      Q_ABYM10[i, j] <- -tau_list_ABYM_10[count_num]
-      Q_ABYM10[i, i] <- Q_ABYM10[i, i] + tau_list_ABYM_10[count_num]
-    }
-    count_num <- count_num + 1
-  }
-}
-
 
 #as a function
 constructQ <- function(tau, indexes, nAreas, adj){
@@ -56,14 +40,24 @@ constructQ <- function(tau, indexes, nAreas, adj){
   return(Q)
 }
 
-#example
-Q_ABYM10 <- constructQ(tau_list_ABYM_10, index2, nAreas, carto.wb$adj)
-Q_ABYM20 <- constructQ(tau_list_ABYM_20, index2, nAreas, carto.wb$adj)
-Q_ABYM50 <- constructQ(tau_list_ABYM_50, index2, nAreas, carto.wb$adj)
-Q_ABYM86 <- constructQ(tau_list_ABYM_86, index2, nAreas, carto.wb$adj)
-
 ```
 
+## Making the matrices 
+Make the matrices for EW-ICAR and RW-ICAR for different number of diseases n.
+
+```{r}
+edges_df <- readRDS("Edges_df//Edges_W_scaling_WO_theta")
+
+Q_ABYM10 <- constructQ(edges_df$edge_value_ABYM_10, index2, nAreas, carto.wb$adj)
+Q_ABYM20 <- constructQ(edges_df$edge_value_ABYM_20, index2, nAreas, carto.wb$adj)
+Q_ABYM50 <- constructQ(edges_df$edge_value_ABYM_50, index2, nAreas, carto.wb$adj)
+Q_ABYM86 <- constructQ(edges_df$edge_value_ABYM_86, index2, nAreas, carto.wb$adj)
+
+Q_NSRW10 <- constructQ(edges_df$edge_value_NSRW1_10, index2, nAreas, carto.wb$adj)
+Q_NSRW20 <- constructQ(edges_df$edge_value_NSRW1_20, index2, nAreas, carto.wb$adj)
+Q_NSRW50 <- constructQ(edges_df$edge_value_NSRW1_50, index2, nAreas, carto.wb$adj)
+Q_NSRW86 <- constructQ(edges_df$edge_value_NSRW1_86, index2, nAreas, carto.wb$adj)
+```
 
 ## The adaptive ICAR as a rgeneric definiton
 The function defining the latent term with a given structure matrix $Q$ as an input. I think this could be the same for each method, simply different structure matrices provided. If they differ, it should only be for priors??
@@ -125,9 +119,109 @@ inla.rgeneric.Adaptive.ICAR = function(
   return(vals)
 }
 
-#Example
+#The specific models
 ABYM10_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, Q = Q_ABYM10)
+ABYM20_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, Q = Q_ABYM20)
+ABYM50_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, Q = Q_ABYM50)
+ABYM86_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, Q = Q_ABYM86)
+
+NSRW10_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, Q = Q_NSRW10)
+NSRW20_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, Q = Q_NSRW20)
+NSRW50_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, Q = Q_NSRW50)
+NSRW86_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, Q = Q_NSRW86)
 ```
+
+## The Cross-Validation
+The idea here is to use the Q-matrices obtained from multivariate analysis for the two WinBUGS models, and univariately for the Wakefield model, not actually quite sure how the Wakefield model will work. They will be used as adaptive ICAR models an fitted to the univariate areal data with INLA, the model will look something like this:
+$$
+Y_{i} = Poisson(\lambda_i) \\
+\log(\lambda_i) = \log(E_i) + \mu + \phi_i \\
+\boldsymbol{\phi} \sim IGMRF(\mathbf{0}, \mathbf{Q}) 
+$$
+with the Q matrix assigned from the fitted models in the file "WinBUGS and the adaptive multivariate models.rmd", and they are constructed from the lists further up in this file. Should maybe also add a sum to zero constraint on the $\phi$, currently only a soft sum to zero constraint from mean = numeric(0) in the rgenric definition.
+
+### The testing
+Note that `res$cpo$logcpo` gets the log sum of the individual cpo-values, so taking minus and dividing by nAreas gives the same as `-mean(log(res$cpo$cpo))`.
+```{r}
+
+ExpectedCases <- readRDS("ExpectedCasesMiguel.rds")
+ObservedCases <- readRDS("ObservedCases.rds")
+
+test_indecies <- c(1, 10, 86) #some numbers for the diseases to be validated on
+
+criteria_df <- data.frame(matrix(NA, nrow = length(test_indecies), ncol = (2*4*3 + 3)))
+colnames(criteria_df) <- c("RW_10_WAIC", "RW_20_WAIC", "RW_50_WAIC", "RW_86_WAIC",
+                           "EW_10_WAIC", "EW_20_WAIC", "EW_50_WAIC", "EW_86_WAIC",
+                           "RW_10_DIC", "RW_20_DIC", "RW_50_DIC", "RW_86_DIC",
+                           "EW_10_DIC", "EW_20_DIC", "EW_50_DIC", "EW_86_DIC",
+                           "RW_10_CPO", "RW_20_CPO", "RW_50_CPO", "RW_86_CPO",
+                           "EW_10_CPO", "EW_20_CPO", "EW_50_CPO", "EW_86_CPO",
+                           "BW_WAIC", "BW_DIC", "BW_CPO")
+
+#Need some df to store results, ie. WAIC, LS, CPO and such, like above!
+
+for (j in test_indecies){
+  Y <- as.vector(ObservedCases[, j])
+  E <- as.vector(ExpectedCases[, j])
+  
+  data_df <- data.frame(Y = Y, E = E, ID = 1:nAreas)
+  
+  # The RW-ICAR by Miguel
+  
+  formula_RW_10 <- Y ~ log(E) + f(ID, model = ABYM10_model) #intercept is automatically included
+  formula_RW_20 <- Y ~ log(E) + f(ID, model = ABYM20_model)
+  formula_RW_50 <- Y ~ log(E) + f(ID, model = ABYM50_model)
+  formula_RW_86 <- Y ~ log(E) + f(ID, model = ABYM86_model)
+  
+  res_RW_10 <- inla(formula_RW_10, family = "poisson", data = data_df,
+                    control.compute = list(cpo = T, waic = T, dic = T))
+  res_RW_20 <- inla(formula_RW_20, family = "poisson", data = data_df,
+                    control.compute = list(cpo = T, waic = T, dic = T))
+  res_RW_50 <- inla(formula_RW_50, family = "poisson", data = data_df,
+                    control.compute = list(cpo = T, waic = T, dic = T))
+  res_RW_86 <- inla(formula_RW_86, family = "poisson", data = data_df,
+                    control.compute = list(cpo = T, waic = T, dic = T))
+  
+  # The EW-ICAR by Riddervold/Jo
+  
+  formula_EW_10 <- Y ~ log(E) + f(ID, model = NSRW10_model)
+  formula_EW_20 <- Y ~ log(E) + f(ID, model = NSRW20_model)
+  formula_EW_50 <- Y ~ log(E) + f(ID, model = NSRW50_model)
+  formula_EW_86 <- Y ~ log(E) + f(ID, model = NSRW86_model)
+  
+  res_EW_10 <- inla(formula_EW_10, family = "poisson", data = data_df,
+                    control.compute = list(cpo = T, waic = T, dic = T))
+  res_EW_20 <- inla(formula_EW_20, family = "poisson", data = data_df,
+                    control.compute = list(cpo = T, waic = T, dic = T))
+  res_EW_50 <- inla(formula_EW_50, family = "poisson", data = data_df,
+                    control.compute = list(cpo = T, waic = T, dic = T))
+  res_EW_86 <- inla(formula_EW_86, family = "poisson", data = data_df,
+                    control.compute = list(cpo = T, waic = T, dic = T))
+  
+  #BW-ICAR by Wakefield??
+  #res_BW <- something
+  
+  #Writing the results to a dataframe
+  vec_waic_dic <- c(res_RW_10$waic$waic, res_RW_20$waic$waic, res_RW_50$waic$waic,
+                    res_RW_86$waic$waic, res_EW_10$waic$waic, res_EW_20$waic$waic, 
+                    res_EW_50$waic$waic, res_EW_86$waic$waic, res_RW_10$dic$dic, 
+                    res_RW_20$dic$dic, res_RW_50$dic$dic, res_RW_86$dic$dic, 
+                    res_EW_10$dic$dic, res_EW_20$dic$dic, res_EW_50$dic$dic,
+                    res_EW_86$dic$dic)
+  vec_cpo <- c(-res_RW_10$cpo$logcpo/nAreas, -res_RW_20$cpo$logcpo/nAreas,
+               -res_RW_50$cpo$logcpo/nAreas, -res_RW_86$cpo$logcpo/nAreas,
+               -res_EW_10$cpo$logcpo/nAreas, -res_EW_20$cpo$logcpo/nAreas,
+               -res_EW_50$cpo$logcpo/nAreas, -res_EW_86$cpo$logcpo/nAreas)
+  #-mean(log(res_RW1$cpo$cpo))
+  vec_BW <- c(res_BW$waic$waic, res_BW$dic$dic, -res_BW$cpo$logcpo/nAreas)
+  
+  criteria_df[j] <- c(vec_waic_dic, vec_cpo, vec_BW)
+}
+
+# save the criteria_df
+```
+
+
 
 
 
