@@ -65,4 +65,69 @@ Q_ABYM86 <- constructQ(tau_list_ABYM_86, index2, nAreas, carto.wb$adj)
 ```
 
 
+## The adaptive ICAR as a rgeneric definiton
+The function defining the latent term with a given structure matrix $Q$ as an input. I think this could be the same for each method, simply different structure matrices provided. If they differ, it should only be for priors??
+
+Should I scale with inla.model.scale = T, or scale it manually inside the rgenric definition in the Q() function?? -- I think it must be manual, before scaling with tau.
+
+Is it fine with numeric(0) for the log constant??
+
+```{r}
+inla.rgeneric.Adaptive.ICAR = function(
+  cmd = c("graph", "Q", "mu", "initial", "log.norm.const","log.prior", "quit"),
+  theta = NULL)
+{
+  #Input:
+  #Q as the unscaled precision structure matrix
+  
+  envir = parent.env(environment())
+  
+  interpret_theta <- function() {return(list(tau = exp(theta[1L])))}
+  
+  graph <- function() {return(Q())}
+  
+  Q <- function() {
+    p <- interpret_theta()
+    
+    gv <- exp(1 / N * sum(log(diag(INLA:::inla.ginv(Q))))) #the geometric variance
+    return(inla.as.sparse(p$tau * gv * Q))
+  }
+  
+  # Q <- function() {
+  #   R <- toeplitz(c(2, -1, rep(0, N - 2)))# 2 on diag and -1 on firstdiags
+  #   R[1, 1] <- R[N, N] <- 1 # 1 for first and last diag element
+  #   gv <- exp(1 / N * sum(log(diag(INLA:::inla.ginv(R))))) #the geometric variance
+  #   R_star <- gv * R 
+  #   
+  #   p <- interpret_theta()
+  #   Q <- p$tau * R_star
+  #   return(inla.as.sparse(Q))
+  # }
+  
+  mu <- function() {return(numeric(0))}
+  
+  initial <- function() {return(4)}#default for precisions: initial = 4
+  
+  log.norm.const <- function() {return(numeric(0))} #Inla computes it, 
+  
+  log.prior <- function() {#default: shape = 1, rate = 0.00005 for tau
+    p <- interpret_theta()
+    prior <- dgamma(p$tau, shape = 1, rate = 0.00005, log = TRUE) + log(p$tau)
+    return(prior)
+  }
+  
+  quit <- function() {return(invisible())}
+  
+  #to ensure theta is defined
+  if (!length(theta)) theta = initial()
+  
+  vals <- do.call(match.arg(cmd), args = list())
+  return(vals)
+}
+
+#Example
+ABYM10_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, Q = Q_ABYM10)
+```
+
+
 
