@@ -30,10 +30,11 @@ constructQ <- function(tau, indexes, nAreas, adj){
   count_num <- 1
   for (i in 1:nAreas){
     for (j in adj[(indexes[i]+1):indexes[i+1]]){
-      if (i < j){ #only need to construct the upper half of Q for INLA
+      #if (i < j){ #only need to construct the upper half of Q for INLA
         Q[i, j] <- -tau[count_num]
+        
         Q[i, i] <- Q[i, i] + tau[count_num]
-      }
+      #}
       count_num <- count_num + 1
     }
   }
@@ -73,6 +74,7 @@ inla.rgeneric.Adaptive.ICAR = function(
 {
   #Input:
   #Q as the unscaled precision structure matrix
+  #nAreas is the number of provinces
   
   envir = parent.env(environment())
   
@@ -83,8 +85,8 @@ inla.rgeneric.Adaptive.ICAR = function(
   Q <- function() {
     p <- interpret_theta()
     
-    gv <- exp(1 / N * sum(log(diag(INLA:::inla.ginv(Q))))) #the geometric variance
-    return(inla.as.sparse(p$tau * gv * Q))
+    gv <- exp(1 / nAreas * sum(log(diag(INLA:::inla.ginv(R))))) #the geometric variance
+    return(inla.as.sparse(p$tau * gv * R))
   }
   
   # Q <- function() {
@@ -119,17 +121,57 @@ inla.rgeneric.Adaptive.ICAR = function(
   return(vals)
 }
 
-#The specific models
-ABYM10_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, Q = Q_ABYM10)
-ABYM20_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, Q = Q_ABYM20)
-ABYM50_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, Q = Q_ABYM50)
-ABYM86_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, Q = Q_ABYM86)
+# INLA:::inla.ginv(Q_ABYM10)
+# image(Q_ABYM10)
+# diag(INLA:::inla.ginv(Q_ABYM10))
+ 
+ # rowSums(Q_ABYM10)
+ # Q_ABYM10[1, 8]
+ # edges_df$edge_value_ABYM_10[1]
 
-NSRW10_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, Q = Q_NSRW10)
-NSRW20_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, Q = Q_NSRW20)
-NSRW50_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, Q = Q_NSRW50)
-NSRW86_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, Q = Q_NSRW86)
+rowSums(R1 + R2)
+diag(INLA:::inla.ginv(R1 + R2))
+ 
+
+#The specific models
+ABYM10_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_ABYM10, nAreas = nAreas)
+ABYM20_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_ABYM20, nAreas = nAreas)
+ABYM50_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_ABYM50, nAreas = nAreas)
+ABYM86_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_ABYM86, nAreas = nAreas)
+
+NSRW10_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_NSRW10, nAreas = nAreas)
+NSRW20_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_NSRW20, nAreas = nAreas)
+NSRW50_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_NSRW50, nAreas = nAreas)
+NSRW86_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_NSRW86, nAreas = nAreas)
 ```
+
+Then also create the structure matrices R1 and R2 for the BW-ICAR from Wakefield.
+
+```{r}
+R1 <- matrix(0, nrow = nAreas, ncol = nAreas) #non-conflict
+R2 <- matrix(0, nrow = nAreas, ncol = nAreas) #conflict
+
+#assume the adjacency matrix is called AMat, then
+non_zero_indices <- which(adj_matrix == 1, arr.ind = TRUE)
+
+for (k in seq_len(nrow(non_zero_indices))) {
+  i <- non_zero_indices[k, 1]
+  j <- non_zero_indices[k, 2]
+  
+  if(ss_provinces[["Cod_CCAA"]][i] == ss_provinces[["Cod_CCAA"]][j]){
+    R1[i, j] <- -1
+    R1[i, i] <- R1[i, i] + 1
+  }
+  else{
+    R2[i, j] <- -1
+    R2[i, i] <- R2[i, i] + 1
+  }
+}
+
+#image(R1+R2)
+
+```
+
 
 ## The Cross-Validation
 The idea here is to use the Q-matrices obtained from multivariate analysis for the two WinBUGS models, and univariately for the Wakefield model, not actually quite sure how the Wakefield model will work. They will be used as adaptive ICAR models an fitted to the univariate areal data with INLA, the model will look something like this:
@@ -147,7 +189,7 @@ Note that `res$cpo$logcpo` gets the log sum of the individual cpo-values, so tak
 ExpectedCases <- readRDS("ExpectedCasesMiguel.rds")
 ObservedCases <- readRDS("ObservedCases.rds")
 
-test_indecies <- c(1, 10, 86) #some numbers for the diseases to be validated on
+test_indecies <- 1:86 #some numbers for the diseases to be validated on
 
 criteria_df <- data.frame(matrix(NA, nrow = length(test_indecies), ncol = (2*4*3 + 3)))
 colnames(criteria_df) <- c("RW_10_WAIC", "RW_20_WAIC", "RW_50_WAIC", "RW_86_WAIC",
@@ -160,6 +202,8 @@ colnames(criteria_df) <- c("RW_10_WAIC", "RW_20_WAIC", "RW_50_WAIC", "RW_86_WAIC
 
 #Need some df to store results, ie. WAIC, LS, CPO and such, like above!
 
+t0 <- Sys.time()
+
 for (j in test_indecies){
   Y <- as.vector(ObservedCases[, j])
   E <- as.vector(ExpectedCases[, j])
@@ -168,10 +212,10 @@ for (j in test_indecies){
   
   # The RW-ICAR by Miguel
   
-  formula_RW_10 <- Y ~ log(E) + f(ID, model = ABYM10_model) #intercept is automatically included
-  formula_RW_20 <- Y ~ log(E) + f(ID, model = ABYM20_model)
-  formula_RW_50 <- Y ~ log(E) + f(ID, model = ABYM50_model)
-  formula_RW_86 <- Y ~ log(E) + f(ID, model = ABYM86_model)
+  formula_RW_10 <- Y ~ offset(log(E)) + f(ID, model = ABYM10_model) #intercept is automatically included
+  formula_RW_20 <- Y ~ offset(log(E)) + f(ID, model = ABYM20_model)
+  formula_RW_50 <- Y ~ offset(log(E)) + f(ID, model = ABYM50_model)
+  formula_RW_86 <- Y ~ offset(log(E)) + f(ID, model = ABYM86_model)
   
   res_RW_10 <- inla(formula_RW_10, family = "poisson", data = data_df,
                     control.compute = list(cpo = T, waic = T, dic = T))
@@ -184,10 +228,10 @@ for (j in test_indecies){
   
   # The EW-ICAR by Riddervold/Jo
   
-  formula_EW_10 <- Y ~ log(E) + f(ID, model = NSRW10_model)
-  formula_EW_20 <- Y ~ log(E) + f(ID, model = NSRW20_model)
-  formula_EW_50 <- Y ~ log(E) + f(ID, model = NSRW50_model)
-  formula_EW_86 <- Y ~ log(E) + f(ID, model = NSRW86_model)
+  formula_EW_10 <- Y ~ offset(log(E)) + f(ID, model = NSRW10_model)
+  formula_EW_20 <- Y ~ offset(log(E)) + f(ID, model = NSRW20_model)
+  formula_EW_50 <- Y ~ offset(log(E)) + f(ID, model = NSRW50_model)
+  formula_EW_86 <- Y ~ offset(log(E)) + f(ID, model = NSRW86_model)
   
   res_EW_10 <- inla(formula_EW_10, family = "poisson", data = data_df,
                     control.compute = list(cpo = T, waic = T, dic = T))
@@ -199,7 +243,19 @@ for (j in test_indecies){
                     control.compute = list(cpo = T, waic = T, dic = T))
   
   #BW-ICAR by Wakefield??
-  #res_BW <- something
+  formula_BW_fit <- Y ~ offset(log(E)) + f(ID, model = Wakefield_model)
+  res_BW_fit <- inla(formula_BW_fit, family = "poisson", data = data_df)
+  
+  #construct BW Q from tau1 and tau2
+  #summary(res_BW_fit)
+  taus <- c(res_BW_fit$summary.hyperpar[, "mean"])
+  Q_mat <- taus[1]*R1 + taus[2]*R2
+  BW_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_mat, nAreas = nAreas)
+  
+  formula_BW <- Y ~ offset(log(E)) + f(ID, model = BW_model)
+  
+  res_BW <- inla(formula_BW, family = "poisson", data = data_df,
+                 control.compute = list(cpo = T, waic = T, dic = T))
   
   #Writing the results to a dataframe
   vec_waic_dic <- c(res_RW_10$waic$waic, res_RW_20$waic$waic, res_RW_50$waic$waic,
@@ -208,17 +264,24 @@ for (j in test_indecies){
                     res_RW_20$dic$dic, res_RW_50$dic$dic, res_RW_86$dic$dic, 
                     res_EW_10$dic$dic, res_EW_20$dic$dic, res_EW_50$dic$dic,
                     res_EW_86$dic$dic)
-  vec_cpo <- c(-res_RW_10$cpo$logcpo/nAreas, -res_RW_20$cpo$logcpo/nAreas,
-               -res_RW_50$cpo$logcpo/nAreas, -res_RW_86$cpo$logcpo/nAreas,
-               -res_EW_10$cpo$logcpo/nAreas, -res_EW_20$cpo$logcpo/nAreas,
-               -res_EW_50$cpo$logcpo/nAreas, -res_EW_86$cpo$logcpo/nAreas)
+  vec_cpo <- c(-mean(log(res_RW_10$cpo$cpo)), -mean(log(res_RW_20$cpo$cpo)),
+               -mean(log(res_RW_50$cpo$cpo)), -mean(log(res_RW_86$cpo$cpo)),
+               -mean(log(res_EW_10$cpo$cpo)), -mean(log(res_EW_20$cpo$cpo)),
+               -mean(log(res_EW_50$cpo$cpo)), -mean(log(res_EW_86$cpo$cpo)))
   #-mean(log(res_RW1$cpo$cpo))
-  vec_BW <- c(res_BW$waic$waic, res_BW$dic$dic, -res_BW$cpo$logcpo/nAreas)
+  vec_BW <- c(res_BW$waic$waic, res_BW$dic$dic, -mean(log(res_BW$cpo$cpo)))
   
-  criteria_df[j] <- c(vec_waic_dic, vec_cpo, vec_BW)
+  criteria_df[j,] <- c(vec_waic_dic, vec_cpo, vec_BW)
 }
 
+#runtimes and saving
+CV_runtime <- Sys.time() - t0
+CV_runtime
 # save the criteria_df
+```
+
+```{r}
+saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta.rds")
 ```
 
 

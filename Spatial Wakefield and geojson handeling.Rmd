@@ -195,10 +195,10 @@ inla.rgeneric.AdaptiveICAR = function(
   cmd = c("graph", "Q", "mu", "initial", "log.norm.const","log.prior", "quit"),
   theta = NULL)
 {
-  #Input:
+  #Input: (prior_str currently not passed, just using pc)
   #df: contains the relevant information for the areal data
   #prior_str is either Gamma0.005, Gamma0.00005 or PC    , might not need this, but useful for sensitivity analysis, or just include an argument which is the p and a used in the pc.priors
-  # maybe also pass the adjacency graph/matrix as an argument, can then iterate through the non-zero entries maybe
+  # AMat is the adjacency matrix, so simply 1 for bordering regions, an ICAR structure
   
   envir = parent.env(environment())
   
@@ -208,7 +208,7 @@ inla.rgeneric.AdaptiveICAR = function(
   graph <- function() {return(Q())}
   
   Q <- function() {
-    N <- nrow(df) #df is passed as an argument, the number of regions
+    N <- nrow(df) #df is passed as an argument, N is the number of regions
     R1 <- matrix(0, nrow = N, ncol = N) #non-conflict
     R2 <- matrix(0, nrow = N, ncol = N) #conflict
     
@@ -219,7 +219,7 @@ inla.rgeneric.AdaptiveICAR = function(
       i <- non_zero_indices[k, 1]
       j <- non_zero_indices[k, 2]
       
-      if(df[i, "autReg"] == df[j, "autReg"]){
+      if(df[["Cod_CCAA"]][i] == df[["Cod_CCAA"]][j]){
         R1[i, j] <- -1
         R1[i, i] <- R1[i, i] + 1
       }
@@ -259,21 +259,27 @@ inla.rgeneric.AdaptiveICAR = function(
   
   log.norm.const <- function() {return(numeric(0))}
   
-  log.prior <- function() {#default: shape = 1, rate = 0.00005
+  log.prior <- function() {
     p <- interpret_theta()
-    if(prior_str == "PC"){
-      prior <- inla.pc.dprec(p$tau1, u = 1, alpha = 0.01, log=TRUE) + log(p$tau1) +
-          inla.pc.dprec(p$tau2, u = 1, alpha = 0.01, log = TRUE) + log(p$tau2)
-      return(prior)
-    } else if(prior_str == "Gamma0,005"){
-      prior <- dgamma(p$tau1, shape = 1, rate = 0.005, log = TRUE) + log(p$tau1) +
-      dgamma(p$tau2, shape = 1, rate = 0.005, log = TRUE) + log(p$tau2)
-      return(prior)
-    }
-    prior <- dgamma(p$tau1, shape = 1, rate = 0.00005, log = TRUE) + log(p$tau1) +
-    dgamma(p$tau2, shape = 1, rate = 0.00005, log = TRUE) + log(p$tau2)
-    return(prior) 
+    prior <- inla.pc.dprec(p$tau1, u = 1, alpha = 0.01, log=TRUE) + log(p$tau1) +
+           inla.pc.dprec(p$tau2, u = 1, alpha = 0.01, log = TRUE) + log(p$tau2)
+    return(prior)
   }
+  # log.prior <- function() {#default: shape = 1, rate = 0.00005
+  #   p <- interpret_theta()
+  #   if(prior_str == "PC"){
+  #     prior <- inla.pc.dprec(p$tau1, u = 1, alpha = 0.01, log=TRUE) + log(p$tau1) +
+  #         inla.pc.dprec(p$tau2, u = 1, alpha = 0.01, log = TRUE) + log(p$tau2)
+  #     return(prior)
+  #   } else if(prior_str == "Gamma0,005"){
+  #     prior <- dgamma(p$tau1, shape = 1, rate = 0.005, log = TRUE) + log(p$tau1) +
+  #     dgamma(p$tau2, shape = 1, rate = 0.005, log = TRUE) + log(p$tau2)
+  #     return(prior)
+  #   }
+  #   prior <- dgamma(p$tau1, shape = 1, rate = 0.00005, log = TRUE) + log(p$tau1) +
+  #   dgamma(p$tau2, shape = 1, rate = 0.00005, log = TRUE) + log(p$tau2)
+  #   return(prior) 
+  # }
   
   quit <- function() {return(invisible())}
   
@@ -287,13 +293,16 @@ inla.rgeneric.AdaptiveICAR = function(
 
 To initialize the resulting latent term we call the rgeneric function as below:
 ```{r}
-AICAR_model <- inla.rgeneric.define(inla.rgeneric.AdaptiveICAR, 
-                                    df = df, AMat = AMAT, prior_str = "PC") #might pass u and a
+nb <- poly2nb(ss_provinces)
+adj_matrix <- nb2mat(nb, style = "B", zero.policy = TRUE)
+
+Wakefield_model <- inla.rgeneric.define(inla.rgeneric.AdaptiveICAR, df = ss_provinces, 
+                                    AMat = adj_matrix) #might pass u and a
 
 ```
 
 # Load and preprocess the disease data
-The data for male mortality cases nationally and at province level is collected in 5-year age bins for each disease. These must be aggregated to the total cases per disease in each province and summarised in a matrix called ObservedCases. Furthermore, we calculate the expected cases based on the population per age bin in each province, which is denoted as ExpectedCases. Lastly, some choice of the mortality causes must be done. For instance, some causes are extremely rare, for instance only 1 or 2 cases nationally. Therefore, we implemented a lower limit of an average of 2 cases per province, which for 47 provinces equald 94 cases nationally. Additionally, some of the mortality causes are not disease related, for instance homocides, and should also be removed. 
+The data for male mortality cases nationally and at province level is collected in 5-year age bins for each disease. These must be aggregated to the total cases per disease in each province and summarized in a matrix called ObservedCases. Furthermore, we calculate the expected cases based on the population per age bin in each province, which is denoted as ExpectedCases. Lastly, some choice of the mortality causes must be done. For instance, some causes are extremely rare, for instance only 1 or 2 cases nationally. Therefore, we implemented a lower limit of an average of 2 cases per province, which for 47 provinces equals 94 cases nationally. Additionally, some of the mortality causes are not disease related, for instance homicides, and should also be removed. 
 
 ```{r}
 library(readr)

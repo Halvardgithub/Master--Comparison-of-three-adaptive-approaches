@@ -44,7 +44,7 @@ carto.wb <- nb2WB(carto.nb) # List with the adjacency vector (carto.wb$adj) and
 index <- c(1, cumsum(carto.wb$num)) # Vector to identify the positions of the neighbors
 # of each geographic unit in the conditional distributions of spatial effects
 
-#Randomize disease from 1-102 and do not need sex I think, numbers are 10, 20 and 50
+#Randomize disease from 1-86, numbers are 10, 20 and 50
 get_causes <- function(n){ #nDiseasesTot is defined further up
   set.seed(12345)
   subset <- sample(1:nDiseasesTot, n, replace = FALSE) #there is a total of 102 diseases
