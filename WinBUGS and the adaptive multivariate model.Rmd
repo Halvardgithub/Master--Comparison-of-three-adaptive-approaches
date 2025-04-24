@@ -1333,14 +1333,6 @@ anova_log_edge_table <- ggtexttable(anova_log_df, theme = ttheme("mOrange"))
 
 
 
-
-NB:
-Should Autonomous regions and Provinces start with a capital letter? upper case
-Was i supposed to run the models without an iid effect? At the moment I have a random effect for each province and disease I think.
-Was the national mortality data subtracted by the provinces we removed when calculating the expected cases?
-Need to choose appropriate names for the models, preferably consistent across text and figures. Any ideas? By author? NSRW1 or AICAR_E, AICAR_2, AICAR_I, EW-ICAR (edge weighted), RW-ICAR(region weighted), BW-ICAR (borders weighted)
-
-
 ## For leave one out cross-validation for the diseases and simulation of the weight matrix
 ```{r, eval=FALSE}
 # Object where the results for each set of diseases will be

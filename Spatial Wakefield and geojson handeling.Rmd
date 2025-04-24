@@ -19,6 +19,7 @@ library(sf)
 library(spdep)
 library(dplyr)
 library(ggplot2)
+library(ggpubr)
 
 shp_prov <- st_read("Data/Provinces/Provincias_ETRS89_30N.shp")
 colnames(shp_prov) <- c("Index", "ProvName", "ProvName1", "CCAA_Index", "CCAA_Name", "geometry")

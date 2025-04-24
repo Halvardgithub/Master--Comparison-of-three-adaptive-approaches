@@ -149,25 +149,25 @@ NSRW86_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_NSRW86, 
 Then also create the structure matrices R1 and R2 for the BW-ICAR from Wakefield.
 
 ```{r}
-# R1 <- matrix(0, nrow = nAreas, ncol = nAreas) #non-conflict
-# R2 <- matrix(0, nrow = nAreas, ncol = nAreas) #conflict
-# 
-# #assume the adjacency matrix is called AMat, then
-# non_zero_indices <- which(adj_matrix == 1, arr.ind = TRUE)
-# 
-# for (k in seq_len(nrow(non_zero_indices))) {
-#   i <- non_zero_indices[k, 1]
-#   j <- non_zero_indices[k, 2]
-#   
-#   if(ss_provinces[["Cod_CCAA"]][i] == ss_provinces[["Cod_CCAA"]][j]){
-#     R1[i, j] <- -1
-#     R1[i, i] <- R1[i, i] + 1
-#   }
-#   else{
-#     R2[i, j] <- -1
-#     R2[i, i] <- R2[i, i] + 1
-#   }
-# }
+R1 <- matrix(0, nrow = nAreas, ncol = nAreas) #non-conflict
+R2 <- matrix(0, nrow = nAreas, ncol = nAreas) #conflict
+
+#assume the adjacency matrix is called AMat, then
+non_zero_indices <- which(adj_matrix == 1, arr.ind = TRUE)
+
+for (k in seq_len(nrow(non_zero_indices))) {
+  i <- non_zero_indices[k, 1]
+  j <- non_zero_indices[k, 2]
+
+  if(ss_provinces[["Cod_CCAA"]][i] == ss_provinces[["Cod_CCAA"]][j]){
+    R1[i, j] <- -1
+    R1[i, i] <- R1[i, i] + 1
+  }
+  else{
+    R2[i, j] <- -1
+    R2[i, i] <- R2[i, i] + 1
+  }
+}
 
 #image(R1+R2)
 
@@ -190,16 +190,17 @@ Note that `res$cpo$logcpo` gets the log sum of the individual cpo-values, so tak
 ExpectedCases <- readRDS("ExpectedCasesMiguel.rds")
 ObservedCases <- readRDS("ObservedCases.rds")
 
-test_indecies <- 1:5 #some numbers for the diseases to be validated on
+test_indecies <- 1:86 #some numbers for the diseases to be validated on
 
-criteria_df <- data.frame(matrix(NA, nrow = length(test_indecies), ncol = (2*4*3 + 3)))
+criteria_df <- data.frame(matrix(NA, nrow = length(test_indecies), ncol = ((2*4 + 3)*3)))
 colnames(criteria_df) <- c("RW_10_WAIC", "RW_20_WAIC", "RW_50_WAIC", "RW_86_WAIC",
                            "EW_10_WAIC", "EW_20_WAIC", "EW_50_WAIC", "EW_86_WAIC",
                            "RW_10_DIC", "RW_20_DIC", "RW_50_DIC", "RW_86_DIC",
                            "EW_10_DIC", "EW_20_DIC", "EW_50_DIC", "EW_86_DIC",
                            "RW_10_CPO", "RW_20_CPO", "RW_50_CPO", "RW_86_CPO",
                            "EW_10_CPO", "EW_20_CPO", "EW_50_CPO", "EW_86_CPO",
-                           "BW_WAIC", "BW_DIC", "BW_CPO")
+                           "BW_WAIC", "BW_DIC", "BW_CPO", "BW_2_WAIC", "BW_2_DIC", "BW_2_CPO",
+                           "ICAR_WAIC", "ICAR_DIC", "ICAR_CPO")
 
 #Need some df to store results, ie. WAIC, LS, CPO and such, like above!
 
@@ -243,20 +244,40 @@ for (j in test_indecies){
   res_EW_86 <- inla(formula_EW_86, family = "poisson", data = data_df,
                     control.compute = list(cpo = T, waic = T, dic = T))
   
-  #BW-ICAR by Wakefield??
-  formula_BW_fit <- Y ~ offset(log(E)) + f(ID, model = Wakefield_model)
-  res_BW_fit <- inla(formula_BW_fit, family = "poisson", data = data_df)
-  
-  #construct BW Q from tau1 and tau2
-  #summary(res_BW_fit)
-  taus <- c(res_BW_fit$summary.hyperpar[, "mean"])
-  Q_mat <- taus[1]*R1 + taus[2]*R2
-  BW_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_mat, nAreas = nAreas)
-  
-  formula_BW <- Y ~ offset(log(E)) + f(ID, model = BW_model)
-  
+  #BW-ICAR by Wakefield
+  formula_BW <- Y ~ offset(log(E)) + f(ID, model = Wakefield_model)
   res_BW <- inla(formula_BW, family = "poisson", data = data_df,
                  control.compute = list(cpo = T, waic = T, dic = T))
+  #construct BW Q from tau1 and tau2
+  #taus <- c(res_BW$summary.hyperpar[, "mean"])
+  prec1_marginal <- inla.tmarginal(function(x) exp(x),
+                                   res_BW$internal.marginals.hyperpar[[1]])
+  prec2_marginal <- inla.tmarginal(function(x) exp(x), 
+                                   res_BW$internal.marginals.hyperpar[[2]])
+  
+  # Compute summary including the mode
+  summary_prec1 <- inla.zmarginal(prec1_marginal, silent = TRUE)
+  summary_prec2 <- inla.zmarginal(prec2_marginal, silent = TRUE)
+  
+  # Access mode
+  mode_prec1 <- summary_prec1$mean
+  mode_prec2 <- summary_prec2$mean
+  
+  Q_mat <- mode_prec1*R1 + mode_prec2*R2
+  BW_2_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_mat, nAreas = nAreas)
+  
+  formula_BW_2 <- Y ~ offset(log(E)) + f(ID, model = BW_2_model)
+  
+  res_BW_2 <- inla(formula_BW_2, family = "poisson", data = data_df,
+                 control.compute = list(cpo = T, waic = T, dic = T))
+  
+  #The standard ICAR
+  
+  formula_ICAR <- Y ~ offset(log(E)) + 
+    f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE)
+  
+  res_ICAR <- inla(formula_ICAR, family = "poisson", data = data_df,
+                   control.compute = list(cpo = T, waic = T, dic = T))
   
   #Writing the results to a dataframe
   vec_waic_dic <- c(res_RW_10$waic$waic, res_RW_20$waic$waic, res_RW_50$waic$waic,
@@ -270,22 +291,42 @@ for (j in test_indecies){
                -mean(log(res_EW_10$cpo$cpo)), -mean(log(res_EW_20$cpo$cpo)),
                -mean(log(res_EW_50$cpo$cpo)), -mean(log(res_EW_86$cpo$cpo)))
   #-mean(log(res_RW1$cpo$cpo))
-  vec_BW <- c(res_BW$waic$waic, res_BW$dic$dic, -mean(log(res_BW$cpo$cpo)))
+  vec_BW <- c(res_BW$waic$waic, res_BW$dic$dic, -mean(log(res_BW$cpo$cpo)),
+              res_BW_2$waic$waic, res_BW_2$dic$dic, -mean(log(res_BW_2$cpo$cpo)))
+  vec_ICAR <- c(res_ICAR$waic$waic, res_ICAR$dic$dic, -mean(log(res_ICAR$cpo$cpo)))
   
-  criteria_df[j,] <- c(vec_waic_dic, vec_cpo, vec_BW)
+  criteria_df[j,] <- c(vec_waic_dic, vec_cpo, vec_BW, vec_ICAR)
 }
 
 #runtimes and saving
 CV_runtime <- Sys.time() - t0
 CV_runtime
-# save the criteria_df
+
+#testing
+Y <- as.vector(ObservedCases[, 73])
+E <- as.vector(ExpectedCases[, 73])
+
+data_df <- data.frame(Y = Y, E = E, ID = 1:nAreas)
+
 ```
 
 ```{r}
-saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta.rds")
+# save the criteria_df
+#saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta.rds")
 ```
 
 
 
+
+Presentation:
+Short introduction and motivation for disease mapping, map of spain etc. Motivate why the stationarty assumption in ICAR is to strict, and why neighbours are assumed similar.
+
+Then brief introduction of the methods, can show edgeplots for say n=86, and mention that thicker edges indicate that the regions are similar. Maybe mention Madrid or where old tourists live as outliers.
+
+Then some results, maybe box plots for DIC.
+
+Maybe more plots that I can discuss if I have time.
+
+Conclusion?
 
 
