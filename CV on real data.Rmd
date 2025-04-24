@@ -13,6 +13,7 @@ knitr::opts_chunk$set(echo = TRUE)
 Both EW-ICAR and RW-ICAR can easily compute a list of all the taus for the edges. From this it is possible to construct the precision matrix Q, maybe along with the index set as well. I will start by experimenting with the creation of Q before implementing the whole matrix in rgeneric. After the models are defined in rgeneric I will perform cross validation for all the diseases, and further investigate the scarce and prominent cause of death, maybe also total mortality. The comparison of the models will be done for all n, which is always one for Wakefield, and a choice concerning test diseases for lower n, i.e. 10, 20, 50 must be made in regards to using a known disease or not in the training data.
 
 ```{r}
+library(INLA)
 #res_list_testing <- readRDS("Results//result_list_ABYM.rds")
 
 #define nAreas and maybe nDiseases
@@ -129,8 +130,8 @@ inla.rgeneric.Adaptive.ICAR = function(
  # Q_ABYM10[1, 8]
  # edges_df$edge_value_ABYM_10[1]
 
-rowSums(R1 + R2)
-diag(INLA:::inla.ginv(R1 + R2))
+#rowSums(R1 + R2)
+#diag(INLA:::inla.ginv(R1 + R2))
  
 
 #The specific models
@@ -148,25 +149,25 @@ NSRW86_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_NSRW86, 
 Then also create the structure matrices R1 and R2 for the BW-ICAR from Wakefield.
 
 ```{r}
-R1 <- matrix(0, nrow = nAreas, ncol = nAreas) #non-conflict
-R2 <- matrix(0, nrow = nAreas, ncol = nAreas) #conflict
-
-#assume the adjacency matrix is called AMat, then
-non_zero_indices <- which(adj_matrix == 1, arr.ind = TRUE)
-
-for (k in seq_len(nrow(non_zero_indices))) {
-  i <- non_zero_indices[k, 1]
-  j <- non_zero_indices[k, 2]
-  
-  if(ss_provinces[["Cod_CCAA"]][i] == ss_provinces[["Cod_CCAA"]][j]){
-    R1[i, j] <- -1
-    R1[i, i] <- R1[i, i] + 1
-  }
-  else{
-    R2[i, j] <- -1
-    R2[i, i] <- R2[i, i] + 1
-  }
-}
+# R1 <- matrix(0, nrow = nAreas, ncol = nAreas) #non-conflict
+# R2 <- matrix(0, nrow = nAreas, ncol = nAreas) #conflict
+# 
+# #assume the adjacency matrix is called AMat, then
+# non_zero_indices <- which(adj_matrix == 1, arr.ind = TRUE)
+# 
+# for (k in seq_len(nrow(non_zero_indices))) {
+#   i <- non_zero_indices[k, 1]
+#   j <- non_zero_indices[k, 2]
+#   
+#   if(ss_provinces[["Cod_CCAA"]][i] == ss_provinces[["Cod_CCAA"]][j]){
+#     R1[i, j] <- -1
+#     R1[i, i] <- R1[i, i] + 1
+#   }
+#   else{
+#     R2[i, j] <- -1
+#     R2[i, i] <- R2[i, i] + 1
+#   }
+# }
 
 #image(R1+R2)
 
@@ -189,7 +190,7 @@ Note that `res$cpo$logcpo` gets the log sum of the individual cpo-values, so tak
 ExpectedCases <- readRDS("ExpectedCasesMiguel.rds")
 ObservedCases <- readRDS("ObservedCases.rds")
 
-test_indecies <- 1:86 #some numbers for the diseases to be validated on
+test_indecies <- 1:5 #some numbers for the diseases to be validated on
 
 criteria_df <- data.frame(matrix(NA, nrow = length(test_indecies), ncol = (2*4*3 + 3)))
 colnames(criteria_df) <- c("RW_10_WAIC", "RW_20_WAIC", "RW_50_WAIC", "RW_86_WAIC",

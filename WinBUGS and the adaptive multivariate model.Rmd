@@ -292,7 +292,7 @@ Runtimes for Miguels model in WinBUGS(cirka):
 
 
 ```{r}
-res_list_ABYM <- readRDS("Results//result_list_ABYM.rds")
+res_list_ABYM <- readRDS("Results//Results_withScaling_and_without_iidTheta//result_list_ABYM.rds")
 
 res_list_ABYM[[5]]
 
@@ -650,7 +650,7 @@ saveRDS(result_list_NSRW1, file = "Results//result_list_NSRW1.rds")
 Assessing convergence and other properties of the MCMC simulations.
 
 ```{r}
-res_list_NSRW1 <- readRDS("Results//result_list_NSRW1.rds")
+res_list_NSRW1 <- readRDS("Results//Results_withScaling_and_without_iidTheta//result_list_NSRW1.rds")
 
 #check the Rhat's for convergence, should be less than 1.1 for all parameters
 range(res_list_NSRW1[[1]]$summary[, "Rhat"])
@@ -938,7 +938,7 @@ edgeplots <- list(edgeplot_ABYM_10, edgeplot_NSRW1_10, edgeplot_ABYM_20, edgeplo
 
 final_edgeplot <- ggarrange(plotlist = edgeplots, ncol = 2, nrow = 4, labels = NULL)
 
-ggsave("Plots//edgeFigure.png", plot = final_edgeplot, height = 24, width = 21,  units = "cm",  dpi = 300)
+#ggsave("Plots//edgeFigure.png", plot = final_edgeplot, height = 24, width = 21,  units = "cm",  dpi = 300)
 ```
 
 
@@ -1125,7 +1125,7 @@ precplots <- list(precplot_ABYM_10, precplot_NSRW1_10, precplot_ABYM_20, precplo
 
 final_precplot <- ggarrange(plotlist = precplots, ncol = 2, nrow = 4, labels = NULL)
 
-ggsave("Plots//precFigure.png", plot = final_precplot, height = 24, width = 21,  units = "cm",  dpi = 300)
+#ggsave("Plots//precFigure.png", plot = final_precplot, height = 24, width = 21,  units = "cm",  dpi = 300)
 ```
 
 
@@ -1250,7 +1250,7 @@ scatterplots <- list(SCplot_edges_10, SCplot_prec_10, SCplot_edges_20, SCplot_pr
 
 final_scatterplot <- ggarrange(plotlist = scatterplots, ncol = 2, nrow = 4, labels = NULL)
 
-ggsave("Plots//scatterFigure.png", plot = final_scatterplot, height = 24, width = 21,  units = "cm",  dpi = 300)
+#ggsave("Plots//scatterFigure.png", plot = final_scatterplot, height = 24, width = 21,  units = "cm",  dpi = 300)
 
 #save the edges_sf for use in the CV
 #saveRDS(edges_sf, file = "Edges_df//Edges_W_scaling_WO_theta")
@@ -1287,7 +1287,7 @@ colnames(anova_df) <- c("Adaptive BYM", "Temporal NSRW1")
 
 anova_edge_table <- ggtexttable(anova_df, theme = ttheme("mOrange"))
 
-ggsave("Plots//anovaFigure.png", plot = anova_edge_table, height = 12, width = 10,  units = "cm",  dpi = 300)
+#ggsave("Plots//anovaFigure.png", plot = anova_edge_table, height = 12, width = 10,  units = "cm",  dpi = 300)
 ```
 
 
@@ -1328,7 +1328,7 @@ colnames(anova_log_df) <- c("Adaptive BYM", "Temporal NSRW1")
 
 anova_log_edge_table <- ggtexttable(anova_log_df, theme = ttheme("mOrange"))
 
-ggsave("Plots//anovaLogFigure.png", plot = anova_log_edge_table, height = 12, width = 10,  units = "cm",  dpi = 300)
+#ggsave("Plots//anovaLogFigure.png", plot = anova_log_edge_table, height = 12, width = 10,  units = "cm",  dpi = 300)
 ```
 
 
