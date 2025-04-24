@@ -11,3 +11,5 @@ Without scale and with iid Theta refers to the two WinBUGS models with an iid ef
 * Get the CV to work, maybe make some tests for the matrices, like non-zero elements in the same places and so on
 * Possibly add n=70 and try with a different seed to compare the two
 * Need to write more!
+* Ta med ICAR og standard Wakefield i CV
+* lag box plot for resultater
