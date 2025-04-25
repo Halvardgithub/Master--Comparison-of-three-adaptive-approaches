@@ -350,6 +350,8 @@ WAIC_long$Model <- factor(WAIC_long$Model, levels = desired_order)
 
 WAIC_boxplot <- ggplot(WAIC_long, aes(x = Model, y = WAIC)) +
   geom_boxplot(fill = "skyblue") +
+  geom_hline(yintercept = mean(WAIC_long$WAIC, na.rm = TRUE), 
+             linetype = "dashed", color = "red", linewidth = 1) +
   theme_minimal() +
   labs(x = "", y = "WAIC") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
@@ -367,6 +369,8 @@ DIC_long$Model <- factor(DIC_long$Model, levels = desired_order)
 
 DIC_boxplot <- ggplot(DIC_long, aes(x = Model, y = DIC)) +
   geom_boxplot(fill = "skyblue") +
+  geom_hline(yintercept = mean(DIC_long$DIC, na.rm = TRUE), 
+             linetype = "dashed", color = "red", linewidth = 1) +
   theme_minimal() +
   labs(x = "", y = "DIC") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
@@ -386,6 +390,8 @@ CPO_long$Model <- factor(CPO_long$Model, levels = desired_order)
 CPO_boxplot <- ggplot(CPO_long, aes(x = Model, y = CPO)) +
   geom_boxplot(fill = "skyblue") +
   theme_minimal() +
+  geom_hline(yintercept = mean(CPO_long$CPO, na.rm = TRUE), 
+             linetype = "dashed", color = "red", linewidth = 1) +
   labs(x = "", y = "CPO") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
@@ -394,8 +400,7 @@ full_boxplot
 ```
 
 ```{r}
-#ggsave("Plots//Plots_withScaling_and_without_iidTheta//CV_boxplot.png", plot = full_boxplot,
-#       height = 24, width = 21,  units = "cm",  dpi = 300)
+#ggsave("Plots//Plots_withScaling_and_without_iidTheta//CV_boxplot_W_mean.png", plot = full_boxplot, height = 24, width = 21,  units = "cm",  dpi = 300)
 ```
 
 

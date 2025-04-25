@@ -78,13 +78,36 @@ ss_provinces = ss_provinces |> filter(!(Texto %in% out))
 
 ss_ar = ss_ar |> filter(!(Texto %in% out2))
 
-ggplot() +
+SpainMap <- ggplot() +
 
   geom_sf(data = ss_ar, color="black") + #do not really need this line
 
   geom_sf(data=ss_provinces, fill=NA, color="grey") +
 
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4)
+
+#ggsave("Plots//SpainMap.png", plot = SpainMap, height = 21, width = 21,  units = "cm",  dpi = 300)
+
+# Map of Spain with illustrative graph for powerpoint
+SpainMap_W_graph <- ggplot() +
+  geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Provinces
+  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
+  geom_sf(data = centroids, color = "red", size = 3) +  # Centroids
+  geom_sf(data = edges_sf, linewidth = 0.8, color = "blue") + 
+  theme_minimal()
+
+#ggsave("Plots//SpainMap_W_grpah.png", plot = SpainMap_W_graph, height = 21, width = 21,  units = "cm",  dpi = 300)
+
+SpainMap_Wakefieldgraph <- ggplot() +
+  geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Provinces
+  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
+  geom_sf(data = centroids, color = "red", size = 2) +  # Centroids
+  geom_sf(data = edges_sf, aes(linewidth = inter_region_edges), color = "blue") + 
+  scale_linewidth(range = c(0.6, 1.2)) +  
+  theme_minimal() +
+  guides(linewidth = "none")
+
+#ggsave("Plots//SpainMap_Wakefieldgraph.png", plot = SpainMap_Wakefieldgraph, height = 21, width = 21,  units = "cm",  dpi = 300)
 ```
 
 
@@ -170,8 +193,8 @@ example_edgeStructuresFigure <- annotate_figure(examplePlots,
 #   geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Provinces
 #   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
 #   geom_sf(data = centroids, color = "red", size = 2) +  # Centroids
-#   geom_sf(data = edges_sf, aes(linewidth = edge_value_ABYM_86), color = "blue") + 
-#   scale_linewidth(range = c(0.2, 1.7), breaks = pretty_breaks(n = 4)) +  
+#   geom_sf(data = edges_sf, aes(linewidth = edge_value_ABYM_86), color = "blue") +
+#   scale_linewidth(range = c(0.2, 1.7)) +
 #   labs(x = "Adaptive BYM",y = "n = 86") +
 #   theme_minimal() +
 #   theme(axis.text = element_blank(),axis.ticks = element_blank(),
