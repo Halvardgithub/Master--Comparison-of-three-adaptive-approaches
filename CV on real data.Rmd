@@ -342,24 +342,36 @@ res_WAIC <- res_df[index_WAIC]
 
 colnames(res_WAIC) <- sub("_(?!.*_).*", "", colnames(res_WAIC), perl = TRUE) #chatGPT
 
+#Make the results with the standard ICAR as a reference level
+res_WAIC <- res_WAIC |>
+  mutate(across(everything(), ~ .x - .data$ICAR))
+
 WAIC_long <-  res_WAIC |>
   mutate(row_id = row_number()) |>
   pivot_longer(-row_id, names_to = "Model", values_to = "WAIC")
 
 WAIC_long$Model <- factor(WAIC_long$Model, levels = desired_order)
 
+lower <- quantile(WAIC_long$WAIC, 0.025, na.rm = TRUE)
+upper <- quantile(WAIC_long$WAIC, 0.975, na.rm = TRUE)
+
 WAIC_boxplot <- ggplot(WAIC_long, aes(x = Model, y = WAIC)) +
-  geom_boxplot(fill = "skyblue") +
-  geom_hline(yintercept = mean(WAIC_long$WAIC, na.rm = TRUE), 
-             linetype = "dashed", color = "red", linewidth = 1) +
+  geom_boxplot(outlier.shape = NA, fill = "skyblue") +
+  #geom_hline(yintercept = mean(WAIC_long$WAIC, na.rm = TRUE), 
+   #          linetype = "dashed", color = "red", linewidth = 1) +
   theme_minimal() +
   labs(x = "", y = "WAIC") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  coord_cartesian(ylim = c(lower, upper))
 
 # for DIC
 
 res_DIC <- res_df[index_DIC]
 colnames(res_DIC) <- sub("_(?!.*_).*", "", colnames(res_DIC), perl = TRUE) #chatGPT
+
+#Make the results with the standard ICAR as a reference level
+res_DIC <- res_DIC |>
+  mutate(across(everything(), ~ .x - .data$ICAR))
 
 DIC_long <-  res_DIC |>
   mutate(row_id = row_number()) |>
@@ -367,13 +379,17 @@ DIC_long <-  res_DIC |>
 
 DIC_long$Model <- factor(DIC_long$Model, levels = desired_order)
 
+lower <- quantile(DIC_long$DIC, 0.025, na.rm = TRUE)
+upper <- quantile(DIC_long$DIC, 0.975, na.rm = TRUE)
+
 DIC_boxplot <- ggplot(DIC_long, aes(x = Model, y = DIC)) +
-  geom_boxplot(fill = "skyblue") +
-  geom_hline(yintercept = mean(DIC_long$DIC, na.rm = TRUE), 
-             linetype = "dashed", color = "red", linewidth = 1) +
+  geom_boxplot(outlier.shape = NA, fill = "skyblue") +
+  #geom_hline(yintercept = mean(DIC_long$DIC, na.rm = TRUE), 
+   #          linetype = "dashed", color = "red", linewidth = 1) +
   theme_minimal() +
   labs(x = "", y = "DIC") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  coord_cartesian(ylim = c(lower, upper))
 
 # for CPO
 
@@ -381,26 +397,34 @@ res_CPO <- res_df[index_CPO]
 
 colnames(res_CPO) <- sub("_(?!.*_).*", "", colnames(res_CPO), perl = TRUE) #chatGPT
 
+#Make the results with the standard ICAR as a reference level
+res_CPO <- res_CPO |>
+  mutate(across(everything(), ~ .x - .data$ICAR))
+
 CPO_long <-  res_CPO |>
   mutate(row_id = row_number()) |>
   pivot_longer(-row_id, names_to = "Model", values_to = "CPO")
 
 CPO_long$Model <- factor(CPO_long$Model, levels = desired_order)
 
+lower <- quantile(CPO_long$CPO, 0.025, na.rm = TRUE)
+upper <- quantile(CPO_long$CPO, 0.975, na.rm = TRUE)
+
 CPO_boxplot <- ggplot(CPO_long, aes(x = Model, y = CPO)) +
-  geom_boxplot(fill = "skyblue") +
+  geom_boxplot(outlier.shape = NA, fill = "skyblue") +
   theme_minimal() +
-  geom_hline(yintercept = mean(CPO_long$CPO, na.rm = TRUE), 
-             linetype = "dashed", color = "red", linewidth = 1) +
+  #geom_hline(yintercept = mean(CPO_long$CPO, na.rm = TRUE), 
+   #          linetype = "dashed", color = "red", linewidth = 1) +
   labs(x = "", y = "CPO") +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  coord_cartesian(ylim = c(lower, upper))
 
 full_boxplot <- ggarrange(WAIC_boxplot, DIC_boxplot, CPO_boxplot, nrow = 3)
 full_boxplot
 ```
 
 ```{r}
-#ggsave("Plots//Plots_withScaling_and_without_iidTheta//CV_boxplot_W_mean.png", plot = full_boxplot, height = 24, width = 21,  units = "cm",  dpi = 300)
+#ggsave("Plots//Plots_withScaling_and_without_iidTheta//CV_boxplot_ICAR_ref_WO_outliers.png", plot = full_boxplot, height = 24, width = 21,  units = "cm",  dpi = 300)
 ```
 
 
