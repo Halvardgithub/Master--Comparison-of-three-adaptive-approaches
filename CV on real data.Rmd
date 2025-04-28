@@ -190,7 +190,12 @@ Note that `res$cpo$logcpo` gets the log sum of the individual cpo-values, so tak
 ExpectedCases <- readRDS("ExpectedCasesMiguel.rds")
 ObservedCases <- readRDS("ObservedCases.rds")
 
-test_indecies <- 1:86 #some numbers for the diseases to be validated on
+#For all diseases
+#test_indecies <- 1:86 #some numbers for the diseases to be validated on
+
+#For different cancers
+#test_indecies <- 7:33 #indxes for cancers
+#colnames(ObservedCases)[7:33]
 
 criteria_df <- data.frame(matrix(NA, nrow = length(test_indecies), ncol = ((2*4 + 3)*3)))
 colnames(criteria_df) <- c("RW_10_WAIC", "RW_20_WAIC", "RW_50_WAIC", "RW_86_WAIC",
@@ -303,10 +308,10 @@ CV_runtime <- Sys.time() - t0
 CV_runtime
 
 #testing
-Y <- as.vector(ObservedCases[, 73])
-E <- as.vector(ExpectedCases[, 73])
+#Y <- as.vector(ObservedCases[, 73])
+#E <- as.vector(ExpectedCases[, 73])
 
-data_df <- data.frame(Y = Y, E = E, ID = 1:nAreas)
+#data_df <- data.frame(Y = Y, E = E, ID = 1:nAreas)
 
 ```
 
@@ -325,7 +330,9 @@ library(ggplot2)
 
 res_df <- readRDS(file = "CV-Results//CV_no_iidTheta.rds")
 
-colnames(res_df)[index_WAIC]
+res_df <- res_df[7:33,] #only the cancer results
+
+#colnames(res_df)[index_WAIC]
 
 index_WAIC <- c(1, 2, 3, 4, 5, 6, 7, 8, 25, 28, 31)
 
@@ -415,7 +422,7 @@ CPO_boxplot <- ggplot(CPO_long, aes(x = Model, y = CPO)) +
   theme_minimal() +
   #geom_hline(yintercept = mean(CPO_long$CPO, na.rm = TRUE), 
    #          linetype = "dashed", color = "red", linewidth = 1) +
-  labs(x = "", y = "CPO") +
+  labs(x = "", y = "LS") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   coord_cartesian(ylim = c(lower, upper))
 
@@ -425,7 +432,16 @@ full_boxplot
 
 ```{r}
 #ggsave("Plots//Plots_withScaling_and_without_iidTheta//CV_boxplot_ICAR_ref_WO_outliers.png", plot = full_boxplot, height = 24, width = 21,  units = "cm",  dpi = 300)
+
+#ggsave("Plots//Plots_withScaling_and_without_iidTheta//CV_boxplot_ICAR_ref_WO_outliers_only_cancer.png", plot = full_boxplot, height = 24, width = 21,  units = "cm",  dpi = 300)
+
+## Figures for the powerpoint:
+#ggsave("Plots//CV_plot_DIC_example.png", plot = DIC_boxplot, height = 9, width = 17,  units = "cm",  dpi = 300)
+
+#ggsave("Plots//RW_edgeplot_example.png", plot = edgeplot_ABYM_86, height = 12, width = 15,  units = "cm",  dpi = 300)
 ```
+
+
 
 
 
