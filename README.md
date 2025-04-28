@@ -14,3 +14,6 @@ Without scale and with iid Theta refers to the two WinBUGS models with an iid ef
 * Ta med ICAR og standard Wakefield i CV
 * lag box plot for resultater
 * Cpo or logaritmic scoring??? Think I use CPO wrong
+
+* Gruppere etter kreft
+* Legge til ICAR eksempel
