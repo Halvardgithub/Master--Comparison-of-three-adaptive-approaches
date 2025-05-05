@@ -801,7 +801,7 @@ edgeplot_NSRW1_86 <- ggplot() +
   labs(x = "EW-ICAR") +
   theme_minimal() +
   theme(axis.text = element_blank(),axis.ticks = element_blank(),
-        axis.title.x = element_text(size = 18))  +
+        axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18))  +
    guides(linewidth = guide_legend(title = "Width mapping"))
 ```
 
