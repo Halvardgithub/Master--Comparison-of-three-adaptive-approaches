@@ -76,6 +76,7 @@ inla.rgeneric.Adaptive.ICAR = function(
   #Input:
   #Q as the unscaled precision structure matrix
   #nAreas is the number of provinces
+  #pr_str indicates which prior to use
   
   envir = parent.env(environment())
   
@@ -90,17 +91,6 @@ inla.rgeneric.Adaptive.ICAR = function(
     return(inla.as.sparse(p$tau * gv * R))
   }
   
-  # Q <- function() {
-  #   R <- toeplitz(c(2, -1, rep(0, N - 2)))# 2 on diag and -1 on firstdiags
-  #   R[1, 1] <- R[N, N] <- 1 # 1 for first and last diag element
-  #   gv <- exp(1 / N * sum(log(diag(INLA:::inla.ginv(R))))) #the geometric variance
-  #   R_star <- gv * R 
-  #   
-  #   p <- interpret_theta()
-  #   Q <- p$tau * R_star
-  #   return(inla.as.sparse(Q))
-  # }
-  
   mu <- function() {return(numeric(0))}
   
   initial <- function() {return(4)}#default for precisions: initial = 4
@@ -109,7 +99,8 @@ inla.rgeneric.Adaptive.ICAR = function(
   
   log.prior <- function() {#default: shape = 1, rate = 0.00005 for tau
     p <- interpret_theta()
-    prior <- dgamma(p$tau, shape = 1, rate = 0.00005, log = TRUE) + log(p$tau)
+    if (pr_str == "gamma")  {prior <- dgamma(p$tau, shape = 1, rate = 0.00005, log = TRUE) + log(p$tau)}
+    else if (pr_str == "PC") {prior <- inla.pc.dprec(p$tau, u = 3, alpha = 0.05, log=TRUE) + log(p$tau)}
     return(prior)
   }
   
@@ -135,15 +126,17 @@ inla.rgeneric.Adaptive.ICAR = function(
  
 
 #The specific models
-ABYM10_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_ABYM10, nAreas = nAreas)
-ABYM20_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_ABYM20, nAreas = nAreas)
-ABYM50_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_ABYM50, nAreas = nAreas)
-ABYM86_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_ABYM86, nAreas = nAreas)
 
-NSRW10_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_NSRW10, nAreas = nAreas)
-NSRW20_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_NSRW20, nAreas = nAreas)
-NSRW50_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_NSRW50, nAreas = nAreas)
-NSRW86_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_NSRW86, nAreas = nAreas)
+prior_str <- "PC"
+ABYM10_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_ABYM10, nAreas = nAreas, pr_str = prior_str)
+ABYM20_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_ABYM20, nAreas = nAreas, pr_str = prior_str)
+ABYM50_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_ABYM50, nAreas = nAreas, pr_str = prior_str)
+ABYM86_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_ABYM86, nAreas = nAreas, pr_str = prior_str)
+
+NSRW10_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_NSRW10, nAreas = nAreas, pr_str = prior_str)
+NSRW20_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_NSRW20, nAreas = nAreas, pr_str = prior_str)
+NSRW50_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_NSRW50, nAreas = nAreas, pr_str = prior_str)
+NSRW86_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_NSRW86, nAreas = nAreas, pr_str = prior_str)
 ```
 
 Then also create the structure matrices R1 and R2 for the BW-ICAR from Wakefield.
@@ -191,7 +184,7 @@ ExpectedCases <- readRDS("ExpectedCasesMiguel.rds")
 ObservedCases <- readRDS("ObservedCases.rds")
 
 #For all diseases
-#test_indecies <- 1:86 #some numbers for the diseases to be validated on
+test_indecies <- 1:86 #some numbers for the diseases to be validated on
 
 #For different cancers
 #test_indecies <- 7:33 #indxes for cancers
@@ -269,7 +262,8 @@ for (j in test_indecies){
   mode_prec2 <- summary_prec2$mean
   
   Q_mat <- mode_prec1*R1 + mode_prec2*R2
-  BW_2_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_mat, nAreas = nAreas)
+  BW_2_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, 
+                                     R = Q_mat, nAreas = nAreas, pr_str = prior_str)
   
   formula_BW_2 <- Y ~ offset(log(E)) + f(ID, model = BW_2_model)
   
@@ -279,7 +273,8 @@ for (j in test_indecies){
   #The standard ICAR
   
   formula_ICAR <- Y ~ offset(log(E)) + 
-    f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE)
+    f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE,
+      hyper = list(prec = list(prior = "pc.prec", param = c(3, 0.05),log = TRUE)))
   
   res_ICAR <- inla(formula_ICAR, family = "poisson", data = data_df,
                    control.compute = list(cpo = T, waic = T, dic = T))
@@ -317,7 +312,10 @@ CV_runtime
 
 ```{r}
 # save the criteria_df
+
 #saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta.rds")
+
+#saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta_PC.rds")
 ```
 
 
