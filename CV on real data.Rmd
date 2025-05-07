@@ -54,11 +54,14 @@ Q_ABYM10 <- constructQ(edges_df$edge_value_ABYM_10, index2, nAreas, carto.wb$adj
 Q_ABYM20 <- constructQ(edges_df$edge_value_ABYM_20, index2, nAreas, carto.wb$adj)
 Q_ABYM50 <- constructQ(edges_df$edge_value_ABYM_50, index2, nAreas, carto.wb$adj)
 Q_ABYM86 <- constructQ(edges_df$edge_value_ABYM_86, index2, nAreas, carto.wb$adj)
+Q_ABYM_Cancer <- constructQ(edges_df$edge_value_ABYM_cancer, index2, nAreas, carto.wb$adj)
 
 Q_NSRW10 <- constructQ(edges_df$edge_value_NSRW1_10, index2, nAreas, carto.wb$adj)
 Q_NSRW20 <- constructQ(edges_df$edge_value_NSRW1_20, index2, nAreas, carto.wb$adj)
 Q_NSRW50 <- constructQ(edges_df$edge_value_NSRW1_50, index2, nAreas, carto.wb$adj)
 Q_NSRW86 <- constructQ(edges_df$edge_value_NSRW1_86, index2, nAreas, carto.wb$adj)
+Q_NSRW_Cancer <- constructQ(edges_df$edge_value_NSRW1_cancer, index2, nAreas, carto.wb$adj)
+
 ```
 
 ## The adaptive ICAR as a rgeneric definiton
@@ -127,16 +130,19 @@ inla.rgeneric.Adaptive.ICAR = function(
 
 #The specific models
 
-prior_str <- "PC"
+prior_str <- "gamma"
+
 ABYM10_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_ABYM10, nAreas = nAreas, pr_str = prior_str)
 ABYM20_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_ABYM20, nAreas = nAreas, pr_str = prior_str)
 ABYM50_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_ABYM50, nAreas = nAreas, pr_str = prior_str)
 ABYM86_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_ABYM86, nAreas = nAreas, pr_str = prior_str)
+ABYM_C_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_ABYM_Cancer, nAreas = nAreas, pr_str = prior_str)
 
 NSRW10_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_NSRW10, nAreas = nAreas, pr_str = prior_str)
 NSRW20_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_NSRW20, nAreas = nAreas, pr_str = prior_str)
 NSRW50_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_NSRW50, nAreas = nAreas, pr_str = prior_str)
 NSRW86_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_NSRW86, nAreas = nAreas, pr_str = prior_str)
+NSRW_C_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_NSRW_Cancer, nAreas = nAreas, pr_str = prior_str)
 ```
 
 Then also create the structure matrices R1 and R2 for the BW-ICAR from Wakefield.
@@ -186,11 +192,7 @@ ObservedCases <- readRDS("ObservedCases.rds")
 #For all diseases
 test_indecies <- 1:86 #some numbers for the diseases to be validated on
 
-#For different cancers
-#test_indecies <- 7:33 #indxes for cancers
-#colnames(ObservedCases)[7:33]
-
-criteria_df <- data.frame(matrix(NA, nrow = length(test_indecies), ncol = ((2*4 + 3)*3)))
+criteria_df <- data.frame(matrix(NA, nrow = length(test_indecies), ncol = ((2*4 + 3 + 2)*3)))
 colnames(criteria_df) <- c("RW_10_WAIC", "RW_20_WAIC", "RW_50_WAIC", "RW_86_WAIC",
                            "EW_10_WAIC", "EW_20_WAIC", "EW_50_WAIC", "EW_86_WAIC",
                            "RW_10_DIC", "RW_20_DIC", "RW_50_DIC", "RW_86_DIC",
@@ -198,7 +200,9 @@ colnames(criteria_df) <- c("RW_10_WAIC", "RW_20_WAIC", "RW_50_WAIC", "RW_86_WAIC
                            "RW_10_CPO", "RW_20_CPO", "RW_50_CPO", "RW_86_CPO",
                            "EW_10_CPO", "EW_20_CPO", "EW_50_CPO", "EW_86_CPO",
                            "BW_WAIC", "BW_DIC", "BW_CPO", "BW_2_WAIC", "BW_2_DIC", "BW_2_CPO",
-                           "ICAR_WAIC", "ICAR_DIC", "ICAR_CPO")
+                           "ICAR_WAIC", "ICAR_DIC", "ICAR_CPO", 
+                           "RW_C_WAIC", "RW_C_DIC", "RW_C_CPO", 
+                           "EW_C_WAIC", "EW_C_DIC", "EW_C_CPO")
 
 #Need some df to store results, ie. WAIC, LS, CPO and such, like above!
 
@@ -216,6 +220,7 @@ for (j in test_indecies){
   formula_RW_20 <- Y ~ offset(log(E)) + f(ID, model = ABYM20_model)
   formula_RW_50 <- Y ~ offset(log(E)) + f(ID, model = ABYM50_model)
   formula_RW_86 <- Y ~ offset(log(E)) + f(ID, model = ABYM86_model)
+  formula_RW_C <- Y ~ offset(log(E)) + f(ID, model = ABYM_C_model)
   
   res_RW_10 <- inla(formula_RW_10, family = "poisson", data = data_df,
                     control.compute = list(cpo = T, waic = T, dic = T))
@@ -225,6 +230,8 @@ for (j in test_indecies){
                     control.compute = list(cpo = T, waic = T, dic = T))
   res_RW_86 <- inla(formula_RW_86, family = "poisson", data = data_df,
                     control.compute = list(cpo = T, waic = T, dic = T))
+  res_RW_C <- inla(formula_RW_C, family = "poisson", data = data_df,
+                    control.compute = list(cpo = T, waic = T, dic = T))
   
   # The EW-ICAR by Riddervold/Jo
   
@@ -232,6 +239,7 @@ for (j in test_indecies){
   formula_EW_20 <- Y ~ offset(log(E)) + f(ID, model = NSRW20_model)
   formula_EW_50 <- Y ~ offset(log(E)) + f(ID, model = NSRW50_model)
   formula_EW_86 <- Y ~ offset(log(E)) + f(ID, model = NSRW86_model)
+  formula_EW_C <- Y ~ offset(log(E)) + f(ID, model = NSRW_C_model)
   
   res_EW_10 <- inla(formula_EW_10, family = "poisson", data = data_df,
                     control.compute = list(cpo = T, waic = T, dic = T))
@@ -240,6 +248,8 @@ for (j in test_indecies){
   res_EW_50 <- inla(formula_EW_50, family = "poisson", data = data_df,
                     control.compute = list(cpo = T, waic = T, dic = T))
   res_EW_86 <- inla(formula_EW_86, family = "poisson", data = data_df,
+                    control.compute = list(cpo = T, waic = T, dic = T))
+  res_EW_C <- inla(formula_EW_C, family = "poisson", data = data_df,
                     control.compute = list(cpo = T, waic = T, dic = T))
   
   #BW-ICAR by Wakefield
@@ -295,7 +305,10 @@ for (j in test_indecies){
               res_BW_2$waic$waic, res_BW_2$dic$dic, -mean(log(res_BW_2$cpo$cpo)))
   vec_ICAR <- c(res_ICAR$waic$waic, res_ICAR$dic$dic, -mean(log(res_ICAR$cpo$cpo)))
   
-  criteria_df[j,] <- c(vec_waic_dic, vec_cpo, vec_BW, vec_ICAR)
+  vec_cancer <- c(res_RW_C$waic$waic, res_RW_C$dic$dic, -mean(log(res_RW_C$cpo$cpo)),
+                  res_EW_C$waic$waic, res_EW_C$dic$dic, -mean(log(res_EW_C$cpo$cpo)))
+  
+  criteria_df[j,] <- c(vec_waic_dic, vec_cpo, vec_BW, vec_ICAR, vec_cancer)
 }
 
 #runtimes and saving
@@ -313,14 +326,15 @@ CV_runtime
 ```{r}
 # save the criteria_df
 
-#saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta.rds")
+#saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta_W_C.rds")
 
-#saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta_PC.rds")
+#saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta_PC_W_C.rds")
 ```
 
 
 # Make the box-plots for the "CV" results
 
+Plot for all the diseases without a reference level.
 ```{r}
 library(tidyr)
 library(dplyr)
@@ -328,9 +342,7 @@ library(ggplot2)
 
 res_df <- readRDS(file = "CV-Results//CV_no_iidTheta.rds")
 
-res_df <- res_df[7:33,] #only the cancer results
-
-#colnames(res_df)[index_WAIC]
+#res_df <- readRDS(file = "CV-Results//CV_no_iidTheta_PC.rds")
 
 index_WAIC <- c(1, 2, 3, 4, 5, 6, 7, 8, 25, 28, 31)
 
@@ -340,6 +352,184 @@ index_CPO <- c(17, 18, 19, 20, 21, 22, 23, 24, 27, 30, 33)
 
 desired_order <- c("ICAR", "BW", "BW_2","RW_10", "EW_10","RW_20", "EW_20", 
                        "RW_50","EW_50", "RW_86", "EW_86")
+
+# for WAIC
+
+res_WAIC <- res_df[index_WAIC]
+
+colnames(res_WAIC) <- sub("_(?!.*_).*", "", colnames(res_WAIC), perl = TRUE) #chatGPT
+
+WAIC_long <-  res_WAIC |>
+  mutate(row_id = row_number()) |>
+  pivot_longer(-row_id, names_to = "Model", values_to = "WAIC")
+
+WAIC_long$Model <- factor(WAIC_long$Model, levels = desired_order)
+
+WAIC_boxplot <- ggplot(WAIC_long, aes(x = Model, y = WAIC)) +
+  geom_boxplot(fill = "skyblue") +
+  theme_minimal() +
+  labs(x = "", y = "WAIC") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# for DIC
+
+res_DIC <- res_df[index_DIC]
+colnames(res_DIC) <- sub("_(?!.*_).*", "", colnames(res_DIC), perl = TRUE) #chatGPT
+
+DIC_long <-  res_DIC |>
+  mutate(row_id = row_number()) |>
+  pivot_longer(-row_id, names_to = "Model", values_to = "DIC")
+
+DIC_long$Model <- factor(DIC_long$Model, levels = desired_order)
+
+DIC_boxplot <- ggplot(DIC_long, aes(x = Model, y = DIC)) +
+  geom_boxplot(fill = "skyblue") +
+  theme_minimal() +
+  labs(x = "", y = "DIC") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# for CPO
+
+res_CPO <- res_df[index_CPO]
+
+colnames(res_CPO) <- sub("_(?!.*_).*", "", colnames(res_CPO), perl = TRUE) #chatGPT
+
+CPO_long <-  res_CPO |>
+  mutate(row_id = row_number()) |>
+  pivot_longer(-row_id, names_to = "Model", values_to = "CPO")
+
+CPO_long$Model <- factor(CPO_long$Model, levels = desired_order)
+
+CPO_boxplot <- ggplot(CPO_long, aes(x = Model, y = CPO)) +
+  geom_boxplot(fill = "skyblue") +
+  theme_minimal() +
+  labs(x = "", y = "LS") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+full_boxplot <- ggarrange(WAIC_boxplot, DIC_boxplot, CPO_boxplot, nrow = 3)
+full_boxplot
+```
+
+
+Plot for all diseases with ICAR as ref and with outliers.
+```{r}
+# for WAIC
+
+res_WAIC <- res_df[index_WAIC]
+
+colnames(res_WAIC) <- sub("_(?!.*_).*", "", colnames(res_WAIC), perl = TRUE) #chatGPT
+
+#Make the results with the standard ICAR as a reference level
+res_WAIC <- res_WAIC |>
+  mutate(across(everything(), ~ .x - .data$ICAR))
+
+WAIC_long <-  res_WAIC |>
+  mutate(row_id = row_number()) |>
+  pivot_longer(-row_id, names_to = "Model", values_to = "WAIC")
+
+WAIC_long$Model <- factor(WAIC_long$Model, levels = desired_order)
+
+WAIC_boxplot <- ggplot(WAIC_long, aes(x = Model, y = WAIC)) +
+  geom_boxplot(fill = "skyblue") +
+  theme_minimal() +
+  labs(x = "", y = "WAIC") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# for DIC
+
+res_DIC <- res_df[index_DIC]
+colnames(res_DIC) <- sub("_(?!.*_).*", "", colnames(res_DIC), perl = TRUE) #chatGPT
+
+#Make the results with the standard ICAR as a reference level
+res_DIC <- res_DIC |>
+  mutate(across(everything(), ~ .x - .data$ICAR))
+
+DIC_long <-  res_DIC |>
+  mutate(row_id = row_number()) |>
+  pivot_longer(-row_id, names_to = "Model", values_to = "DIC")
+
+DIC_long$Model <- factor(DIC_long$Model, levels = desired_order)
+
+DIC_boxplot <- ggplot(DIC_long, aes(x = Model, y = DIC)) +
+  geom_boxplot(fill = "skyblue") +
+  theme_minimal() +
+  labs(x = "", y = "DIC") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+# for CPO
+
+res_CPO <- res_df[index_CPO]
+
+colnames(res_CPO) <- sub("_(?!.*_).*", "", colnames(res_CPO), perl = TRUE) #chatGPT
+
+#Make the results with the standard ICAR as a reference level
+res_CPO <- res_CPO |>
+  mutate(across(everything(), ~ .x - .data$ICAR))
+
+CPO_long <-  res_CPO |>
+  mutate(row_id = row_number()) |>
+  pivot_longer(-row_id, names_to = "Model", values_to = "CPO")
+
+CPO_long$Model <- factor(CPO_long$Model, levels = desired_order)
+
+CPO_boxplot <- ggplot(CPO_long, aes(x = Model, y = CPO)) +
+  geom_boxplot(fill = "skyblue") +
+  theme_minimal() +
+  labs(x = "", y = "LS") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+full_boxplot_W_outliers <- ggarrange(WAIC_boxplot, DIC_boxplot, CPO_boxplot, nrow = 3)
+full_boxplot_W_outliers
+```
+
+
+Plot for all diseases with ICAR as reference and without showing outliers.
+```{r}
+
+# for WAIC
+
+lower <- quantile(WAIC_long$WAIC, 0.025, na.rm = TRUE)
+upper <- quantile(WAIC_long$WAIC, 0.975, na.rm = TRUE)
+
+WAIC_boxplot <- ggplot(WAIC_long, aes(x = Model, y = WAIC)) +
+  geom_boxplot(outlier.shape = NA, fill = "skyblue") +
+  theme_minimal() +
+  labs(x = "", y = "WAIC") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  coord_cartesian(ylim = c(lower, upper))
+
+# for DIC
+
+lower <- quantile(DIC_long$DIC, 0.025, na.rm = TRUE)
+upper <- quantile(DIC_long$DIC, 0.975, na.rm = TRUE)
+
+DIC_boxplot <- ggplot(DIC_long, aes(x = Model, y = DIC)) +
+  geom_boxplot(outlier.shape = NA, fill = "skyblue") +
+  theme_minimal() +
+  labs(x = "", y = "DIC") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  coord_cartesian(ylim = c(lower, upper))
+
+# for CPO
+
+lower <- quantile(CPO_long$CPO, 0.025, na.rm = TRUE)
+upper <- quantile(CPO_long$CPO, 0.975, na.rm = TRUE)
+
+CPO_boxplot <- ggplot(CPO_long, aes(x = Model, y = CPO)) +
+  geom_boxplot(outlier.shape = NA, fill = "skyblue") +
+  theme_minimal() +
+  labs(x = "", y = "LS") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+  coord_cartesian(ylim = c(lower, upper))
+
+full_boxplot_WO_outliers <- ggarrange(WAIC_boxplot, DIC_boxplot, CPO_boxplot, nrow = 3)
+full_boxplot_WO_outliers
+```
+
+Plot with only cancers, still ICAR as ref and no outliers.
+```{r}
+
+res_df <- res_df[7:33,] #only the cancer results
 
 # for WAIC
 
@@ -362,8 +552,6 @@ upper <- quantile(WAIC_long$WAIC, 0.975, na.rm = TRUE)
 
 WAIC_boxplot <- ggplot(WAIC_long, aes(x = Model, y = WAIC)) +
   geom_boxplot(outlier.shape = NA, fill = "skyblue") +
-  #geom_hline(yintercept = mean(WAIC_long$WAIC, na.rm = TRUE), 
-   #          linetype = "dashed", color = "red", linewidth = 1) +
   theme_minimal() +
   labs(x = "", y = "WAIC") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
@@ -389,8 +577,6 @@ upper <- quantile(DIC_long$DIC, 0.975, na.rm = TRUE)
 
 DIC_boxplot <- ggplot(DIC_long, aes(x = Model, y = DIC)) +
   geom_boxplot(outlier.shape = NA, fill = "skyblue") +
-  #geom_hline(yintercept = mean(DIC_long$DIC, na.rm = TRUE), 
-   #          linetype = "dashed", color = "red", linewidth = 1) +
   theme_minimal() +
   labs(x = "", y = "DIC") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
@@ -418,40 +604,34 @@ upper <- quantile(CPO_long$CPO, 0.975, na.rm = TRUE)
 CPO_boxplot <- ggplot(CPO_long, aes(x = Model, y = CPO)) +
   geom_boxplot(outlier.shape = NA, fill = "skyblue") +
   theme_minimal() +
-  #geom_hline(yintercept = mean(CPO_long$CPO, na.rm = TRUE), 
-   #          linetype = "dashed", color = "red", linewidth = 1) +
   labs(x = "", y = "LS") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
   coord_cartesian(ylim = c(lower, upper))
 
-full_boxplot <- ggarrange(WAIC_boxplot, DIC_boxplot, CPO_boxplot, nrow = 3)
-full_boxplot
+full_boxplot_cancer_WO_outliers <- ggarrange(WAIC_boxplot, DIC_boxplot, CPO_boxplot, nrow = 3)
+full_boxplot_cancer_WO_outliers
 ```
+
 
 ```{r}
-#ggsave("Plots//Plots_withScaling_and_without_iidTheta//CV_boxplot_ICAR_ref_WO_outliers.png", plot = full_boxplot, height = 24, width = 21,  units = "cm",  dpi = 300)
+#Gamma prior
+#ggsave("Plots//Plots_withScaling_and_without_iidTheta//CV_boxplot_W_outliers.png", plot = full_boxplot, height = 24, width = 21,  units = "cm",  dpi = 300)
 
-#ggsave("Plots//Plots_withScaling_and_without_iidTheta//CV_boxplot_ICAR_ref_WO_outliers_only_cancer.png", plot = full_boxplot, height = 24, width = 21,  units = "cm",  dpi = 300)
+#ggsave("Plots//Plots_withScaling_and_without_iidTheta//CV_boxplot_ICAR_ref_W_outliers.png", plot = full_boxplot_W_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
 
-## Figures for the powerpoint:
-#ggsave("Plots//CV_plot_DIC_cancer_example.png", plot = DIC_boxplot, height = 9, width = 17,  units = "cm",  dpi = 300)
+#ggsave("Plots//Plots_withScaling_and_without_iidTheta//CV_boxplot_ICAR_ref_WO_outliers.png", plot = full_boxplot_WO_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
 
-#ggsave("Plots//RW_edgeplot_example.png", plot = edgeplot_ABYM_86, height = 16, width = 15,  units = "cm",  dpi = 300)
+#ggsave("Plots//Plots_withScaling_and_without_iidTheta//CV_boxplot_ICAR_ref_cancer_WO_outliers.png", plot = full_boxplot_cancer_WO_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
+
+#PC prior
+#ggsave("Plots//Plots_withScaling_and_without_iidTheta//CV_boxplot_PC_W_outliers.png", plot = full_boxplot, height = 24, width = 21,  units = "cm",  dpi = 300)
+
+#ggsave("Plots//Plots_withScaling_and_without_iidTheta//CV_boxplot_PC_ICAR_ref_W_outliers.png", plot = full_boxplot_W_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
+
+#ggsave("Plots//Plots_withScaling_and_without_iidTheta//CV_boxplot_PC_ICAR_ref_WO_outliers.png", plot = full_boxplot_WO_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
+
+#ggsave("Plots//Plots_withScaling_and_without_iidTheta//CV_boxplot_PC_ICAR_ref_cancer_WO_outliers.png", plot = full_boxplot_cancer_WO_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
 ```
 
-
-
-
-
-Presentation:
-Short introduction and motivation for disease mapping, map of spain etc. Motivate why the stationarty assumption in ICAR is to strict, and why neighbours are assumed similar.
-
-Then brief introduction of the methods, can show edgeplots for say n=86, and mention that thicker edges indicate that the regions are similar. Maybe mention Madrid or where old tourists live as outliers.
-
-Then some results, maybe box plots for DIC.
-
-Maybe more plots that I can discuss if I have time.
-
-Conclusion?
 
 

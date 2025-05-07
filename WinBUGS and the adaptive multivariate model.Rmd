@@ -239,6 +239,25 @@ results.AdaptiveBYM.20 <- pbugs(data = data, inits = initials,
 t1 <- Sys.time()
 runtime_ABYM[2] <- t1 - t0
 
+# Only cancers
+
+t0 <- Sys.time()
+
+causes.id <- 7:33 #only the cancer indexes
+
+# Data
+data <- list(O = ObservedCases, E = ExpectedCases,
+             Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
+             n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index)
+
+# Calls to WinBUGS
+results.AdaptiveBYM.cancer <- pbugs(data = data, inits = initials,
+                              parameters.to.save = param, model = AdaptiveBYM_model_NOiid,
+                              n.iter = 25000, n.burnin = 10000, n.chains = 3, DIC = F,
+                              debug = F)
+t1 <- Sys.time()
+#runtime_ABYM[3] <- t1 - t0
+
 # 50 causes
 
 t0 <- Sys.time()
@@ -280,8 +299,9 @@ runtime_ABYM[4] <- t1 - t0
 runtime_ABYM
 
 result_list_ABYM <- list(results.AdaptiveBYM.10, results.AdaptiveBYM.20, 
-                         results.AdaptiveBYM.50, results.AdaptiveBYM.86, runtime_ABYM)
-saveRDS(result_list_ABYM, file = "Results//result_list_ABYM.rds")
+                         results.AdaptiveBYM.50, results.AdaptiveBYM.86, 
+                         runtime_ABYM, results.AdaptiveBYM.cancer)
+saveRDS(result_list_ABYM, file = "Results//result_list_ABYM.rds") #move it to correct folder afterwards
 ```
 
 Runtimes for Miguels model in WinBUGS(cirka): 
@@ -294,9 +314,7 @@ Runtimes for Miguels model in WinBUGS(cirka):
 ```{r}
 res_list_ABYM <- readRDS("Results//Results_withScaling_and_without_iidTheta//result_list_ABYM.rds")
 
-res_list_ABYM[[5]]
-
-#res_list_ABYM <- readRDS("Results//result_list_longer_chains.rds")
+res_list_ABYM[[5]] #check runtimes
 
 ss_provinces = read_sf("Data/Provinces/Provincias_ETRS89_30N.shp")
 
@@ -353,18 +371,21 @@ range(res_list_ABYM[[1]]$summary[, "Rhat"])
 range(res_list_ABYM[[2]]$summary[, "Rhat"])
 range(res_list_ABYM[[3]]$summary[, "Rhat"])
 range(res_list_ABYM[[4]]$summary[, "Rhat"])
+range(res_list_ABYM[[6]]$summary[, "Rhat"])
 
 #Which(if any) are greater than 1.1
 which(res_list_ABYM[[1]]$summary[, "Rhat"] > 1.1)
 which(res_list_ABYM[[2]]$summary[, "Rhat"] > 1.1)
 which(res_list_ABYM[[3]]$summary[, "Rhat"] > 1.1)
 which(res_list_ABYM[[4]]$summary[, "Rhat"] > 1.1)
+which(res_list_ABYM[[6]]$summary[, "Rhat"] > 1.1)
 
 #Check the parameter tau for the weights c with prior Gamma(tau, tau)
 res_list_ABYM[[1]]$summary["tau",]
 res_list_ABYM[[2]]$summary["tau",]
 res_list_ABYM[[3]]$summary["tau",]
 res_list_ABYM[[4]]$summary["tau",]
+res_list_ABYM[[6]]$summary["tau",]
 
 #Correlation between the weights c for differing number of causes n
 cor(cbind(ss_provinces$color10, ss_provinces$color20, ss_provinces$color50, ss_provinces$color86))
@@ -599,6 +620,26 @@ results.NSRW1.20 <- pbugs(data = data, inits = initials_NSRW1,
 t1 <- Sys.time()
 runtime_NSRW1[2] <- t1 - t0
 
+# All cancers
+
+t0 <- Sys.time()
+
+causes.id <- 7:33 # indexes for the cancers
+
+# Data
+data <- list(O = ObservedCases, E = ExpectedCases,
+             Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
+             n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index,
+             tau.list = my_list)
+
+# Calls to WinBUGS
+results.NSRW1.cancer <- pbugs(data = data, inits = initials_NSRW1,
+                              parameters.to.save = param_NSRW1, model = NSRW1_model_NOiid,
+                              n.iter = 25000, n.burnin = 10000, n.chains = 3, DIC = F,
+                              debug = F)
+t1 <- Sys.time()
+#runtime_NSRW1[3] <- t1 - t0
+
 # 50 causes
 
 t0 <- Sys.time()
@@ -643,7 +684,7 @@ runtime_NSRW1[4] <- t1 - t0
 runtime_NSRW1
 
 result_list_NSRW1 <- list(results.NSRW1.10, results.NSRW1.20, results.NSRW1.50, 
-                    results.NSRW1.86, runtime_NSRW1)
+                    results.NSRW1.86, runtime_NSRW1, results.NSRW1.cancer)
 saveRDS(result_list_NSRW1, file = "Results//result_list_NSRW1.rds")
 ```
 
@@ -652,23 +693,28 @@ Assessing convergence and other properties of the MCMC simulations.
 ```{r}
 res_list_NSRW1 <- readRDS("Results//Results_withScaling_and_without_iidTheta//result_list_NSRW1.rds")
 
+res_list_NSRW1[[5]]
+
 #check the Rhat's for convergence, should be less than 1.1 for all parameters
 range(res_list_NSRW1[[1]]$summary[, "Rhat"])
 range(res_list_NSRW1[[2]]$summary[, "Rhat"])
 range(res_list_NSRW1[[3]]$summary[, "Rhat"])
 range(res_list_NSRW1[[4]]$summary[, "Rhat"])
+range(res_list_NSRW1[[6]]$summary[, "Rhat"])
 
 #Which(if any) are greater than 1.1
 which(res_list_NSRW1[[1]]$summary[, "Rhat"] > 1.1)
 which(res_list_NSRW1[[2]]$summary[, "Rhat"] > 1.1)
 which(res_list_NSRW1[[3]]$summary[, "Rhat"] > 1.1)
 which(res_list_NSRW1[[4]]$summary[, "Rhat"] > 1.1)
+which(res_list_NSRW1[[6]]$summary[, "Rhat"] > 1.1)
 
 #Check the parameter tau for the weights c with prior Gamma(tau, tau)
 res_list_NSRW1[[1]]$summary["alpha",]
 res_list_NSRW1[[2]]$summary["alpha",]
 res_list_NSRW1[[3]]$summary["alpha",]
 res_list_NSRW1[[4]]$summary["alpha",]
+res_list_NSRW1[[6]]$summary["alpha",]
 
 res_list_NSRW1[[1]]$mean$Tau2
 res_list_NSRW1[[4]]$mean$Tau2
@@ -744,6 +790,8 @@ edges_sf$edge_value_NSRW1_50 <- res_list_NSRW1[[3]]$mean$Tau2[my_list]*
       mean(1/(res_list_NSRW1[[3]]$mean$sd.phi)^2)
 edges_sf$edge_value_NSRW1_86 <- res_list_NSRW1[[4]]$mean$Tau2[my_list]*
       mean(1/(res_list_NSRW1[[4]]$mean$sd.phi)^2)
+edges_sf$edge_value_NSRW1_cancer <- res_list_NSRW1[[6]]$mean$Tau2[my_list]*
+      mean(1/(res_list_NSRW1[[6]]$mean$sd.phi)^2)
 
 # Example plot with varying edge widths
 ggplot() +
@@ -844,6 +892,17 @@ for (i in 1:nAreas){
   }
 }
 
+# all cancers
+count_num <- 1
+tau_list_ABYM_cancer <- rep(0, sum(carto.wb$num))
+for (i in 1:nAreas){
+  for (j in carto.nb[[i]]){
+    tau_list_ABYM_cancer[count_num] <- sqrt(res_list_ABYM[[6]]$mean$c[i]*
+            res_list_ABYM[[6]]$mean$c[j])*mean(1/(res_list_ABYM[[6]]$mean$sd.phi)^2)
+    count_num <- count_num + 1
+  }
+}
+
 # 50 causes
 count_num <- 1
 tau_list_ABYM_50 <- rep(0, sum(carto.wb$num))
@@ -868,6 +927,7 @@ for (i in 1:nAreas){
 
 edges_sf$edge_value_ABYM_10 <- tau_list_ABYM_10
 edges_sf$edge_value_ABYM_20 <- tau_list_ABYM_20
+edges_sf$edge_value_ABYM_cancer <- tau_list_ABYM_cancer
 edges_sf$edge_value_ABYM_50 <- tau_list_ABYM_50
 edges_sf$edge_value_ABYM_86 <- tau_list_ABYM_86
 
@@ -1283,7 +1343,7 @@ anova_df <- data.frame(Adaptive_BYM = anova_result[5:8],
                        NSRW1 = anova_result[1:4])
 
 row.names(anova_df) <- c("n=10", "n=20", "n=50", "n=86")
-colnames(anova_df) <- c("Adaptive BYM", "Temporal NSRW1")
+colnames(anova_df) <- c("RW-ICAR", "EW-ICAR")
 
 anova_edge_table <- ggtexttable(anova_df, theme = ttheme("mOrange"))
 
@@ -1324,53 +1384,13 @@ anova_log_df <- data.frame(Adaptive_BYM = anova_result_log[5:8],
                        NSRW1 = anova_result_log[1:4])
 
 row.names(anova_log_df) <- c("n=10", "n=20", "n=50", "n=86")
-colnames(anova_log_df) <- c("Adaptive BYM", "Temporal NSRW1")
+colnames(anova_log_df) <- c("RW-ICAR", "EW-ICAR")
 
 anova_log_edge_table <- ggtexttable(anova_log_df, theme = ttheme("mOrange"))
 
-#ggsave("Plots//anovaLogFigure.png", plot = anova_log_edge_table, height = 12, width = 10,  units = "cm",  dpi = 300)
+ggsave("Plots//anovaLogFigure.png", plot = anova_log_edge_table, height = 12, width = 10,  units = "cm",  dpi = 300)
 ```
 
-
-
-## For leave one out cross-validation for the diseases and simulation of the weight matrix
-```{r, eval=FALSE}
-# Object where the results for each set of diseases will be
-# saved
-results.AdaptiveBYM <- list()
-# Run multivariate adaptive BYM model for each set of
-# diseases
-causes <- causes10
-for (i in 1:length(causes)) { #corresponds to the n in the line above
-  # Selection of mortality causes
-  causes.id <- causes[-c(i)]
-  # Data
-  data <- list(O = ObservedCases, E = ExpectedCases,
-               Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
-               n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index)
-  # Initial values
-  initials <- function() {
-    list(mu = rnorm(data$Ndiseases, 0, 1), sd.phi = runif(data$Ndiseases,0, 1), 
-         sd.theta = runif(data$Ndiseases, 0, 1), 
-         phi = matrix(rnorm(data$Nareas * data$Ndiseases), nrow = data$Nareas, 
-                ncol = data$Ndiseases),
-         theta = matrix(rnorm(data$Nareas * data$Ndiseases),
-                nrow = data$Nareas, ncol = data$Ndiseases), 
-         c = runif(data$Nareas,0.9, 1.1), sd.c = runif(1, 0.5, 0.6))
-  }
-  # Variables to retrieve
-  param <- c("mu", "lambda", "sd.phi", "phi", "sd.theta", "theta","SMR", "c", "sd.c", "tau")
-  # Calls to WinBUGS
-  results.AdaptiveBYM[[i]] <- bugs(data = data, inits = initials,
-                                    parameters.to.save = param, model = AdaptiveBYM_model,
-                                    n.iter = 20, n.burnin = 10, n.chains = 3, DIC = F,
-                                   debug = F)
-}
-# Save results
-write_csv(results.AdaptiveBYM, file = "Results/results.AdaptiveBYM-Miguel.csv")
-
-
-```
 
 
 
