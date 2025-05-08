@@ -115,11 +115,13 @@ SpainMap_Wakefieldgraph <- ggplot() +
 First up is maps with edges to illustrate the Wakefield neighborhood structure. One map with grouping based on inside or across autonomous regions and one based on a "shocked" subset of provinces. Show one edge groups with red edges and the other as blue.
 
 ```{r}
-include <- c("15", "24", "27", "32", "33", "36", "49") 
+#include <- c("15", "24", "27", "32", "33", "36", "49") 
 
-include2 <- c("03", "12")
+include <- c("15", "27", "32", "36")  #only prov in op left autonomous region of spain
 
+#include2 <- c("03", "12")
 
+include2 <- c("12")
 
 ss_provinces_example = filter(ss_provinces, Codigo %in% include)
 
@@ -202,7 +204,79 @@ example_edgeStructuresFigure <- annotate_figure(examplePlots,
 #    guides(linewidth = guide_legend(title = "Width mapping"))
 ```
 
+Making figures for the top-left autonomous region and the graph for the four provinces within it. 
 
+```{r}
+
+include <- c("15", "27", "32", "36")  #only prov in op left autonomous region of spain
+
+include2 <- c("12")
+
+ss_provinces_example = filter(ss_provinces, Codigo %in% include)
+
+ss_ar_example = filter(ss_ar, Codigo %in% include2)
+
+centroids_example <- st_centroid(ss_provinces_example)
+
+nb_example <- poly2nb(ss_provinces_example)
+
+edge_list_example <- list()
+region_from <- c()
+region_to <- c()
+
+for (i in seq_along(nb_example)) {
+  neighbors <- nb_example[[i]]
+  if (length(neighbors) == 0) next
+  
+  for (j in neighbors) {
+    # Store the line geometry
+    edge_list_example <- append(edge_list_example, 
+                        list(st_linestring(rbind(st_coordinates(centroids_example[i, ]), 
+                                                 st_coordinates(centroids_example[j, ])))))
+    
+    # Store region names or IDs
+    region_from <- c(region_from, i)
+    region_to <- c(region_to, j)
+  }
+}
+
+edges_sf_example <- st_sf(geometry = st_sfc(edge_list_example, 
+                                            crs = st_crs(ss_provinces_example)), 
+                  from = region_from, to = region_to)
+
+weights_example1 <- rep(1, 10)
+
+
+edges_sf_example$Wex21 <- factor(weights_example1)
+
+centroids_example$region_ID <- c(1,2, 4, 3)
+
+centroids_example_coords <- cbind(
+  centroids_example,
+  st_coordinates(centroids_example)
+)
+
+ExamplePlot1 <- ggplot() +
+  geom_sf(data = ss_ar_example, color="black") + #do not really need this line
+  geom_sf(data=ss_provinces_example, color="grey") +
+  geom_sf(data = ss_ar_example, color="black", fill=NA,linewidth = 0.4) +
+  geom_sf(data = centroids_example, color = "red", size = 3)  + # Centroids
+  geom_sf(data = edges_sf_example, aes(color = Wex21), show.legend = FALSE) +
+  scale_color_manual(values = c("0" = "blue", "1" = "red")) +
+   # Label using coordinates
+  geom_text(data = centroids_example_coords,
+            aes(x = X, y = Y, label = region_ID),  # Replace 'region_id' with your label column
+            hjust = 1.5,  # vertical offset
+            size = 8,
+            color = "black") +
+  coord_sf() +
+  theme(axis.title.x = element_blank(), axis.title.y = element_blank()) +
+  theme(panel.background = element_rect(fill = "white", color = NA))
+
+#ggsave("Plots//MapForGraphExample.png", plot = ExamplePlot1, height = 13, width = 13,  units = "cm",  dpi = 300)
+
+
+```
 
 
 

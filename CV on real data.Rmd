@@ -130,7 +130,7 @@ inla.rgeneric.Adaptive.ICAR = function(
 
 #The specific models
 
-prior_str <- "gamma"
+prior_str <- "PC"
 
 ABYM10_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_ABYM10, nAreas = nAreas, pr_str = prior_str)
 ABYM20_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_ABYM20, nAreas = nAreas, pr_str = prior_str)
@@ -282,9 +282,15 @@ for (j in test_indecies){
   
   #The standard ICAR
   
-  formula_ICAR <- Y ~ offset(log(E)) + 
-    f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE,
+  if (prior_str == "PC"){
+    formula_ICAR <- Y ~ offset(log(E)) + 
+      f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE,
       hyper = list(prec = list(prior = "pc.prec", param = c(3, 0.05),log = TRUE)))
+  }
+  else if (prior_str == "gamma"){
+    formula_ICAR <- Y ~ offset(log(E)) + 
+      f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE, log = TRUE)
+  }
   
   res_ICAR <- inla(formula_ICAR, family = "poisson", data = data_df,
                    control.compute = list(cpo = T, waic = T, dic = T))
@@ -316,19 +322,27 @@ CV_runtime <- Sys.time() - t0
 CV_runtime
 
 #testing
-#Y <- as.vector(ObservedCases[, 73])
-#E <- as.vector(ExpectedCases[, 73])
-
-#data_df <- data.frame(Y = Y, E = E, ID = 1:nAreas)
+# Y <- as.vector(ObservedCases[, 60])
+# E <- as.vector(ExpectedCases[, 60])
+# 
+# data_df <- data.frame(Y = Y, E = E, ID = 1:nAreas)
 
 ```
 
+currently running again with PC priors, save as W_C_3
+and same for the folder for the plots
+
+failed for disease 60 randomly, worked right afterwards
+
+NOTE: when addign cancer models I made the ICAR use a pc.prior, and forgot to make it flexible, so the gamma validation with cancer is wrong as the ICAR has a differnt prior than the rest.
+
 ```{r}
 # save the criteria_df
+prior_str
 
-#saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta_W_C.rds")
+#saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta_W_C_3.rds")
 
-#saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta_PC_W_C.rds")
+#saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta_PC_W_C_3.rds")
 ```
 
 
@@ -340,18 +354,18 @@ library(tidyr)
 library(dplyr)
 library(ggplot2)
 
-res_df <- readRDS(file = "CV-Results//CV_no_iidTheta.rds")
+#res_df <- readRDS(file = "CV-Results//CV_no_iidTheta_W_C_3.rds")
 
-#res_df <- readRDS(file = "CV-Results//CV_no_iidTheta_PC.rds")
+res_df <- readRDS(file = "CV-Results//CV_no_iidTheta_PC_W_C_3.rds")
 
-index_WAIC <- c(1, 2, 3, 4, 5, 6, 7, 8, 25, 28, 31)
+index_WAIC <- c(1, 2, 3, 4, 5, 6, 7, 8, 25, 28, 31, 34, 37)
 
-index_DIC <- c(9, 10, 11, 12, 13, 14, 15, 16, 26, 29, 32)
+index_DIC <- c(9, 10, 11, 12, 13, 14, 15, 16, 26, 29, 32, 35, 38)
 
-index_CPO <- c(17, 18, 19, 20, 21, 22, 23, 24, 27, 30, 33)
+index_CPO <- c(17, 18, 19, 20, 21, 22, 23, 24, 27, 30, 33, 36, 39)
 
 desired_order <- c("ICAR", "BW", "BW_2","RW_10", "EW_10","RW_20", "EW_20", 
-                       "RW_50","EW_50", "RW_86", "EW_86")
+                       "RW_50","EW_50", "RW_86", "EW_86", "RW_C", "EW_C")
 
 # for WAIC
 
@@ -615,22 +629,22 @@ full_boxplot_cancer_WO_outliers
 
 ```{r}
 #Gamma prior
-#ggsave("Plots//Plots_withScaling_and_without_iidTheta//CV_boxplot_W_outliers.png", plot = full_boxplot, height = 24, width = 21,  units = "cm",  dpi = 300)
+#ggsave("Plots//Plots_withScaling_and_without_iidTheta_2//CV_boxplot_W_outliers.png", plot = full_boxplot, height = 24, width = 21,  units = "cm",  dpi = 300)
 
-#ggsave("Plots//Plots_withScaling_and_without_iidTheta//CV_boxplot_ICAR_ref_W_outliers.png", plot = full_boxplot_W_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
+#ggsave("Plots//Plots_withScaling_and_without_iidTheta_2//CV_boxplot_ICAR_ref_W_outliers.png", plot = full_boxplot_W_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
 
-#ggsave("Plots//Plots_withScaling_and_without_iidTheta//CV_boxplot_ICAR_ref_WO_outliers.png", plot = full_boxplot_WO_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
+#ggsave("Plots//Plots_withScaling_and_without_iidTheta_2//CV_boxplot_ICAR_ref_WO_outliers.png", plot = full_boxplot_WO_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
 
-#ggsave("Plots//Plots_withScaling_and_without_iidTheta//CV_boxplot_ICAR_ref_cancer_WO_outliers.png", plot = full_boxplot_cancer_WO_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
+#ggsave("Plots//Plots_withScaling_and_without_iidTheta_2//CV_boxplot_ICAR_ref_cancer_WO_outliers.png", plot = full_boxplot_cancer_WO_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
 
 #PC prior
-#ggsave("Plots//Plots_withScaling_and_without_iidTheta//CV_boxplot_PC_W_outliers.png", plot = full_boxplot, height = 24, width = 21,  units = "cm",  dpi = 300)
+ggsave("Plots//Plots_withScaling_and_without_iidTheta_3//CV_boxplot_PC_W_outliers.png", plot = full_boxplot, height = 24, width = 21,  units = "cm",  dpi = 300)
 
-#ggsave("Plots//Plots_withScaling_and_without_iidTheta//CV_boxplot_PC_ICAR_ref_W_outliers.png", plot = full_boxplot_W_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
+ggsave("Plots//Plots_withScaling_and_without_iidTheta_3//CV_boxplot_PC_ICAR_ref_W_outliers.png", plot = full_boxplot_W_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
 
-#ggsave("Plots//Plots_withScaling_and_without_iidTheta//CV_boxplot_PC_ICAR_ref_WO_outliers.png", plot = full_boxplot_WO_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
+ggsave("Plots//Plots_withScaling_and_without_iidTheta_3//CV_boxplot_PC_ICAR_ref_WO_outliers.png", plot = full_boxplot_WO_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
 
-#ggsave("Plots//Plots_withScaling_and_without_iidTheta//CV_boxplot_PC_ICAR_ref_cancer_WO_outliers.png", plot = full_boxplot_cancer_WO_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
+ggsave("Plots//Plots_withScaling_and_without_iidTheta_3//CV_boxplot_PC_ICAR_ref_cancer_WO_outliers.png", plot = full_boxplot_cancer_WO_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
 ```
 
 
