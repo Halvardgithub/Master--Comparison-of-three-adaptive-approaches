@@ -289,7 +289,7 @@ for (j in test_indecies){
   }
   else if (prior_str == "gamma"){
     formula_ICAR <- Y ~ offset(log(E)) + 
-      f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE, log = TRUE)
+      f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE)
   }
   
   res_ICAR <- inla(formula_ICAR, family = "poisson", data = data_df,
@@ -322,10 +322,10 @@ CV_runtime <- Sys.time() - t0
 CV_runtime
 
 #testing
-# Y <- as.vector(ObservedCases[, 60])
-# E <- as.vector(ExpectedCases[, 60])
-# 
-# data_df <- data.frame(Y = Y, E = E, ID = 1:nAreas)
+Y <- as.vector(ObservedCases[, 60])
+E <- as.vector(ExpectedCases[, 60])
+ 
+data_df <- data.frame(Y = Y, E = E, ID = 1:nAreas)
 
 ```
 
@@ -334,17 +334,18 @@ and same for the folder for the plots
 
 failed for disease 60 randomly, worked right afterwards
 
-NOTE: when addign cancer models I made the ICAR use a pc.prior, and forgot to make it flexible, so the gamma validation with cancer is wrong as the ICAR has a differnt prior than the rest.
+NOTE: when addign cancer models I made the ICAR use a pc.prior, and forgot to make it flexible, so the gamma validation with cancer is wrong as the ICAR has a different prior than the rest.
 
 ```{r}
 # save the criteria_df
 prior_str
 
-#saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta_W_C_3.rds")
+#saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta_gamma_W_C_final.rds")
 
-#saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta_PC_W_C_3.rds")
+#saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta_PC_W_C_final.rds")
 ```
 
+Have now saved the two correct criteria df, should also generate the plots below and save them!
 
 # Make the box-plots for the "CV" results
 
