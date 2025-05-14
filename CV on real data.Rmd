@@ -104,6 +104,7 @@ inla.rgeneric.Adaptive.ICAR = function(
     p <- interpret_theta()
     if (pr_str == "gamma")  {prior <- dgamma(p$tau, shape = 1, rate = 0.00005, log = TRUE) + log(p$tau)}
     else if (pr_str == "PC") {prior <- inla.pc.dprec(p$tau, u = 3, alpha = 0.05, log=TRUE) + log(p$tau)}
+    else if (pr_str == "U") {prior <- -0.5*log(p$tau)}
     return(prior)
   }
   
@@ -130,7 +131,9 @@ inla.rgeneric.Adaptive.ICAR = function(
 
 #The specific models
 
-prior_str <- "PC"
+#prior_str <- "PC"
+#prior_str <- "gamma"
+prior_str <- "U"
 
 ABYM10_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_ABYM10, nAreas = nAreas, pr_str = prior_str)
 ABYM20_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_ABYM20, nAreas = nAreas, pr_str = prior_str)
@@ -291,6 +294,12 @@ for (j in test_indecies){
     formula_ICAR <- Y ~ offset(log(E)) + 
       f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE)
   }
+  else if (prior_str == "U"){
+    sdunif="expression: logdens=-log_precision/2; return(logdens)"
+    formula_ICAR <- Y ~ offset(log(E)) + 
+      f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE, 
+        hyper = list(prec = list(prior = sdunif)))
+  }
   
   res_ICAR <- inla(formula_ICAR, family = "poisson", data = data_df,
                    control.compute = list(cpo = T, waic = T, dic = T))
@@ -343,6 +352,8 @@ prior_str
 #saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta_gamma_W_C_final.rds")
 
 #saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta_PC_W_C_final.rds")
+
+saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta_U_W_C_final.rds")
 ```
 
 Have now saved the two correct criteria df, should also generate the plots below and save them!
@@ -355,9 +366,11 @@ library(tidyr)
 library(dplyr)
 library(ggplot2)
 
-res_df <- readRDS(file = "CV-Results//CV_no_iidTheta_gamma_W_C_final.rds")
+#res_df <- readRDS(file = "CV-Results//CV_no_iidTheta_gamma_W_C_final.rds")
 
 #res_df <- readRDS(file = "CV-Results//CV_no_iidTheta_PC_W_C_final.rds")
+
+res_df <- readRDS(file = "CV-Results//CV_no_iidTheta_U_W_C_final.rds")
 
 index_WAIC <- c(1, 2, 3, 4, 5, 6, 7, 8, 25, 28, 31, 34, 37)
 
@@ -646,6 +659,15 @@ full_boxplot_cancer_WO_outliers
 #ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//CV_boxplot_PC_ICAR_ref_WO_outliers.png", plot = full_boxplot_WO_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
 
 #ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//CV_boxplot_PC_ICAR_ref_cancer_WO_outliers.png", plot = full_boxplot_cancer_WO_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
+
+#Uniform prior
+#ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//CV_boxplot_U_W_outliers.png", plot = full_boxplot, height = 24, width = 21,  units = "cm",  dpi = 300)
+
+#ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//CV_boxplot_U_ICAR_ref_W_outliers.png", plot = full_boxplot_W_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
+
+#ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//CV_boxplot_U_ICAR_ref_WO_outliers.png", plot = full_boxplot_WO_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
+
+#ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//CV_boxplot_U_ICAR_ref_cancer_WO_outliers.png", plot = full_boxplot_cancer_WO_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
 ```
 
 
