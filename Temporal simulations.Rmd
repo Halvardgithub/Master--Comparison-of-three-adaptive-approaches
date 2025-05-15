@@ -1,0 +1,139 @@
+---
+title: "Temporal simulation"
+author: "Halvard"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Temporal simulations
+This file will create simulations for the four temporal models mentioned in the theory introudction of my thesis. Specificially, RW1, RW2, AR1 and IID.
+
+## RW1
+The RW1 follows the following dependence structure:
+$$
+x_{t+1} \sim N(x_t, \sigma^2), \quad for t = 1, ..., T-1 
+$$
+
+```{r}
+RW1 <- function(sigma, N){
+  # sigma^2 is the variance for the transitions and N is the number of points
+  x <- rep(0, N)
+  z <- sigma * rnorm(N-1)
+  for(j in 2:N){
+    x[j] <- x[j-1] + z[j-1]
+  }
+  return(x)
+}
+```
+
+## RW2
+
+```{r}
+RW2 <- function(sigma, N){
+  # sigma^2 is the variance for the transitions and N is the number of points
+  x <- rep(0, N)
+  z <- sigma * rnorm(N-2)
+  for(j in 3:N){
+    x[j] <- 2*x[j-1] - x[j-2] + z[j-2]
+  }
+  return(x)
+}
+```
+
+## AR1
+
+```{r}
+
+AR1 <- function(sigma, N, rho){
+  # sigma^2 is the variance for the transitions, N is the number of points and rho is the AR parameter
+  x <- rep(0, N)
+  z <- sigma * rnorm(N-1)
+  for(j in 2:N){
+    x[j] <- rho*x[j-1] + z[j-1]
+  }
+  return(x)
+}
+
+```
+
+## IID
+
+```{r}
+
+IID <- function(sigma, N){
+  # sigma^2 is the variance for the transitions and N is the number of points
+  z <- sigma * rnorm(N)
+  return(z)
+}
+
+```
+
+
+## Simulating and combining the plots
+
+```{r}
+library(ggplot2)
+library(tidyr)
+library(dplyr)
+
+N <- 50
+sigma <- 1
+rho <- 0.8
+
+#RW1
+df_RW1 <- data.frame(col1 = RW1(sigma, N), col2 = RW1(sigma, N), col3 = RW1(sigma, N), x = 1:N)
+
+df_long_RW1 <- pivot_longer(df_RW1, cols = c(col1, col2, col3), names_to = "variable", values_to = "value")
+
+plot_RW1 <- ggplot(df_long_RW1, aes(x = x, y = value, color = variable)) +
+  geom_line() +
+  labs(title = "RW1", x = "t", y = "y") +
+  theme_minimal() +
+  theme(legend.position = "none", plot.title = element_text(size = 18))
+
+#RW2
+df_RW2 <- data.frame(col1 = RW2(sigma, N), col2 = RW2(sigma, N), col3 = RW2(sigma, N), x = 1:N)
+
+df_long_RW2 <- pivot_longer(df_RW2, cols = c(col1, col2, col3), names_to = "variable", values_to = "value")
+
+plot_RW2 <- ggplot(df_long_RW2, aes(x = x, y = value, color = variable)) +
+  geom_line() +
+  labs(title = "RW2", x = "t", y = "y") +
+  theme_minimal() +
+  theme(legend.position = "none", plot.title = element_text(size = 18))
+
+#AR1
+df_AR1 <- data.frame(col1 = AR1(sigma, N, rho), col2 = AR1(sigma, N, rho), 
+                     col3 = AR1(sigma, N, rho), x = 1:N)
+
+df_long_AR1 <- pivot_longer(df_AR1, cols = c(col1, col2, col3), names_to = "variable", values_to = "value")
+
+plot_AR1 <- ggplot(df_long_AR1, aes(x = x, y = value, color = variable)) +
+  geom_line() +
+  labs(title = "AR1", x = "t", y = "y") +
+  theme_minimal() +
+  theme(legend.position = "none", plot.title = element_text(size = 18))
+
+#IID
+df_IID <- data.frame(col1 = IID(sigma, N), col2 = IID(sigma, N), col3 = IID(sigma, N), x = 1:N)
+
+df_long_IID <- pivot_longer(df_IID, cols = c(col1, col2, col3), names_to = "variable", values_to = "value")
+
+plot_IID <- ggplot(df_long_IID, aes(x = x, y = value, color = variable)) +
+  geom_line() +
+  labs(title = "IID", x = "t", y = "y") +
+  theme_minimal() +
+  theme(legend.position = "none", plot.title = element_text(size = 18))
+
+#Final figure
+
+temporal_figure <- ggarrange(plot_RW1, plot_RW2, plot_AR1, plot_IID, nrow = 2, ncol = 2)
+
+#ggsave("Plots//Temporal_figure.png", plot = temporal_figure, height = 21, width = 21,  units = "cm",  dpi = 300)
+```
+
+

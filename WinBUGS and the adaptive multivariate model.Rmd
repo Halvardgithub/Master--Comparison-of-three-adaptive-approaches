@@ -719,8 +719,6 @@ res_list_NSRW1[[6]]$summary["alpha",]
 res_list_NSRW1[[1]]$mean$Tau2
 res_list_NSRW1[[4]]$mean$Tau2
 
-#Correlation between the weights c for differing number of causes n
-#cor(cbind(ss_provinces$color10, ss_provinces$color20, ss_provinces$color50, ss_provinces$color86))
 ```
 
 #Plots and visualization of results
@@ -998,7 +996,7 @@ edgeplots <- list(edgeplot_ABYM_10, edgeplot_NSRW1_10, edgeplot_ABYM_20, edgeplo
 
 final_edgeplot <- ggarrange(plotlist = edgeplots, ncol = 2, nrow = 4, labels = NULL)
 
-#ggsave("Plots//edgeFigure.png", plot = final_edgeplot, height = 24, width = 21,  units = "cm",  dpi = 300)
+#ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//edgeFigure.png", plot = final_edgeplot, height = 24, width = 21,  units = "cm",  dpi = 300)
 ```
 
 
@@ -1185,7 +1183,7 @@ precplots <- list(precplot_ABYM_10, precplot_NSRW1_10, precplot_ABYM_20, precplo
 
 final_precplot <- ggarrange(plotlist = precplots, ncol = 2, nrow = 4, labels = NULL)
 
-#ggsave("Plots//precFigure.png", plot = final_precplot, height = 24, width = 21,  units = "cm",  dpi = 300)
+#ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//precFigure.png", plot = final_precplot, height = 24, width = 21,  units = "cm",  dpi = 300)
 ```
 
 
@@ -1310,7 +1308,7 @@ scatterplots <- list(SCplot_edges_10, SCplot_prec_10, SCplot_edges_20, SCplot_pr
 
 final_scatterplot <- ggarrange(plotlist = scatterplots, ncol = 2, nrow = 4, labels = NULL)
 
-#ggsave("Plots//scatterFigure.png", plot = final_scatterplot, height = 24, width = 21,  units = "cm",  dpi = 300)
+#ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//scatterFigure.png", plot = final_scatterplot, height = 24, width = 21,  units = "cm",  dpi = 300)
 
 #save the edges_sf for use in the CV
 #saveRDS(edges_sf, file = "Edges_df//Edges_W_scaling_WO_theta")
@@ -1318,39 +1316,6 @@ final_scatterplot <- ggarrange(plotlist = scatterplots, ncol = 2, nrow = 4, labe
 
 
 #Anova test for edges for differing number of causes n
-
-```{r}
-library(ggpubr)
-
-anova_NSRW1_10 <- summary(aov(edges_sf$edge_value_NSRW1_10 ~ edges_sf$between_region_edges))
-anova_NSRW1_20 <- summary(aov(edges_sf$edge_value_NSRW1_20 ~ edges_sf$between_region_edges))
-anova_NSRW1_50 <- summary(aov(edges_sf$edge_value_NSRW1_50 ~ edges_sf$between_region_edges))
-anova_NSRW1_86 <- summary(aov(edges_sf$edge_value_NSRW1_86 ~ edges_sf$between_region_edges))
-
-anova_ABYM_10 <- summary(aov(edges_sf$edge_value_ABYM_10 ~ edges_sf$between_region_edges))
-anova_ABYM_20 <- summary(aov(edges_sf$edge_value_ABYM_20 ~ edges_sf$between_region_edges))
-anova_ABYM_50 <- summary(aov(edges_sf$edge_value_ABYM_50 ~ edges_sf$between_region_edges))
-anova_ABYM_86 <- summary(aov(edges_sf$edge_value_ABYM_86 ~ edges_sf$between_region_edges))
-
-anova_result <- c(anova_NSRW1_10[[1]][1, "Pr(>F)"], anova_NSRW1_20[[1]][1, "Pr(>F)"], 
-                  anova_NSRW1_50[[1]][1, "Pr(>F)"], anova_NSRW1_86[[1]][1, "Pr(>F)"],
-                  anova_ABYM_10[[1]][1, "Pr(>F)"], anova_ABYM_20[[1]][1, "Pr(>F)"],
-                  anova_ABYM_50[[1]][1, "Pr(>F)"], anova_ABYM_86[[1]][1, "Pr(>F)"])
-
-anova_result <- round(anova_result,  4)
-
-anova_df <- data.frame(Adaptive_BYM = anova_result[5:8],
-                       NSRW1 = anova_result[1:4])
-
-row.names(anova_df) <- c("n=10", "n=20", "n=50", "n=86")
-colnames(anova_df) <- c("RW-ICAR", "EW-ICAR")
-
-anova_edge_table <- ggtexttable(anova_df, theme = ttheme("mOrange"))
-
-#ggsave("Plots//anovaFigure.png", plot = anova_edge_table, height = 12, width = 10,  units = "cm",  dpi = 300)
-```
-
-
 At the log scale for the precisions!
 
 ```{r}
@@ -1388,9 +1353,81 @@ colnames(anova_log_df) <- c("RW-ICAR", "EW-ICAR")
 
 anova_log_edge_table <- ggtexttable(anova_log_df, theme = ttheme("mOrange"))
 
-ggsave("Plots//anovaLogFigure.png", plot = anova_log_edge_table, height = 12, width = 10,  units = "cm",  dpi = 300)
+#ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//anovaLogFigure.png", plot = anova_log_edge_table, height = 12, width = 10,  units = "cm",  dpi = 300)
 ```
 
+# Correlation between the precision matrices for different n's for both EW and RW
+
+## First for EW-ICAR
+```{r}
+#Correlation between the weights c for differing number of causes n
+
+# Load libraries
+library(gt)
+library(tibble)
+library(webshot2)
+
+df_corr_NSRW1 <- round(cor(cbind(edges_sf$edge_value_NSRW1_10, edges_sf$edge_value_NSRW1_20,
+                                 edges_sf$edge_value_NSRW1_50, edges_sf$edge_value_NSRW1_86)),
+                           4)
+                                 
+                            
+
+df_corr_NSRW1 <- as.matrix(df_corr_NSRW1)
+
+rownames(df_corr_NSRW1) <- c("n=10", "n=20", "n=50", "n=86")
+colnames(df_corr_NSRW1) <- c("n=10", "n=20", "n=50", "n=86")
+
+df_corr_tbl <- as.data.frame(df_corr_NSRW1)
+df_corr_tbl <- tibble::rownames_to_column(df_corr_tbl, var = "Sample size")
+
+# Create gt table
+gt_table <- gt(df_corr_tbl) |>
+  cols_label(`Sample size` = "") |> 
+  tab_header(title = "Correlation for EW-ICAR") |>
+  fmt_number(columns = -`Sample size`, decimals = 3) |>
+  tab_style(style = cell_fill(color = "#F9F9F9"), locations = cells_body()) |>
+  tab_style(style = list(cell_fill(color = "#EAEAEA"), cell_text(weight = "bold")), 
+            locations = cells_column_labels()) |>
+  tab_style(style = list(cell_fill(color = "#EAEAEA"), cell_text(weight = "bold")),
+    locations = cells_stub())
+
+# Print
+gt_table
+
+#gtsave(gt_table, "Plots//Plots_withScaling_and_without_iidTheta_withCancer//correlation_matrix_EW.png")
+```
+
+## Then for RW-ICAR
+```{r}
+df_corr_ABYM <- round(cor(cbind(edges_sf$edge_value_ABYM_10, edges_sf$edge_value_ABYM_20,
+                                 edges_sf$edge_value_ABYM_50, edges_sf$edge_value_ABYM_86)),
+                           4)
+
+df_corr_ABYM <- as.matrix(df_corr_ABYM)
+
+rownames(df_corr_ABYM) <- c("n=10", "n=20", "n=50", "n=86")
+colnames(df_corr_ABYM) <- c("n=10", "n=20", "n=50", "n=86")
+
+df_corr_tbl <- as.data.frame(df_corr_ABYM)
+df_corr_tbl <- tibble::rownames_to_column(df_corr_tbl, var = "Sample size")
+
+# Create gt table
+gt_table <- gt(df_corr_tbl) |>
+  cols_label(`Sample size` = "") |> 
+  tab_header(title = "Correlation for RW-ICAR") |>
+  fmt_number(columns = -`Sample size`, decimals = 3) |>
+  tab_style(style = cell_fill(color = "#F9F9F9"), locations = cells_body()) |>
+  tab_style(style = list(cell_fill(color = "#EAEAEA"), cell_text(weight = "bold")), 
+            locations = cells_column_labels()) |>
+  tab_style(style = list(cell_fill(color = "#EAEAEA"), cell_text(weight = "bold")),
+    locations = cells_stub())
+
+# Print
+gt_table
+
+#gtsave(gt_table, "Plots//Plots_withScaling_and_without_iidTheta_withCancer//correlation_matrix_RW.png")
+```
 
 
 
