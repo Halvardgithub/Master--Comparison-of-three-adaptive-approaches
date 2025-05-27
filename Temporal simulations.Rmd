@@ -137,3 +137,155 @@ temporal_figure <- ggarrange(plot_RW1, plot_RW2, plot_AR1, plot_IID, nrow = 2, n
 ```
 
 
+# Linear regression example with priors
+A simple example to show prior importance in a simple linear regression. The model is
+$$
+y \sim N(\eta, 0.0000001^2) \\
+\eta = \mu + \beta x
+$$
+with some priors on mu and beta. Lets say the true beta is 5 and mu is 100
+
+```{r}
+x <- c(10, 20, 30, 40, 50)
+y <- c(135, 210, 240, 280, 370)
+
+df <- data.frame(x = x, y = y)
+
+formula <- "y ~ x"
+
+lm_res <- lm(formula, df)
+
+summary(lm_res)
+```
+
+INLA model:
+```{r}
+library(INLA)
+INLA_formula <- y ~ 1 + x
+
+res_standard <- inla(INLA_formula, data = df, control.fixed = list(
+    mean.intercept = 0,      # Prior mean for intercept (μ)
+    prec.intercept = 1e-6,   # Prior precision for intercept
+    mean = 0,                # Prior mean for slope (β)
+    prec = 1e-6              # Prior precision for slope
+  ))
+
+summary(res_standard)
+
+df$standard <- c(res_standard$summary.linear.predictor$mean)
+
+res_bad_mu <- inla(INLA_formula, data = df, control.fixed = list(
+    mean.intercept = 0,      # Prior mean for intercept (μ)
+    prec.intercept = 1e2,   # Prior precision for intercept
+    mean = 0,                # Prior mean for slope (β)
+    prec = 1e-6              # Prior precision for slope
+  ))
+
+summary(res_bad_mu)
+
+df$bad_mu <- c(res_bad_mu$summary.linear.predictor$mean)
+
+res_bad_beta <- inla(INLA_formula, data = df, control.fixed = list(
+    mean.intercept = 0,      # Prior mean for intercept (μ)
+    prec.intercept = 1e-6,   # Prior precision for intercept
+    mean = 2,                # Prior mean for slope (β)
+    prec = 1e2              # Prior precision for slope
+  ))
+
+summary(res_bad_beta)
+
+df$bad_beta <- c(res_bad_beta$summary.linear.predictor$mean)
+
+res_bad_both <- inla(INLA_formula, data = df, control.fixed = list(
+    mean.intercept = 0,      # Prior mean for intercept (μ)
+    prec.intercept = 1e2,   # Prior precision for intercept
+    mean = 2,                # Prior mean for slope (β)
+    prec = 1e2              # Prior precision for slope
+  ))
+
+summary(res_bad_both)
+
+df$both_bad <- c(res_bad_both$summary.linear.predictor$mean)
+```
+
+Plotting:
+```{r}
+stand_plot <- ggplot(df, aes(x = x)) +
+  geom_point(aes(y = y), color = "blue") +
+  geom_line(aes(y = standard), color = "red", linewidth = 1) +
+  labs(title = expression(mu %~% N(0, 10^6) * " and " * beta %~% N(0, 10^6)), 
+       x = "x", y = "y") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 18),
+    axis.title.x = element_text(size = 14), 
+    axis.title.y = element_text(size = 14))
+
+bad_mu_plot <- ggplot(df, aes(x = x)) +
+  geom_point(aes(y = y), color = "blue") +
+  geom_line(aes(y = bad_mu), color = "red", linewidth = 1) +
+  labs(title = expression(mu %~% N(0, 10^{-2}) * " and " * beta %~% N(0, 10^6)), 
+       x = "x", y = "y") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 18),
+    axis.title.x = element_text(size = 14), 
+    axis.title.y = element_text(size = 14))
+
+bad_beta_plot <- ggplot(df, aes(x = x)) +
+  geom_point(aes(y = y), color = "blue") +
+  geom_line(aes(y = bad_beta), color = "red", linewidth = 1) +
+  labs(title = expression(mu %~% N(0, 10^6) * " and " * beta %~% N(2, 10^{-2})), 
+       x = "x", y = "y") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 18),
+    axis.title.x = element_text(size = 14), 
+    axis.title.y = element_text(size = 14))
+
+both_bad_plot <- ggplot(df, aes(x = x)) +
+  geom_point(aes(y = y), color = "blue") +
+  geom_line(aes(y = both_bad), color = "red", linewidth = 1) +
+  labs(title = expression(mu %~% N(0, 10^{-2}) * " and " * beta %~% N(2, 10^{-2})), 
+       x = "x", y = "y") +
+  theme_minimal() +
+  theme(plot.title = element_text(size = 18),
+    axis.title.x = element_text(size = 14), 
+    axis.title.y = element_text(size = 14))
+
+full_plot <- ggarrange(stand_plot, bad_mu_plot, bad_beta_plot, both_bad_plot, ncol = 2, nrow = 2)
+
+#ggsave("Plots//linearRegressionWPriors.png", plot = full_plot, height = 21, width = 21,  units = "cm",  dpi = 300)
+
+```
+
+# Polynomial example with IID
+The idea is to compare models with and without iid, and compare different degrees of polynomials.
+
+```{r}
+x <- c(1, 2, 3, 4, 5, 6, 7, 8)#, 9, 10)
+y <- c(6, 7, 13, 15, 25, 23, 29, 35)#, 36, 44)
+
+df2 <- data.frame(x = x, y = y)
+
+
+res_1poly <- lm(y ~ poly(x, 1, raw = TRUE), data = df2)
+
+res_5poly <- lm(y ~ poly(x, 7, raw = TRUE), data = df2)
+
+
+x_grid <- data.frame(x = seq(min(df2$x), max(df2$x), length.out = 200))
+x_grid$y_1 <- predict(res_1poly, newdata = x_grid)
+x_grid$y_5 <- predict(res_5poly, newdata = x_grid)
+
+linRegPlot <- ggplot(df2, aes(x, y)) +
+  geom_point(color = "blue", size = 2.5) +
+  geom_line(data = x_grid, aes(x = x, y = y_1), color = "red", size = 1, linetype = "longdash") +
+  geom_line(data = x_grid, aes(x = x, y = y_5), color = "red", size = 1) +
+  labs(x = "t", y = "y") +
+  theme_minimal()
+
+#ggsave("Plots//PolyFig.png", plot = linRegPlot, height = 7, width = 10,  units = "cm",  dpi = 300)
+
+```
+
+
+
+

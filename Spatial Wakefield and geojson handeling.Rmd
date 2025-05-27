@@ -184,12 +184,11 @@ ExamplePlot2 <- ggplot() +
 
 examplePlots <- ggarrange(ExamplePlot1, ExamplePlot2, ncol = 2)
 
-example_edgeStructuresFigure <- annotate_figure(examplePlots, 
-                                top = text_grob("Two examples of grouping the edges",
-                                face = "bold", size = 30))
+# example_edgeStructuresFigure <- annotate_figure(examplePlots, 
+#                                 top = text_grob("Two examples of grouping the edges",
+#                                 face = "bold", size = 30))
 
-#ggsave("Plots//ExampleEdgesFigure.png", plot = example_edgeStructuresFigure, height = 13, width = 21,  units = "cm",  dpi = 300)
-
+#ggsave("Plots//ExampleEdgesFigure.png", plot = examplePlots, height = 10, width = 21,  units = "cm",  dpi = 300)
 
 # edgeplot_example1 <- ggplot() +
 #   geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Provinces
