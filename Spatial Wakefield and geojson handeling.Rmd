@@ -79,33 +79,31 @@ ss_provinces = ss_provinces |> filter(!(Texto %in% out))
 ss_ar = ss_ar |> filter(!(Texto %in% out2))
 
 SpainMap <- ggplot() +
-
-  geom_sf(data = ss_ar, color="black") + #do not really need this line
-
-  geom_sf(data=ss_provinces, fill=NA, color="grey") +
-
-  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4)
+  geom_sf(data=ss_provinces, fill=NA, color="grey40") +
+  geom_sf(data = ss_ar, color="black", fill=NA, linewidth = 1) +
+  theme_minimal()
 
 #ggsave("Plots//SpainMap.png", plot = SpainMap, height = 21, width = 21,  units = "cm",  dpi = 300)
 
 # Map of Spain with illustrative graph for powerpoint
-SpainMap_W_graph <- ggplot() +
-  geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Provinces
-  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
-  geom_sf(data = centroids, color = "red", size = 3) +  # Centroids
-  geom_sf(data = edges_sf, linewidth = 0.8, color = "blue") + 
-  theme_minimal()
+# SpainMap_W_graph <- ggplot() +
+#   geom_sf(data = ss_provinces, fill = NA, color = "grey40") +  # Provinces
+#   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 1) + # Autonomous regions
+#   geom_sf(data = centroids, color = "red", size = 3) +  # Centroids
+#   geom_sf(data = edges_sf, linewidth = 0.8, color = "blue") + 
+#   theme_minimal()
 
 #ggsave("Plots//SpainMap_W_grpah.png", plot = SpainMap_W_graph, height = 21, width = 21,  units = "cm",  dpi = 300)
 
 SpainMap_Wakefieldgraph <- ggplot() +
-  geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Provinces
-  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
-  geom_sf(data = centroids, color = "red", size = 3) +  # Centroids
-  geom_sf(data = edges_sf, aes(linewidth = inter_region_edges), color = "blue") + 
-  scale_linewidth(range = c(0.5, 1.5)) +  
+  geom_sf(data = ss_provinces, fill = NA, color = "grey40") +  # Provinces
+  geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 1) + # Autonomous regions
+  geom_sf(data = centroids, color = "black", size = 3) +  # Centroids
+  geom_sf(data = edges_sf, linewidth = 1, aes(color = factor(inter_region_edges))) + 
+  #scale_linewidth(range = c(0.5, 1.5)) +  
+  scale_color_manual(values = c("1" = "blue", "0" = "red")) + 
   theme_minimal() +
-  guides(linewidth = "none")
+  guides(linewidth = "none", color="none")
 
 #ggsave("Plots//SpainMap_Wakefieldgraph.png", plot = SpainMap_Wakefieldgraph, height = 21, width = 21,  units = "cm",  dpi = 300)
 ```
@@ -362,21 +360,6 @@ inla.rgeneric.AdaptiveICAR = function(
            inla.pc.dprec(p$tau2, u = 1, alpha = 0.01, log = TRUE) + log(p$tau2)
     return(prior)
   }
-  # log.prior <- function() {#default: shape = 1, rate = 0.00005
-  #   p <- interpret_theta()
-  #   if(prior_str == "PC"){
-  #     prior <- inla.pc.dprec(p$tau1, u = 1, alpha = 0.01, log=TRUE) + log(p$tau1) +
-  #         inla.pc.dprec(p$tau2, u = 1, alpha = 0.01, log = TRUE) + log(p$tau2)
-  #     return(prior)
-  #   } else if(prior_str == "Gamma0,005"){
-  #     prior <- dgamma(p$tau1, shape = 1, rate = 0.005, log = TRUE) + log(p$tau1) +
-  #     dgamma(p$tau2, shape = 1, rate = 0.005, log = TRUE) + log(p$tau2)
-  #     return(prior)
-  #   }
-  #   prior <- dgamma(p$tau1, shape = 1, rate = 0.00005, log = TRUE) + log(p$tau1) +
-  #   dgamma(p$tau2, shape = 1, rate = 0.00005, log = TRUE) + log(p$tau2)
-  #   return(prior) 
-  # }
   
   quit <- function() {return(invisible())}
   
@@ -399,7 +382,7 @@ Wakefield_model <- inla.rgeneric.define(inla.rgeneric.AdaptiveICAR, df = ss_prov
 ```
 
 # Load and preprocess the disease data
-The data for male mortality cases nationally and at province level is collected in 5-year age bins for each disease. These must be aggregated to the total cases per disease in each province and summarized in a matrix called ObservedCases. Furthermore, we calculate the expected cases based on the population per age bin in each province, which is denoted as ExpectedCases. Lastly, some choice of the mortality causes must be done. For instance, some causes are extremely rare, for instance only 1 or 2 cases nationally. Therefore, we implemented a lower limit of an average of 2 cases per province, which for 47 provinces equals 94 cases nationally. Additionally, some of the mortality causes are not disease related, for instance homicides, and should also be removed. 
+The data for male mortality cases nationally and at province level is collected in 5-year age bins for each disease. These must be aggregated to the total cases per disease in each province and summarized in a matrix called ObservedCases. Furthermore, we calculate the expected cases based on the population per age bin in each province, which is denoted as ExpectedCases. Lastly, some choice of the mortality causes must be done. For instance, some causes are extremely rare, for instance only 1 or 2 cases nationally. Therefore, we implemented a lower limit of an average of 2 cases per province, which for 47 provinces equals 94 cases nationally. Additionally, some of the mortality causes are not disease related, for instance homicides, but they are kept in the data. 
 
 ```{r}
 library(readr)
@@ -407,7 +390,7 @@ library(tidyr)
 
 #Calculation of expected observation
 
-# load("Expected.Rdata")
+# load("ExpectedCases.Rdata")
 # 
 # colnames(Expected) <- gsub("^\\d+\\s+", "", colnames(Expected))
 # rownames(Expected) <- gsub("^\\d+\\s+", "", rownames(Expected))
