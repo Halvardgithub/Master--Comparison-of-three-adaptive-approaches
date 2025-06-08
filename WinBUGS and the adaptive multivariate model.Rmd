@@ -60,60 +60,58 @@ Note that "Tumor Maligno del cruello del utero" in exp10 are all zero, so should
 
 ### Implement the multivariate adaptive model with WinBUGS
 
-Generally, i indicates a spatial region/province and j represents a disease or cause of death. 
+Generally, i indicates a spatial region/province and m represents a disease or cause of death. 
 ```{r}
 # Multivariate region weighted model, WinBUGS code, with iid effect theta
-RW_ICAR <- function() {
+RW_ICAR_withIID <- function() {
   # Likelihood
   for (i in 1:Nareas) {
-    for (j in 1:Ndiseases) {
-      O[i, j] ~ dpois(lambda[i, j])
-      # Modeling of the mean for each census tract and disease
-      log(lambda[i, j]) <- log(E[i, j]) + mu[j] + phi[i,j] + sd.theta[j] * theta[i, j]
-      # SMR for each census tract and disease
-      SMR[i, j] <- exp(mu[j] + phi[i, j] + sd.theta[j] * theta[i, j])
+    for (m in 1:Ndiseases) {
+      Y[i, m] ~ dpois(lambda[i, m])
+      # Modeling of the mean for each region and disease
+      log(lambda[i, m]) <- log(E[i, m]) + mu[m] + phi[i,m] + sd.theta[m] * theta[i, m]
       # Prior distribution for spatial effects
-      phi[i, j] ~ dnorm(mean.phi[i, j], prec.phi[i, j])
+      phi[i, m] ~ dnorm(mean.phi[i, m], prec.phi[i, m])
       # Prior distribution for non-spatial effects
-      theta[i, j] ~ dnorm(0, 1)
+      theta[i, m] ~ dnorm(0, 1)
     }
   }
   for (i in 1:n.adj) {
     sqrt.c.adj[i] <- sqrt(c[adj[i]])
-    for (j in 1:Ndiseases) {
-      phi.adj[i, j] <- phi[adj[i], j]
+    for (m in 1:Ndiseases) {
+      phi.adj[i, m] <- phi[adj[i], m]
     }
   }
   # Precision of the conditional distribution of spatial effects
-  for (j in 1:Ndiseases) {
-    prec.phi[1, j] <- pow(sd.phi[j], -2) * sqrt(c[1]) * sum(sqrt.c.adj[index[1]:index[2]])
+  for (m in 1:Ndiseases) {
+    prec.phi[1, m] <- pow(sd.phi[m], -2) * sqrt(c[1]) * sum(sqrt.c.adj[index[1]:index[2]])
     for (i in 2:Nareas) {
-      prec.phi[i, j] <- pow(sd.phi[j], -2) * sqrt(c[i]) * sum(sqrt.c.adj[(index[i] + 1):index[i + 1]]) #the +1 is to correct the indexes, works as all regions have at least one neighbour
+      prec.phi[i, m] <- pow(sd.phi[m], -2) * sqrt(c[i]) * sum(sqrt.c.adj[(index[i] + 1):index[i + 1]]) #the +1 is to correct the indexes, works as all regions have at least one neighbour
     } 
   } 
   # Mean of the conditional distribution of spatial effects
-  for (j in 1:Ndiseases) {
-    mean.phi[1, j] <- inprod2(sqrt.c.adj[index[1]:index[2]],
-      phi.adj[index[1]:index[2], j])/sum(sqrt.c.adj[index[1]:index[2]])
+  for (m in 1:Ndiseases) {
+    mean.phi[1, m] <- inprod2(sqrt.c.adj[index[1]:index[2]],
+      phi.adj[index[1]:index[2], m])/sum(sqrt.c.adj[index[1]:index[2]])
     for (i in 2:Nareas) {
-      mean.phi[i, j] <- inprod2(sqrt.c.adj[(index[i] + 1):index[i + 1]], phi.adj[(index[i] + 1):index[i + 1], j])/sum(sqrt.c.adj[(index[i] + 1):index[i +1]])
+      mean.phi[i, m] <- inprod2(sqrt.c.adj[(index[i] + 1):index[i + 1]], phi.adj[(index[i] + 1):index[i + 1], m])/sum(sqrt.c.adj[(index[i] + 1):index[i +1]])
     }
-    # Sum-to-zero restriction for spatial effects
-    ceros[j] <- 0
-    ceros[j] ~ dnorm(sum.phi[j], 10)
-    sum.phi[j] <- sum(phi[, j])
+    # Soft sum-to-zero restriction for spatial effects
+    ceros[m] <- 0
+    ceros[m] ~ dnorm(sum.phi[m], 10)
+    sum.phi[m] <- sum(phi[, m])
   }
   # Prior distributions for c
   for (i in 1:Nareas) {
-    c[i] ~ dgamma(tau, tau) %_% I(0.001, ) # %_% 0.001 ensures c[i] is above 0.001
+    c[i] ~ dgamma(tau, tau) %_% I(0.001, ) # ensures c[i] is above 0.001
   }
   tau <- pow(sd.c, -2)
   sd.c ~ dunif(0, 5)
   # Other prior distributions
-  for (j in 1:Ndiseases) {
-    sd.phi[j] ~ dunif(0, 5)
-    sd.theta[j] ~ dunif(0, 5)
-    mu[j] ~ dflat()
+  for (m in 1:Ndiseases) {
+    sd.phi[m] ~ dunif(0, 5)
+    sd.theta[m] ~ dunif(0, 5)
+    mu[m] ~ dflat()
   }
 }
 ```
@@ -124,55 +122,52 @@ The model without the spatial iid effect theta.
 RW_ICAR_NOiid <- function() {
   # Likelihood
   for (i in 1:Nareas) {
-    for (j in 1:Ndiseases) {
-      O[i, j] ~ dpois(lambda[i, j])
-      # Modeling of the mean for each census tract and disease
-      log(lambda[i, j]) <- log(E[i, j]) + mu[j] + phi[i,j]
-      # SMR for each census tract and disease
-      SMR[i, j] <- exp(mu[j] + phi[i, j])
+    for (m in 1:Ndiseases) {
+      Y[i, m] ~ dpois(lambda[i, m])
+      # Modeling of the mean for each region and disease
+      log(lambda[i, m]) <- log(E[i, m]) + mu[m] + phi[i,m]
       # Prior distribution for spatial effects
-      phi[i, j] ~ dnorm(mean.phi[i, j], prec.phi[i, j])
+      phi[i, m] ~ dnorm(mean.phi[i, m], prec.phi[i, m])
     }
   }
   for (i in 1:n.adj) {
     sqrt.c.adj[i] <- sqrt(c[adj[i]])
-    for (j in 1:Ndiseases) {
-      phi.adj[i, j] <- phi[adj[i], j]
+    for (m in 1:Ndiseases) {
+      phi.adj[i, m] <- phi[adj[i], m]
     }
   }
   # Precision of the conditional distribution of spatial effects
-  for (j in 1:Ndiseases) {
-    prec.phi[1, j] <- pow(sd.phi[j], -2) * sqrt(c[1]) * sum(sqrt.c.adj[index[1]:index[2]])
+  for (m in 1:Ndiseases) {
+    prec.phi[1, m] <- pow(sd.phi[m], -2) * sqrt(c[1]) * sum(sqrt.c.adj[index[1]:index[2]])
     for (i in 2:Nareas) {
-      prec.phi[i, j] <- pow(sd.phi[j], -2) * sqrt(c[i]) * sum(sqrt.c.adj[(index[i] + 1):index[i + 1]]) #the +1 is to correct the indexes, works as all regions have at least one neighbour
+      prec.phi[i, m] <- pow(sd.phi[m], -2) * sqrt(c[i]) * sum(sqrt.c.adj[(index[i] + 1):index[i + 1]]) #the +1 is to correct the indexes, works as all regions have at least one neighbour
     } 
   } 
   # Mean of the conditional distribution of spatial effects
-  for (j in 1:Ndiseases) {
-    mean.phi[1, j] <- inprod2(sqrt.c.adj[index[1]:index[2]],
-      phi.adj[index[1]:index[2], j])/sum(sqrt.c.adj[index[1]:index[2]])
+  for (m in 1:Ndiseases) {
+    mean.phi[1, m] <- inprod2(sqrt.c.adj[index[1]:index[2]],
+      phi.adj[index[1]:index[2], m])/sum(sqrt.c.adj[index[1]:index[2]])
     for (i in 2:Nareas) {
-      mean.phi[i, j] <- inprod2(sqrt.c.adj[(index[i] + 1):index[i + 1]], phi.adj[(index[i] + 1):index[i + 1], j])/sum(sqrt.c.adj[(index[i] + 1):index[i +1]])
+      mean.phi[i, m] <- inprod2(sqrt.c.adj[(index[i] + 1):index[i + 1]], phi.adj[(index[i] + 1):index[i + 1], m])/sum(sqrt.c.adj[(index[i] + 1):index[i +1]])
     }
-    # Sum-to-zero restriction for spatial effects
-    ceros[j] <- 0
-    ceros[j] ~ dnorm(sum.phi[j], 10)
-    sum.phi[j] <- sum(phi[, j])
+    # Soft sum-to-zero restriction for spatial effects
+    ceros[m] <- 0
+    ceros[m] ~ dnorm(sum.phi[m], 10)
+    sum.phi[m] <- sum(phi[, m])
   }
   # Prior distributions for c
   for (i in 1:Nareas) {
-    c[i] ~ dgamma(tau, tau) %_% I(0.001, ) # %_% 0.001 ensures c[i] is above 0.001
+    c[i] ~ dgamma(tau, tau) %_% I(0.001, ) # ensures c[i] is above 0.001
   }
   tau <- pow(sd.c, -2)
   sd.c ~ dunif(0, 5)
   # Other prior distributions
-  for (j in 1:Ndiseases) {
-    sd.phi[j] ~ dunif(0, 5)
-    mu[j] ~ dflat()
+  for (m in 1:Ndiseases) {
+    sd.phi[m] ~ dunif(0, 5)
+    mu[m] ~ dflat()
   }
 }
 ```
-I removed sd.theta and theta, so they should also not be passed to the model!
 
 
 # Run the model
@@ -191,7 +186,7 @@ Now we are ready to run the model in WinBUGS. We choose the mortality causes, ei
 #        c = runif(data$Nareas,0.9, 1.1), sd.c = runif(1, 0.5, 0.6))
 # }
 # # Variables to retrieve
-# param <- c("mu", "lambda", "sd.phi", "phi", "sd.theta", "theta","SMR", "c", "sd.c", "tau")
+# param <- c("mu", "lambda", "sd.phi", "phi", "sd.theta", "theta", "c", "sd.c", "tau")
 
 runtime_RW <- rep(0, 4)
 
@@ -201,7 +196,7 @@ t0 <- Sys.time()
 
 causes.id <- causes10
 # Data
-data <- list(O = ObservedCases, E = ExpectedCases,
+data <- list(Y = ObservedCases, E = ExpectedCases,
              Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
              n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index)
 # Initial values
@@ -212,7 +207,7 @@ initials <- function(){
        c = runif(data$Nareas,0.9, 1.1), sd.c = runif(1, 0.5, 0.6))
 }
 # Variables to retrieve
-param <- c("mu", "lambda", "sd.phi", "phi","SMR", "c", "sd.c", "tau")
+param <- c("mu", "lambda", "sd.phi", "phi", "c", "sd.c", "tau")
 # Calls to WinBUGS
 results.RW.10 <- pbugs(data = data, inits = initials,
                               parameters.to.save = param, model = RW_ICAR_NOiid,
@@ -227,7 +222,7 @@ t0 <- Sys.time()
 
 causes.id <- causes20
 # Data
-data <- list(O = ObservedCases, E = ExpectedCases,
+data <- list(Y = ObservedCases, E = ExpectedCases,
              Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
              n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index)
 
@@ -246,7 +241,7 @@ t0 <- Sys.time()
 causes.id <- 7:33 #only the cancer indexes
 
 # Data
-data <- list(O = ObservedCases, E = ExpectedCases,
+data <- list(Y = ObservedCases, E = ExpectedCases,
              Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
              n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index)
 
@@ -264,7 +259,7 @@ t0 <- Sys.time()
 
 causes.id <- causes50
 # Data
-data <- list(O = ObservedCases, E = ExpectedCases,
+data <- list(Y = ObservedCases, E = ExpectedCases,
              Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
              n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index)
 
@@ -282,7 +277,7 @@ t0 <- Sys.time()
 
 causes.id <- causes86
 # Data
-data <- list(O = ObservedCases, E = ExpectedCases,
+data <- list(Y = ObservedCases, E = ExpectedCases,
              Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
              n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index)
 
@@ -435,29 +430,27 @@ my_list <- as.integer(my_list[which(my_list != 0)])
 EW_ICAR <- function() {
   # Likelihood
   for (i in 1:Nareas) {
-    for (j in 1:Ndiseases) {
-      O[i, j] ~ dpois(lambda[i, j])
+    for (m in 1:Ndiseases) {
+      O[i, m] ~ dpois(lambda[i, m])
       # Modeling of the mean for each census tract and disease
-      log(lambda[i, j]) <- log(E[i, j]) + mu[j] + phi[i,j] + sd.theta[j] * theta[i, j]
-      # SMR for each census tract and disease
-      SMR[i, j] <- exp(mu[j] + phi[i, j] + sd.theta[j] * theta[i, j])
+      log(lambda[i, m]) <- log(E[i, m]) + mu[m] + phi[i,m] + sd.theta[m] * theta[i, m]
       # Prior distribution for spatial effects
-      phi[i, j] ~ dnorm(mean.phi[i, j], prec.phi[i, j])
+      phi[i, m] ~ dnorm(mean.phi[i, m], prec.phi[i, m])
       # Prior distribution for non-spatial effects
-      theta[i, j] ~ dnorm(0, 1)
+      theta[i, m] ~ dnorm(0, 1)
     }
   }
   
   for (i in 1:n.adj) {
-    for (j in 1:Ndiseases) {
-      phi.adj[i, j] <- phi[adj[i], j]
+    for (m in 1:Ndiseases) {
+      phi.adj[i, m] <- phi[adj[i], m]
     }
   }
 
-  for (j in 1:Ndiseases) {
-     prec.phi[1, j] <- pow(sd.phi[j], -2) * sum(Tau2.tau.list[index[1]:index[2]])
+  for (m in 1:Ndiseases) {
+     prec.phi[1, m] <- pow(sd.phi[m], -2) * sum(Tau2.tau.list[index[1]:index[2]])
      for (i in 2:Nareas) {
-       prec.phi[i, j] <- pow(sd.phi[j], -2) * sum(Tau2.tau.list[(index[i]+1):index[i+1]])
+       prec.phi[i, m] <- pow(sd.phi[m], -2) * sum(Tau2.tau.list[(index[i]+1):index[i+1]])
      }
   }
   for(i in 1:n.adj){ #to avoid nesting too many lists inside each other, causes crashes
@@ -465,16 +458,16 @@ EW_ICAR <- function() {
   }  
   
   # Mean of the conditional distribution of spatial effects
-  for (j in 1:Ndiseases) {
-      mean.phi[1, j] <- inprod2(Tau2.tau.list[index[1]:index[2]],
-      phi.adj[index[1]:index[2], j])/sum(Tau2.tau.list[index[1]:index[2]])
+  for (m in 1:Ndiseases) {
+      mean.phi[1, m] <- inprod2(Tau2.tau.list[index[1]:index[2]],
+      phi.adj[index[1]:index[2], m])/sum(Tau2.tau.list[index[1]:index[2]])
     for (i in 2:Nareas) {
-      mean.phi[i, j] <- inprod2(Tau2.tau.list[(index[i]+1):index[i+1]], phi.adj[(index[i] + 1):index[i + 1], j])/sum(Tau2.tau.list[(index[i]+1):index[i+1]])
+      mean.phi[i, m] <- inprod2(Tau2.tau.list[(index[i]+1):index[i+1]], phi.adj[(index[i] + 1):index[i + 1], m])/sum(Tau2.tau.list[(index[i]+1):index[i+1]])
     }
     # Sum-to-zero restriction for spatial effects
-    ceros[j] <- 0
-    ceros[j] ~ dnorm(sum.phi[j], 10)
-    sum.phi[j] <- sum(phi[, j])
+    ceros[m] <- 0
+    ceros[m] ~ dnorm(sum.phi[m], 10)
+    sum.phi[m] <- sum(phi[, m])
   }
   ## Prior distributions for Tau2 and its hyperparameters
   for (t in 1:(n.adj/2)){
@@ -484,10 +477,10 @@ EW_ICAR <- function() {
   sd.alpha ~ dunif(0, 5)
   
   # Other prior distributions
-  for (j in 1:Ndiseases) {
-    sd.phi[j] ~ dunif(0, 5)
-    sd.theta[j] ~ dunif(0, 5)
-    mu[j] ~ dflat()
+  for (m in 1:Ndiseases) {
+    sd.phi[m] ~ dunif(0, 5)
+    sd.theta[m] ~ dunif(0, 5)
+    mu[m] ~ dflat()
   }
 }
 ```
@@ -499,27 +492,25 @@ The model without spatial iid effect theta to focus on the spatially structured 
 EW_ICAR_NOiid <- function() {
   # Likelihood
   for (i in 1:Nareas) {
-    for (j in 1:Ndiseases) {
-      O[i, j] ~ dpois(lambda[i, j])
+    for (m in 1:Ndiseases) {
+      O[i, m] ~ dpois(lambda[i, m])
       # Modeling of the mean for each census tract and disease
-      log(lambda[i, j]) <- log(E[i, j]) + mu[j] + phi[i,j]
-      # SMR for each census tract and disease
-      SMR[i, j] <- exp(mu[j] + phi[i, j])
+      log(lambda[i, m]) <- log(E[i, m]) + mu[m] + phi[i,m]
       # Prior distribution for spatial effects
-      phi[i, j] ~ dnorm(mean.phi[i, j], prec.phi[i, j])
+      phi[i, m] ~ dnorm(mean.phi[i, m], prec.phi[i, m])
     }
   }
   
   for (i in 1:n.adj) {
-    for (j in 1:Ndiseases) {
-      phi.adj[i, j] <- phi[adj[i], j]
+    for (m in 1:Ndiseases) {
+      phi.adj[i, m] <- phi[adj[i], m]
     }
   }
 
-  for (j in 1:Ndiseases) {
-     prec.phi[1, j] <- pow(sd.phi[j], -2) * sum(Tau2.tau.list[index[1]:index[2]])
+  for (m in 1:Ndiseases) {
+     prec.phi[1, m] <- pow(sd.phi[m], -2) * sum(Tau2.tau.list[index[1]:index[2]])
      for (i in 2:Nareas) {
-       prec.phi[i, j] <- pow(sd.phi[j], -2) * sum(Tau2.tau.list[(index[i]+1):index[i+1]])
+       prec.phi[i, m] <- pow(sd.phi[m], -2) * sum(Tau2.tau.list[(index[i]+1):index[i+1]])
      }
   }
   for(i in 1:n.adj){ #to avoid nesting too many lists inside each other, causes crashes
@@ -527,16 +518,16 @@ EW_ICAR_NOiid <- function() {
   }  
   
   # Mean of the conditional distribution of spatial effects
-  for (j in 1:Ndiseases) {
-      mean.phi[1, j] <- inprod2(Tau2.tau.list[index[1]:index[2]],
-      phi.adj[index[1]:index[2], j])/sum(Tau2.tau.list[index[1]:index[2]])
+  for (m in 1:Ndiseases) {
+      mean.phi[1, m] <- inprod2(Tau2.tau.list[index[1]:index[2]],
+      phi.adj[index[1]:index[2], m])/sum(Tau2.tau.list[index[1]:index[2]])
     for (i in 2:Nareas) {
-      mean.phi[i, j] <- inprod2(Tau2.tau.list[(index[i]+1):index[i+1]], phi.adj[(index[i] + 1):index[i + 1], j])/sum(Tau2.tau.list[(index[i]+1):index[i+1]])
+      mean.phi[i, m] <- inprod2(Tau2.tau.list[(index[i]+1):index[i+1]], phi.adj[(index[i] + 1):index[i + 1], m])/sum(Tau2.tau.list[(index[i]+1):index[i+1]])
     }
     # Sum-to-zero restriction for spatial effects
-    ceros[j] <- 0
-    ceros[j] ~ dnorm(sum.phi[j], 10)
-    sum.phi[j] <- sum(phi[, j])
+    ceros[m] <- 0
+    ceros[m] ~ dnorm(sum.phi[m], 10)
+    sum.phi[m] <- sum(phi[, m])
   }
   ## Prior distributions for Tau2 and its hyperparameters
   for (t in 1:(n.adj/2)){
@@ -546,9 +537,9 @@ EW_ICAR_NOiid <- function() {
   sd.alpha ~ dunif(0, 5)
   
   # Other prior distributions
-  for (j in 1:Ndiseases) {
-    sd.phi[j] ~ dunif(0, 5)
-    mu[j] ~ dflat()
+  for (m in 1:Ndiseases) {
+    sd.phi[m] ~ dunif(0, 5)
+    mu[m] ~ dflat()
   }
 }
 ```
@@ -580,7 +571,7 @@ data <- list(O = ObservedCases, E = ExpectedCases,
 # }
 # 
 # # Variables to retrieve
-# param_EW <- c("mu", "lambda", "sd.phi", "phi", "sd.theta", "theta","SMR", "Tau2", "sd.alpha", "alpha")
+# param_EW <- c("mu", "lambda", "sd.phi", "phi", "sd.theta", "theta", "Tau2", "sd.alpha", "alpha")
 
 # Initial values
 initials_EW <- function() {
@@ -591,7 +582,7 @@ initials_EW <- function() {
 }
 
 # Variables to retrieve
-param_EW <- c("mu", "lambda", "sd.phi", "phi","SMR", "Tau2", "sd.alpha", "alpha")
+param_EW <- c("mu", "lambda", "sd.phi", "phi", "Tau2", "sd.alpha", "alpha")
 
 # Calls to WinBUGS
 results.EW.10 <- pbugs(data = data, inits = initials_EW,
