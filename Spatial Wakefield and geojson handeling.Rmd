@@ -277,7 +277,7 @@ ExamplePlot1 <- ggplot() +
 
 
 
-# Spatial Wakefield model
+# Spatial Wakefield model - Border weighted ICAR
 
 The implementation will be in rgeneric and be very similar to the temporal case from my master project in the fall. The main difference is that the previous conflict and non-conflict points are now instead transitions inside an autonomous regions and transitions involving two autonomous regions. The expectation is that regions in the same autonomous regions have more in common than regions in different autonomous regions. Additionally, the function will need the dataframe with the administrative levels as an input variable to construct the precision matrix $Q$. Lets implement this with the dataframe created above as an input.
 
@@ -376,7 +376,7 @@ To initialize the resulting latent term we call the rgeneric function as below:
 nb <- poly2nb(ss_provinces)
 adj_matrix <- nb2mat(nb, style = "B", zero.policy = TRUE)
 
-Wakefield_model <- inla.rgeneric.define(inla.rgeneric.AdaptiveICAR, df = ss_provinces, 
+BW_model <- inla.rgeneric.define(inla.rgeneric.AdaptiveICAR, df = ss_provinces, 
                                     AMat = adj_matrix) #might pass u and a
 
 ```
@@ -448,4 +448,3 @@ library(tidyr)
 
 
 
-# Perform spatial analysis with INLA

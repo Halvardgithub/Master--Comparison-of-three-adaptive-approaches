@@ -14,7 +14,7 @@ Both EW-ICAR and RW-ICAR can easily compute a list of all the taus for the edges
 
 ```{r}
 library(INLA)
-#res_list_testing <- readRDS("Results//result_list_ABYM.rds")
+#res_list_testing <- readRDS("Results//result_list_RW.rds")
 
 #define nAreas and maybe nDiseases
 
@@ -50,17 +50,17 @@ Make the matrices for EW-ICAR and RW-ICAR for different number of diseases n.
 ```{r}
 edges_df <- readRDS("Edges_df//Edges_W_scaling_WO_theta")
 
-Q_ABYM10 <- constructQ(edges_df$edge_value_ABYM_10, index2, nAreas, carto.wb$adj)
-Q_ABYM20 <- constructQ(edges_df$edge_value_ABYM_20, index2, nAreas, carto.wb$adj)
-Q_ABYM50 <- constructQ(edges_df$edge_value_ABYM_50, index2, nAreas, carto.wb$adj)
-Q_ABYM86 <- constructQ(edges_df$edge_value_ABYM_86, index2, nAreas, carto.wb$adj)
-Q_ABYM_Cancer <- constructQ(edges_df$edge_value_ABYM_cancer, index2, nAreas, carto.wb$adj)
+Q_RW10 <- constructQ(edges_df$edge_value_RW_10, index2, nAreas, carto.wb$adj)
+Q_RW20 <- constructQ(edges_df$edge_value_RW_20, index2, nAreas, carto.wb$adj)
+Q_RW50 <- constructQ(edges_df$edge_value_RW_50, index2, nAreas, carto.wb$adj)
+Q_RW86 <- constructQ(edges_df$edge_value_RW_86, index2, nAreas, carto.wb$adj)
+Q_RW_Cancer <- constructQ(edges_df$edge_value_RW_cancer, index2, nAreas, carto.wb$adj)
 
-Q_NSRW10 <- constructQ(edges_df$edge_value_NSRW1_10, index2, nAreas, carto.wb$adj)
-Q_NSRW20 <- constructQ(edges_df$edge_value_NSRW1_20, index2, nAreas, carto.wb$adj)
-Q_NSRW50 <- constructQ(edges_df$edge_value_NSRW1_50, index2, nAreas, carto.wb$adj)
-Q_NSRW86 <- constructQ(edges_df$edge_value_NSRW1_86, index2, nAreas, carto.wb$adj)
-Q_NSRW_Cancer <- constructQ(edges_df$edge_value_NSRW1_cancer, index2, nAreas, carto.wb$adj)
+Q_EW10 <- constructQ(edges_df$edge_value_EW_10, index2, nAreas, carto.wb$adj)
+Q_EW20 <- constructQ(edges_df$edge_value_EW_20, index2, nAreas, carto.wb$adj)
+Q_EW50 <- constructQ(edges_df$edge_value_EW_50, index2, nAreas, carto.wb$adj)
+Q_EW86 <- constructQ(edges_df$edge_value_EW_86, index2, nAreas, carto.wb$adj)
+Q_EW_Cancer <- constructQ(edges_df$edge_value_EW_cancer, index2, nAreas, carto.wb$adj)
 
 ```
 
@@ -117,13 +117,13 @@ inla.rgeneric.Adaptive.ICAR = function(
   return(vals)
 }
 
-# INLA:::inla.ginv(Q_ABYM10)
-# image(Q_ABYM10)
-# diag(INLA:::inla.ginv(Q_ABYM10))
+# INLA:::inla.ginv(Q_RW10)
+# image(Q_RW10)
+# diag(INLA:::inla.ginv(Q_RW10))
  
- # rowSums(Q_ABYM10)
- # Q_ABYM10[1, 8]
- # edges_df$edge_value_ABYM_10[1]
+ # rowSums(Q_RW10)
+ # Q_RW10[1, 8]
+ # edges_df$edge_value_RW_10[1]
 
 #rowSums(R1 + R2)
 #diag(INLA:::inla.ginv(R1 + R2))
@@ -135,17 +135,17 @@ inla.rgeneric.Adaptive.ICAR = function(
 #prior_str <- "gamma"
 prior_str <- "U"
 
-ABYM10_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_ABYM10, nAreas = nAreas, pr_str = prior_str)
-ABYM20_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_ABYM20, nAreas = nAreas, pr_str = prior_str)
-ABYM50_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_ABYM50, nAreas = nAreas, pr_str = prior_str)
-ABYM86_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_ABYM86, nAreas = nAreas, pr_str = prior_str)
-ABYM_C_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_ABYM_Cancer, nAreas = nAreas, pr_str = prior_str)
+RW10_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_RW10, nAreas = nAreas, pr_str = prior_str)
+RW20_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_RW20, nAreas = nAreas, pr_str = prior_str)
+RW50_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_RW50, nAreas = nAreas, pr_str = prior_str)
+RW86_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_RW86, nAreas = nAreas, pr_str = prior_str)
+RW_C_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_RW_Cancer, nAreas = nAreas, pr_str = prior_str)
 
-NSRW10_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_NSRW10, nAreas = nAreas, pr_str = prior_str)
-NSRW20_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_NSRW20, nAreas = nAreas, pr_str = prior_str)
-NSRW50_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_NSRW50, nAreas = nAreas, pr_str = prior_str)
-NSRW86_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_NSRW86, nAreas = nAreas, pr_str = prior_str)
-NSRW_C_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_NSRW_Cancer, nAreas = nAreas, pr_str = prior_str)
+EW10_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_EW10, nAreas = nAreas, pr_str = prior_str)
+EW20_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_EW20, nAreas = nAreas, pr_str = prior_str)
+EW50_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_EW50, nAreas = nAreas, pr_str = prior_str)
+EW86_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_EW86, nAreas = nAreas, pr_str = prior_str)
+EW_C_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_EW_Cancer, nAreas = nAreas, pr_str = prior_str)
 ```
 
 Then also create the structure matrices R1 and R2 for the BW-ICAR from Wakefield.
@@ -219,11 +219,11 @@ for (j in test_indecies){
   
   # The RW-ICAR by Miguel
   
-  formula_RW_10 <- Y ~ offset(log(E)) + f(ID, model = ABYM10_model) #intercept is automatically included
-  formula_RW_20 <- Y ~ offset(log(E)) + f(ID, model = ABYM20_model)
-  formula_RW_50 <- Y ~ offset(log(E)) + f(ID, model = ABYM50_model)
-  formula_RW_86 <- Y ~ offset(log(E)) + f(ID, model = ABYM86_model)
-  formula_RW_C <- Y ~ offset(log(E)) + f(ID, model = ABYM_C_model)
+  formula_RW_10 <- Y ~ offset(log(E)) + f(ID, model = RW10_model) #intercept is automatically included
+  formula_RW_20 <- Y ~ offset(log(E)) + f(ID, model = RW20_model)
+  formula_RW_50 <- Y ~ offset(log(E)) + f(ID, model = RW50_model)
+  formula_RW_86 <- Y ~ offset(log(E)) + f(ID, model = RW86_model)
+  formula_RW_C <- Y ~ offset(log(E)) + f(ID, model = RW_C_model)
   
   res_RW_10 <- inla(formula_RW_10, family = "poisson", data = data_df,
                     control.compute = list(cpo = T, waic = T, dic = T))
@@ -238,11 +238,11 @@ for (j in test_indecies){
   
   # The EW-ICAR by Riddervold/Jo
   
-  formula_EW_10 <- Y ~ offset(log(E)) + f(ID, model = NSRW10_model)
-  formula_EW_20 <- Y ~ offset(log(E)) + f(ID, model = NSRW20_model)
-  formula_EW_50 <- Y ~ offset(log(E)) + f(ID, model = NSRW50_model)
-  formula_EW_86 <- Y ~ offset(log(E)) + f(ID, model = NSRW86_model)
-  formula_EW_C <- Y ~ offset(log(E)) + f(ID, model = NSRW_C_model)
+  formula_EW_10 <- Y ~ offset(log(E)) + f(ID, model = EW10_model)
+  formula_EW_20 <- Y ~ offset(log(E)) + f(ID, model = EW20_model)
+  formula_EW_50 <- Y ~ offset(log(E)) + f(ID, model = EW50_model)
+  formula_EW_86 <- Y ~ offset(log(E)) + f(ID, model = EW86_model)
+  formula_EW_C <- Y ~ offset(log(E)) + f(ID, model = EW_C_model)
   
   res_EW_10 <- inla(formula_EW_10, family = "poisson", data = data_df,
                     control.compute = list(cpo = T, waic = T, dic = T))
@@ -256,7 +256,7 @@ for (j in test_indecies){
                     control.compute = list(cpo = T, waic = T, dic = T))
   
   #BW-ICAR by Wakefield
-  formula_BW <- Y ~ offset(log(E)) + f(ID, model = Wakefield_model)
+  formula_BW <- Y ~ offset(log(E)) + f(ID, model = BW_model)
   res_BW <- inla(formula_BW, family = "poisson", data = data_df,
                  control.compute = list(cpo = T, waic = T, dic = T))
   #construct BW Q from tau1 and tau2
@@ -353,10 +353,9 @@ prior_str
 
 #saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta_PC_W_C_final.rds")
 
-saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta_U_W_C_final.rds")
+#saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta_U_W_C_final.rds")
 ```
 
-Have now saved the two correct criteria df, should also generate the plots below and save them!
 
 # Make the box-plots for the "CV" results
 

@@ -12,7 +12,7 @@ knitr::opts_chunk$set(echo = TRUE)
 ```{r}
 library(R2WinBUGS)
 
-#remotes::install_github("fisabio/pbugs")
+#remotes::install_github("fisabio/pbugs") # installing pbugs from the github
 library(pbugs)
 
 library(readr)
@@ -62,8 +62,8 @@ Note that "Tumor Maligno del cruello del utero" in exp10 are all zero, so should
 
 Generally, i indicates a spatial region/province and j represents a disease or cause of death. 
 ```{r}
-# Multivariate adaptive BYM model, WinBUGS code, with iid effect theta
-AdaptiveBYM_model <- function() {
+# Multivariate region weighted model, WinBUGS code, with iid effect theta
+RW_ICAR <- function() {
   # Likelihood
   for (i in 1:Nareas) {
     for (j in 1:Ndiseases) {
@@ -120,8 +120,8 @@ AdaptiveBYM_model <- function() {
 
 The model without the spatial iid effect theta.
 ```{r}
-# Multivariate adaptive BYM model, WinBUGS code, without iid effect theta
-AdaptiveBYM_model_NOiid <- function() {
+# Multivariate region weighted model, WinBUGS code, without iid effect theta
+RW_ICAR_NOiid <- function() {
   # Likelihood
   for (i in 1:Nareas) {
     for (j in 1:Ndiseases) {
@@ -193,7 +193,7 @@ Now we are ready to run the model in WinBUGS. We choose the mortality causes, ei
 # # Variables to retrieve
 # param <- c("mu", "lambda", "sd.phi", "phi", "sd.theta", "theta","SMR", "c", "sd.c", "tau")
 
-runtime_ABYM <- rep(0, 4)
+runtime_RW <- rep(0, 4)
 
 # 10 causes
 
@@ -214,12 +214,12 @@ initials <- function(){
 # Variables to retrieve
 param <- c("mu", "lambda", "sd.phi", "phi","SMR", "c", "sd.c", "tau")
 # Calls to WinBUGS
-results.AdaptiveBYM.10 <- pbugs(data = data, inits = initials,
-                              parameters.to.save = param, model = AdaptiveBYM_model_NOiid,
+results.RW.10 <- pbugs(data = data, inits = initials,
+                              parameters.to.save = param, model = RW_ICAR_NOiid,
                               n.iter = 10000, n.burnin = 5000, n.chains = 3, DIC = F,
                               debug = F)
 t1 <- Sys.time()
-runtime_ABYM[1] <- t1 - t0
+runtime_RW[1] <- t1 - t0
 
 # 20 causes
 
@@ -232,12 +232,12 @@ data <- list(O = ObservedCases, E = ExpectedCases,
              n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index)
 
 # Calls to WinBUGS
-results.AdaptiveBYM.20 <- pbugs(data = data, inits = initials,
-                              parameters.to.save = param, model = AdaptiveBYM_model_NOiid,
+results.RW.20 <- pbugs(data = data, inits = initials,
+                              parameters.to.save = param, model = RW_ICAR_NOiid,
                               n.iter = 10000, n.burnin = 5000, n.chains = 3, DIC = F,
                               debug = F)
 t1 <- Sys.time()
-runtime_ABYM[2] <- t1 - t0
+runtime_RW[2] <- t1 - t0
 
 # Only cancers
 
@@ -251,12 +251,12 @@ data <- list(O = ObservedCases, E = ExpectedCases,
              n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index)
 
 # Calls to WinBUGS
-results.AdaptiveBYM.cancer <- pbugs(data = data, inits = initials,
-                              parameters.to.save = param, model = AdaptiveBYM_model_NOiid,
+results.RW.cancer <- pbugs(data = data, inits = initials,
+                              parameters.to.save = param, model = RW_ICAR_NOiid,
                               n.iter = 25000, n.burnin = 10000, n.chains = 3, DIC = F,
                               debug = F)
 t1 <- Sys.time()
-#runtime_ABYM[3] <- t1 - t0
+#runtime_RW[3] <- t1 - t0
 
 # 50 causes
 
@@ -269,12 +269,12 @@ data <- list(O = ObservedCases, E = ExpectedCases,
              n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index)
 
 # Calls to WinBUGS
-results.AdaptiveBYM.50 <- pbugs(data = data, inits = initials,
-                              parameters.to.save = param, model = AdaptiveBYM_model_NOiid,
+results.RW.50 <- pbugs(data = data, inits = initials,
+                              parameters.to.save = param, model = RW_ICAR_NOiid,
                               n.iter = 25000, n.burnin = 10000, n.chains = 3, DIC = F,
                               debug = F)
 t1 <- Sys.time()
-runtime_ABYM[3] <- t1 - t0
+runtime_RW[3] <- t1 - t0
 
 # All 86 causes
 
@@ -287,24 +287,24 @@ data <- list(O = ObservedCases, E = ExpectedCases,
              n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index)
 
 # Calls to WinBUGS
-results.AdaptiveBYM.86 <- pbugs(data = data, inits = initials,
-                              parameters.to.save = param, model = AdaptiveBYM_model_NOiid,
+results.RW.86 <- pbugs(data = data, inits = initials,
+                              parameters.to.save = param, model = RW_ICAR_NOiid,
                               n.iter = 30000, n.burnin = 10000, n.chains = 3, DIC = F,
                               debug = F)
 t1 <- Sys.time()
-runtime_ABYM[4] <- t1 - t0
+runtime_RW[4] <- t1 - t0
 
 # Comparing runtimes and writing to file
 
-runtime_ABYM
+runtime_RW
 
-result_list_ABYM <- list(results.AdaptiveBYM.10, results.AdaptiveBYM.20, 
-                         results.AdaptiveBYM.50, results.AdaptiveBYM.86, 
-                         runtime_ABYM, results.AdaptiveBYM.cancer)
-saveRDS(result_list_ABYM, file = "Results//result_list_ABYM.rds") #move it to correct folder afterwards
+result_list_RW <- list(results.RW.10, results.RW.20, 
+                         results.RW.50, results.RW.86, 
+                         runtime_RW, results.RW.cancer)
+saveRDS(result_list_RW, file = "Results//result_list_RW.rds") #move it to correct folder afterwards
 ```
 
-Runtimes for Miguels model in WinBUGS(cirka): 
+Runtimes for RW model in WinBUGS(cirka): 
 10 casues takes 10 min
 20 causes takes 20 min
 50 causes takes 1h 30 min
@@ -312,9 +312,9 @@ Runtimes for Miguels model in WinBUGS(cirka):
 
 
 ```{r}
-res_list_ABYM <- readRDS("Results//Results_withScaling_and_without_iidTheta//result_list_ABYM.rds")
+res_list_RW <- readRDS("Results//Results_withScaling_and_without_iidTheta//result_list_RW.rds")
 
-res_list_ABYM[[5]] #check runtimes
+res_list_RW[[5]] #check runtimes
 
 ss_provinces = read_sf("Data/Provinces/Provincias_ETRS89_30N.shp")
 
@@ -332,10 +332,10 @@ ss_provinces = ss_provinces |> filter(!(Texto %in% out))
 
 ss_ar = ss_ar %>% filter(!(Texto %in% out2))
 
-ss_provinces$color10 <- res_list_ABYM[[1]]$mean$c
-ss_provinces$color20 <- res_list_ABYM[[2]]$mean$c
-ss_provinces$color50 <- res_list_ABYM[[3]]$mean$c
-ss_provinces$color86 <- res_list_ABYM[[4]]$mean$c
+ss_provinces$color10 <- res_list_RW[[1]]$mean$c
+ss_provinces$color20 <- res_list_RW[[2]]$mean$c
+ss_provinces$color50 <- res_list_RW[[3]]$mean$c
+ss_provinces$color86 <- res_list_RW[[4]]$mean$c
 
 #can change the fill=NA to add colours
 ggplot() +
@@ -367,25 +367,25 @@ ggplot() +
 Assessing convergence and other properties of the MCMC simulations.
 ```{r}
 #check the Rhat's for convergence, should be less than 1.1 for all parameters
-range(res_list_ABYM[[1]]$summary[, "Rhat"])
-range(res_list_ABYM[[2]]$summary[, "Rhat"])
-range(res_list_ABYM[[3]]$summary[, "Rhat"])
-range(res_list_ABYM[[4]]$summary[, "Rhat"])
-range(res_list_ABYM[[6]]$summary[, "Rhat"])
+range(res_list_RW[[1]]$summary[, "Rhat"])
+range(res_list_RW[[2]]$summary[, "Rhat"])
+range(res_list_RW[[3]]$summary[, "Rhat"])
+range(res_list_RW[[4]]$summary[, "Rhat"])
+range(res_list_RW[[6]]$summary[, "Rhat"])
 
 #Which(if any) are greater than 1.1
-which(res_list_ABYM[[1]]$summary[, "Rhat"] > 1.1)
-which(res_list_ABYM[[2]]$summary[, "Rhat"] > 1.1)
-which(res_list_ABYM[[3]]$summary[, "Rhat"] > 1.1)
-which(res_list_ABYM[[4]]$summary[, "Rhat"] > 1.1)
-which(res_list_ABYM[[6]]$summary[, "Rhat"] > 1.1)
+which(res_list_RW[[1]]$summary[, "Rhat"] > 1.1)
+which(res_list_RW[[2]]$summary[, "Rhat"] > 1.1)
+which(res_list_RW[[3]]$summary[, "Rhat"] > 1.1)
+which(res_list_RW[[4]]$summary[, "Rhat"] > 1.1)
+which(res_list_RW[[6]]$summary[, "Rhat"] > 1.1)
 
 #Check the parameter tau for the weights c with prior Gamma(tau, tau)
-res_list_ABYM[[1]]$summary["tau",]
-res_list_ABYM[[2]]$summary["tau",]
-res_list_ABYM[[3]]$summary["tau",]
-res_list_ABYM[[4]]$summary["tau",]
-res_list_ABYM[[6]]$summary["tau",]
+res_list_RW[[1]]$summary["tau",]
+res_list_RW[[2]]$summary["tau",]
+res_list_RW[[3]]$summary["tau",]
+res_list_RW[[4]]$summary["tau",]
+res_list_RW[[6]]$summary["tau",]
 
 #Correlation between the weights c for differing number of causes n
 cor(cbind(ss_provinces$color10, ss_provinces$color20, ss_provinces$color50, ss_provinces$color86))
@@ -431,8 +431,8 @@ my_list <- as.integer(my_list[which(my_list != 0)])
 
 
 ```{r}
-# Multivariate adaptive BYM model, WinBUGS code and iid spatial effect theta
-NSRW1_model <- function() {
+# Multivariate edge weighted model, WinBUGS code and iid spatial effect theta
+EW_ICAR <- function() {
   # Likelihood
   for (i in 1:Nareas) {
     for (j in 1:Ndiseases) {
@@ -495,8 +495,8 @@ NSRW1_model <- function() {
 The model without spatial iid effect theta to focus on the spatially structured effect phi.
 
 ```{r}
-# Multivariate adaptive BYM model, WinBUGS code without spatial iid effect theta
-NSRW1_model_NOiid <- function() {
+# Multivariate edge weighted model, WinBUGS code without spatial iid effect theta
+EW_ICAR_NOiid <- function() {
   # Likelihood
   for (i in 1:Nareas) {
     for (j in 1:Ndiseases) {
@@ -555,7 +555,7 @@ NSRW1_model_NOiid <- function() {
 
 
 ```{r, eval=FALSE}
-runtime_NSRW1 <- rep(0, 4)
+runtime_EW <- rep(0, 4)
 
 # 10 causes
 
@@ -569,7 +569,7 @@ data <- list(O = ObservedCases, E = ExpectedCases,
              tau.list = my_list)
 #For the model with iid spatial effect theta
 # # Initial values
-# initials_NSRW1 <- function() {
+# initials_EW <- function() {
 #   list(mu = rnorm(data$Ndiseases, 0, 1), sd.phi = runif(data$Ndiseases,0, 1), 
 #        sd.theta = runif(data$Ndiseases, 0, 1), 
 #        phi = matrix(rnorm(data$Nareas * data$Ndiseases), nrow = data$Nareas, 
@@ -580,10 +580,10 @@ data <- list(O = ObservedCases, E = ExpectedCases,
 # }
 # 
 # # Variables to retrieve
-# param_NSRW1 <- c("mu", "lambda", "sd.phi", "phi", "sd.theta", "theta","SMR", "Tau2", "sd.alpha", "alpha")
+# param_EW <- c("mu", "lambda", "sd.phi", "phi", "sd.theta", "theta","SMR", "Tau2", "sd.alpha", "alpha")
 
 # Initial values
-initials_NSRW1 <- function() {
+initials_EW <- function() {
   list(mu = rnorm(data$Ndiseases, 0, 1), sd.phi = runif(data$Ndiseases,0, 1),
        phi = matrix(rnorm(data$Nareas * data$Ndiseases), nrow = data$Nareas,
               ncol = data$Ndiseases),
@@ -591,15 +591,15 @@ initials_NSRW1 <- function() {
 }
 
 # Variables to retrieve
-param_NSRW1 <- c("mu", "lambda", "sd.phi", "phi","SMR", "Tau2", "sd.alpha", "alpha")
+param_EW <- c("mu", "lambda", "sd.phi", "phi","SMR", "Tau2", "sd.alpha", "alpha")
 
 # Calls to WinBUGS
-results.NSRW1.10 <- pbugs(data = data, inits = initials_NSRW1,
-                              parameters.to.save = param_NSRW1, model = NSRW1_model_NOiid,
+results.EW.10 <- pbugs(data = data, inits = initials_EW,
+                              parameters.to.save = param_EW, model = EW_ICAR_NOiid,
                               n.iter = 10000, n.burnin = 5000, n.chains = 3, DIC = F,
                               debug = F)
 t1 <- Sys.time()
-runtime_NSRW1[1] <- t1 - t0
+runtime_EW[1] <- t1 - t0
 
 # 20 causes
 
@@ -613,12 +613,12 @@ data <- list(O = ObservedCases, E = ExpectedCases,
              tau.list = my_list)
 
 # Calls to WinBUGS
-results.NSRW1.20 <- pbugs(data = data, inits = initials_NSRW1,
-                              parameters.to.save = param_NSRW1, model = NSRW1_model_NOiid,
+results.EW.20 <- pbugs(data = data, inits = initials_EW,
+                              parameters.to.save = param_EW, model = EW_ICAR_NOiid,
                               n.iter = 10000, n.burnin = 5000, n.chains = 3, DIC = F,
                               debug = F)
 t1 <- Sys.time()
-runtime_NSRW1[2] <- t1 - t0
+runtime_EW[2] <- t1 - t0
 
 # All cancers
 
@@ -633,12 +633,12 @@ data <- list(O = ObservedCases, E = ExpectedCases,
              tau.list = my_list)
 
 # Calls to WinBUGS
-results.NSRW1.cancer <- pbugs(data = data, inits = initials_NSRW1,
-                              parameters.to.save = param_NSRW1, model = NSRW1_model_NOiid,
+results.EW.cancer <- pbugs(data = data, inits = initials_EW,
+                              parameters.to.save = param_EW, model = EW_ICAR_NOiid,
                               n.iter = 25000, n.burnin = 10000, n.chains = 3, DIC = F,
                               debug = F)
 t1 <- Sys.time()
-#runtime_NSRW1[3] <- t1 - t0
+#runtime_EW[3] <- t1 - t0
 
 # 50 causes
 
@@ -652,12 +652,12 @@ data <- list(O = ObservedCases, E = ExpectedCases,
              tau.list = my_list)
 
 # Calls to WinBUGS
-results.NSRW1.50 <- pbugs(data = data, inits = initials_NSRW1,
-                              parameters.to.save = param_NSRW1, model = NSRW1_model_NOiid,
+results.EW.50 <- pbugs(data = data, inits = initials_EW,
+                              parameters.to.save = param_EW, model = EW_ICAR_NOiid,
                               n.iter = 25000, n.burnin = 10000, n.chains = 3, DIC = F,
                               debug = F)
 t1 <- Sys.time()
-runtime_NSRW1[3] <- t1 - t0
+runtime_EW[3] <- t1 - t0
 
 # All 86 causes
 
@@ -671,53 +671,53 @@ data <- list(O = ObservedCases, E = ExpectedCases,
              tau.list = my_list)
 
 # Calls to WinBUGS
-results.NSRW1.86 <- pbugs(data = data, inits = initials_NSRW1,
-                              parameters.to.save = param_NSRW1, model = NSRW1_model_NOiid,
+results.EW.86 <- pbugs(data = data, inits = initials_EW,
+                              parameters.to.save = param_EW, model = EW_ICAR_NOiid,
                               n.iter = 30000, n.burnin = 10000, n.chains = 3, DIC = F,
                               debug = F)
 t1 <- Sys.time()
-runtime_NSRW1[4] <- t1 - t0
+runtime_EW[4] <- t1 - t0
 
 
 # Comparing runtimes
 
-runtime_NSRW1
+runtime_EW
 
-result_list_NSRW1 <- list(results.NSRW1.10, results.NSRW1.20, results.NSRW1.50, 
-                    results.NSRW1.86, runtime_NSRW1, results.NSRW1.cancer)
-saveRDS(result_list_NSRW1, file = "Results//result_list_NSRW1.rds")
+result_list_EW <- list(results.EW.10, results.EW.20, results.EW.50, 
+                    results.EW.86, runtime_EW, results.EW.cancer)
+saveRDS(result_list_EW, file = "Results//result_list_EW.rds") #then move to correct folder
 ```
 
 Assessing convergence and other properties of the MCMC simulations.
 
 ```{r}
-res_list_NSRW1 <- readRDS("Results//Results_withScaling_and_without_iidTheta//result_list_NSRW1.rds")
+res_list_EW <- readRDS("Results//Results_withScaling_and_without_iidTheta//result_list_EW.rds")
 
-res_list_NSRW1[[5]]
+res_list_EW[[5]]
 
 #check the Rhat's for convergence, should be less than 1.1 for all parameters
-range(res_list_NSRW1[[1]]$summary[, "Rhat"])
-range(res_list_NSRW1[[2]]$summary[, "Rhat"])
-range(res_list_NSRW1[[3]]$summary[, "Rhat"])
-range(res_list_NSRW1[[4]]$summary[, "Rhat"])
-range(res_list_NSRW1[[6]]$summary[, "Rhat"])
+range(res_list_EW[[1]]$summary[, "Rhat"])
+range(res_list_EW[[2]]$summary[, "Rhat"])
+range(res_list_EW[[3]]$summary[, "Rhat"])
+range(res_list_EW[[4]]$summary[, "Rhat"])
+range(res_list_EW[[6]]$summary[, "Rhat"])
 
 #Which(if any) are greater than 1.1
-which(res_list_NSRW1[[1]]$summary[, "Rhat"] > 1.1)
-which(res_list_NSRW1[[2]]$summary[, "Rhat"] > 1.1)
-which(res_list_NSRW1[[3]]$summary[, "Rhat"] > 1.1)
-which(res_list_NSRW1[[4]]$summary[, "Rhat"] > 1.1)
-which(res_list_NSRW1[[6]]$summary[, "Rhat"] > 1.1)
+which(res_list_EW[[1]]$summary[, "Rhat"] > 1.1)
+which(res_list_EW[[2]]$summary[, "Rhat"] > 1.1)
+which(res_list_EW[[3]]$summary[, "Rhat"] > 1.1)
+which(res_list_EW[[4]]$summary[, "Rhat"] > 1.1)
+which(res_list_EW[[6]]$summary[, "Rhat"] > 1.1)
 
 #Check the parameter tau for the weights c with prior Gamma(tau, tau)
-res_list_NSRW1[[1]]$summary["alpha",]
-res_list_NSRW1[[2]]$summary["alpha",]
-res_list_NSRW1[[3]]$summary["alpha",]
-res_list_NSRW1[[4]]$summary["alpha",]
-res_list_NSRW1[[6]]$summary["alpha",]
+res_list_EW[[1]]$summary["alpha",]
+res_list_EW[[2]]$summary["alpha",]
+res_list_EW[[3]]$summary["alpha",]
+res_list_EW[[4]]$summary["alpha",]
+res_list_EW[[6]]$summary["alpha",]
 
-res_list_NSRW1[[1]]$mean$Tau2
-res_list_NSRW1[[4]]$mean$Tau2
+res_list_EW[[1]]$mean$Tau2
+res_list_EW[[4]]$mean$Tau2
 
 ```
 
@@ -729,7 +729,7 @@ Plots and visualization of the results. The plot with colored provinces represen
 #Edgeplots for the WinBUGS models by Miguel and Jo
 Lets make the edgeplots for each number n of causes for each of the two models and summarise it in a 4X2 figure.
 
-## Edgeplots for the temporal NSRW1 model
+## Edgeplots for the EW-ICAR
 
 The indexing actually works out nicely. So, the way I constructed my_list aligns with how the edge_list gets the neighbors from the shape file (from chatGPT). 
 
@@ -780,16 +780,16 @@ example_tau_list <- c(rep(1, 50), rep(3, 61))
 
 #edges_sf$edge_value <- edge_weight
 edges_sf$example_edge_value <- example_tau_list[my_list]
-edges_sf$edge_value_NSRW1_10 <- res_list_NSRW1[[1]]$mean$Tau2[my_list]*
-      mean(1/(res_list_NSRW1[[1]]$mean$sd.phi)^2)
-edges_sf$edge_value_NSRW1_20 <- res_list_NSRW1[[2]]$mean$Tau2[my_list]*
-      mean(1/(res_list_NSRW1[[2]]$mean$sd.phi)^2)
-edges_sf$edge_value_NSRW1_50 <- res_list_NSRW1[[3]]$mean$Tau2[my_list]*
-      mean(1/(res_list_NSRW1[[3]]$mean$sd.phi)^2)
-edges_sf$edge_value_NSRW1_86 <- res_list_NSRW1[[4]]$mean$Tau2[my_list]*
-      mean(1/(res_list_NSRW1[[4]]$mean$sd.phi)^2)
-edges_sf$edge_value_NSRW1_cancer <- res_list_NSRW1[[6]]$mean$Tau2[my_list]*
-      mean(1/(res_list_NSRW1[[6]]$mean$sd.phi)^2)
+edges_sf$edge_value_EW_10 <- res_list_EW[[1]]$mean$Tau2[my_list]*
+      mean(1/(res_list_EW[[1]]$mean$sd.phi)^2)
+edges_sf$edge_value_EW_20 <- res_list_EW[[2]]$mean$Tau2[my_list]*
+      mean(1/(res_list_EW[[2]]$mean$sd.phi)^2)
+edges_sf$edge_value_EW_50 <- res_list_EW[[3]]$mean$Tau2[my_list]*
+      mean(1/(res_list_EW[[3]]$mean$sd.phi)^2)
+edges_sf$edge_value_EW_86 <- res_list_EW[[4]]$mean$Tau2[my_list]*
+      mean(1/(res_list_EW[[4]]$mean$sd.phi)^2)
+edges_sf$edge_value_EW_cancer <- res_list_EW[[6]]$mean$Tau2[my_list]*
+      mean(1/(res_list_EW[[6]]$mean$sd.phi)^2)
 
 # Example plot with varying edge widths
 ggplot() +
@@ -802,11 +802,11 @@ ggplot() +
   theme_minimal()
 
 # 10 causes
-edgeplot_NSRW1_10 <- ggplot() +
+edgeplot_EW_10 <- ggplot() +
   geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Provinces
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
   geom_sf(data = centroids, color = "red", size = 2) +  # Centroids
-  geom_sf(data = edges_sf, aes(linewidth = edge_value_NSRW1_10), color = "blue") + 
+  geom_sf(data = edges_sf, aes(linewidth = edge_value_EW_10), color = "blue") + 
   scale_linewidth(range = c(0.2, 1.7)) +  
   theme_minimal() +
   theme(axis.text = element_blank(),axis.ticks = element_blank(),  
@@ -814,11 +814,11 @@ edgeplot_NSRW1_10 <- ggplot() +
    guides(linewidth = guide_legend(title = "Width mapping"))
   
 # 20 causes
-edgeplot_NSRW1_20 <- ggplot() +
+edgeplot_EW_20 <- ggplot() +
   geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Provinces
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
   geom_sf(data = centroids, color = "red", size = 2) +  # Centroids
-  geom_sf(data = edges_sf, aes(linewidth = edge_value_NSRW1_20), color = "blue") + 
+  geom_sf(data = edges_sf, aes(linewidth = edge_value_EW_20), color = "blue") + 
   scale_linewidth(range = c(0.2, 1.7)) +  
   theme_minimal() +
   theme(axis.text = element_blank(),axis.ticks = element_blank(),  
@@ -826,11 +826,11 @@ edgeplot_NSRW1_20 <- ggplot() +
    guides(linewidth = guide_legend(title = "Width mapping"))
 
 # 50 causes
-edgeplot_NSRW1_50 <- ggplot() +
+edgeplot_EW_50 <- ggplot() +
   geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Provinces
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
   geom_sf(data = centroids, color = "red", size = 2) +  # Centroids
-  geom_sf(data = edges_sf, aes(linewidth = edge_value_NSRW1_50), color = "blue") + 
+  geom_sf(data = edges_sf, aes(linewidth = edge_value_EW_50), color = "blue") + 
   scale_linewidth(range = c(0.2, 1.7)) +  
   theme_minimal() +
   theme(axis.text = element_blank(),axis.ticks = element_blank(),  
@@ -838,11 +838,11 @@ edgeplot_NSRW1_50 <- ggplot() +
    guides(linewidth = guide_legend(title = "Width mapping"))
   
 # 86 causes
-edgeplot_NSRW1_86 <- ggplot() +
+edgeplot_EW_86 <- ggplot() +
   geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Provinces
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
   geom_sf(data = centroids, color = "red", size = 2) +  # Centroids
-  geom_sf(data = edges_sf, aes(linewidth = edge_value_NSRW1_86), color = "blue") + 
+  geom_sf(data = edges_sf, aes(linewidth = edge_value_EW_86), color = "blue") + 
   scale_linewidth(range = c(0.2, 1.7)) +  
   labs(x = "EW-ICAR") +
   theme_minimal() +
@@ -852,91 +852,91 @@ edgeplot_NSRW1_86 <- ggplot() +
 ```
 
 
-## Edge plots for Miguels adaptive BYM and for Jo's NSRW1 model
+## Edge plots for Miguels RW-ICAR and for Jo's EW-ICAR 
 For this model the outputs are the weights c, one for each region. The precision for a given edge between neighbors is then the product of the c's in the two provinces. We get the following relation between $\tau_{ij}$ and $c_i$ and $c_j$:
 $$
 \tau_{ij} = \sqrt{c_i*c_j}
 $$
-Additionally, it is important that the calculated tau's match with the positions from the NSRW1 model above. Now lets calculate the tau's.
+Additionally, it is important that the calculated tau's match with the positions from the EW model above. Now lets calculate the tau's.
 ```{r}
 nAreas <- length(carto.wb$num)
 nEdges <- length(carto.wb$adj)/2
 
 #the scaling tau averaged over all the causes of death for each n
-# mean(1/(res_list_ABYM[[1]]$mean$sd.phi)^2)
-# mean(1/(res_list_ABYM[[2]]$mean$sd.phi)^2)
-# mean(1/(res_list_ABYM[[3]]$mean$sd.phi)^2)
-# mean(1/(res_list_ABYM[[4]]$mean$sd.phi)^2)
+# mean(1/(res_list_RW[[1]]$mean$sd.phi)^2)
+# mean(1/(res_list_RW[[2]]$mean$sd.phi)^2)
+# mean(1/(res_list_RW[[3]]$mean$sd.phi)^2)
+# mean(1/(res_list_RW[[4]]$mean$sd.phi)^2)
 
 # 10 causes
 count_num <- 1
-tau_list_ABYM_10 <- rep(0, sum(carto.wb$num))
+tau_list_RW_10 <- rep(0, sum(carto.wb$num))
 for (i in 1:nAreas){
   for (j in carto.nb[[i]]){
-    tau_list_ABYM_10[count_num] <- sqrt(res_list_ABYM[[1]]$mean$c[i]*
-              res_list_ABYM[[1]]$mean$c[j]) * mean(1/(res_list_ABYM[[1]]$mean$sd.phi)^2)
+    tau_list_RW_10[count_num] <- sqrt(res_list_RW[[1]]$mean$c[i]*
+              res_list_RW[[1]]$mean$c[j]) * mean(1/(res_list_RW[[1]]$mean$sd.phi)^2)
     count_num <- count_num + 1
   }
 }
 
 # 20 causes
 count_num <- 1
-tau_list_ABYM_20 <- rep(0, sum(carto.wb$num))
+tau_list_RW_20 <- rep(0, sum(carto.wb$num))
 for (i in 1:nAreas){
   for (j in carto.nb[[i]]){
-    tau_list_ABYM_20[count_num] <- sqrt(res_list_ABYM[[2]]$mean$c[i]*
-            res_list_ABYM[[2]]$mean$c[j])*mean(1/(res_list_ABYM[[2]]$mean$sd.phi)^2)
+    tau_list_RW_20[count_num] <- sqrt(res_list_RW[[2]]$mean$c[i]*
+            res_list_RW[[2]]$mean$c[j])*mean(1/(res_list_RW[[2]]$mean$sd.phi)^2)
     count_num <- count_num + 1
   }
 }
 
 # all cancers
 count_num <- 1
-tau_list_ABYM_cancer <- rep(0, sum(carto.wb$num))
+tau_list_RW_cancer <- rep(0, sum(carto.wb$num))
 for (i in 1:nAreas){
   for (j in carto.nb[[i]]){
-    tau_list_ABYM_cancer[count_num] <- sqrt(res_list_ABYM[[6]]$mean$c[i]*
-            res_list_ABYM[[6]]$mean$c[j])*mean(1/(res_list_ABYM[[6]]$mean$sd.phi)^2)
+    tau_list_RW_cancer[count_num] <- sqrt(res_list_RW[[6]]$mean$c[i]*
+            res_list_RW[[6]]$mean$c[j])*mean(1/(res_list_RW[[6]]$mean$sd.phi)^2)
     count_num <- count_num + 1
   }
 }
 
 # 50 causes
 count_num <- 1
-tau_list_ABYM_50 <- rep(0, sum(carto.wb$num))
+tau_list_RW_50 <- rep(0, sum(carto.wb$num))
 for (i in 1:nAreas){
   for (j in carto.nb[[i]]){
-    tau_list_ABYM_50[count_num] <- sqrt(res_list_ABYM[[3]]$mean$c[i]*
-              res_list_ABYM[[3]]$mean$c[j])*mean(1/(res_list_ABYM[[3]]$mean$sd.phi)^2)
+    tau_list_RW_50[count_num] <- sqrt(res_list_RW[[3]]$mean$c[i]*
+              res_list_RW[[3]]$mean$c[j])*mean(1/(res_list_RW[[3]]$mean$sd.phi)^2)
     count_num <- count_num + 1
   }
 }
 
 # 86 causes
 count_num <- 1
-tau_list_ABYM_86 <- rep(0, sum(carto.wb$num))
+tau_list_RW_86 <- rep(0, sum(carto.wb$num))
 for (i in 1:nAreas){
   for (j in carto.nb[[i]]){
-    tau_list_ABYM_86[count_num] <- sqrt(res_list_ABYM[[4]]$mean$c[i]*
-            res_list_ABYM[[4]]$mean$c[j])*mean(1/(res_list_ABYM[[4]]$mean$sd.phi)^2)
+    tau_list_RW_86[count_num] <- sqrt(res_list_RW[[4]]$mean$c[i]*
+            res_list_RW[[4]]$mean$c[j])*mean(1/(res_list_RW[[4]]$mean$sd.phi)^2)
     count_num <- count_num + 1
   }
 }
 
-edges_sf$edge_value_ABYM_10 <- tau_list_ABYM_10
-edges_sf$edge_value_ABYM_20 <- tau_list_ABYM_20
-edges_sf$edge_value_ABYM_cancer <- tau_list_ABYM_cancer
-edges_sf$edge_value_ABYM_50 <- tau_list_ABYM_50
-edges_sf$edge_value_ABYM_86 <- tau_list_ABYM_86
+edges_sf$edge_value_RW_10 <- tau_list_RW_10
+edges_sf$edge_value_RW_20 <- tau_list_RW_20
+edges_sf$edge_value_RW_cancer <- tau_list_RW_cancer
+edges_sf$edge_value_RW_50 <- tau_list_RW_50
+edges_sf$edge_value_RW_86 <- tau_list_RW_86
 
 #Making the plots
 
 # 10 causes
-edgeplot_ABYM_10 <- ggplot() +
+edgeplot_RW_10 <- ggplot() +
   geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Provinces
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
   geom_sf(data = centroids, color = "red", size = 2) +  # Centroids
-  geom_sf(data = edges_sf, aes(linewidth = edge_value_ABYM_10), color = "blue") + 
+  geom_sf(data = edges_sf, aes(linewidth = edge_value_RW_10), color = "blue") + 
   scale_linewidth(range = c(0.2, 1.7)) +  
   labs(y = "n = 10") +
   theme_minimal() +
@@ -945,11 +945,11 @@ edgeplot_ABYM_10 <- ggplot() +
    guides(linewidth = guide_legend(title = "Width mapping"))
   
 # 20 causes
-edgeplot_ABYM_20 <- ggplot() +
+edgeplot_RW_20 <- ggplot() +
   geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Provinces
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
   geom_sf(data = centroids, color = "red", size = 2) +  # Centroids
-  geom_sf(data = edges_sf, aes(linewidth = edge_value_ABYM_20), color = "blue") + 
+  geom_sf(data = edges_sf, aes(linewidth = edge_value_RW_20), color = "blue") + 
   scale_linewidth(range = c(0.2, 1.7)) + 
   labs(y = "n = 20") +
   theme_minimal() +
@@ -958,11 +958,11 @@ edgeplot_ABYM_20 <- ggplot() +
    guides(linewidth = guide_legend(title = "Width mapping"))
 
 # 50 causes
-edgeplot_ABYM_50 <- ggplot() +
+edgeplot_RW_50 <- ggplot() +
   geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Provinces
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
   geom_sf(data = centroids, color = "red", size = 2) +  # Centroids
-  geom_sf(data = edges_sf, aes(linewidth = edge_value_ABYM_50), color = "blue") + 
+  geom_sf(data = edges_sf, aes(linewidth = edge_value_RW_50), color = "blue") + 
   scale_linewidth(range = c(0.2, 1.7)) + 
   labs(y = "n = 50") +
   theme_minimal() +
@@ -971,11 +971,11 @@ edgeplot_ABYM_50 <- ggplot() +
    guides(linewidth = guide_legend(title = "Width mapping"))
   
 # 86 causes
-edgeplot_ABYM_86 <- ggplot() +
+edgeplot_RW_86 <- ggplot() +
   geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Provinces
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
   geom_sf(data = centroids, color = "red", size = 2) +  # Centroids
-  geom_sf(data = edges_sf, aes(linewidth = edge_value_ABYM_86), color = "blue") + 
+  geom_sf(data = edges_sf, aes(linewidth = edge_value_RW_86), color = "blue") + 
   scale_linewidth(range = c(0.2, 1.7)) +  
   labs(x = "RW-ICAR", y = "n = 86") +
   theme_minimal() +
@@ -991,8 +991,8 @@ Now lets collect all the plots in an edgeplot figure:
 ```{r}
 library(ggpubr)
 
-edgeplots <- list(edgeplot_ABYM_10, edgeplot_NSRW1_10, edgeplot_ABYM_20, edgeplot_NSRW1_20,
-               edgeplot_ABYM_50, edgeplot_NSRW1_50, edgeplot_ABYM_86, edgeplot_NSRW1_86)
+edgeplots <- list(edgeplot_RW_10, edgeplot_EW_10, edgeplot_RW_20, edgeplot_EW_20,
+               edgeplot_RW_50, edgeplot_EW_50, edgeplot_RW_86, edgeplot_EW_86)
 
 final_edgeplot <- ggarrange(plotlist = edgeplots, ncol = 2, nrow = 4, labels = NULL)
 
@@ -1001,9 +1001,9 @@ final_edgeplot <- ggarrange(plotlist = edgeplots, ncol = 2, nrow = 4, labels = N
 
 
 # Plots of the total precision for each regions for the WinBUGS models
-Plot of the total precision, i.e. the sum of the precision of the connected edges for all regions. Lets start with making the plots for the temporal NSRW1 by Jo and Riddervold.
+Plot of the total precision, i.e. the sum of the precision of the connected edges for all regions. Lets start with making the plots for the temporal EW by Jo and Riddervold.
 
-## Total precision per region for temporal NSRW1
+## Total precision per region for EW-ICAR
 
 As this model calculates the precision tau for each edge, the precision for each region is simply the sum of the connecting edges. Lets first compute these sums before making the plots for each number of causes $n$.
 
@@ -1012,7 +1012,7 @@ As this model calculates the precision tau for each edge, the precision for each
 
 # 10 causes
 precision_list10 <- rep(0, nAreas) 
-tau_list <- res_list_NSRW1[[1]]$mean$Tau2*mean(1/(res_list_NSRW1[[1]]$mean$sd.phi)^2)
+tau_list <- res_list_EW[[1]]$mean$Tau2*mean(1/(res_list_EW[[1]]$mean$sd.phi)^2)
 
 precision_list10[1] <- sum(tau_list[my_list[index[1]:index[2]]])
 for (i in 2:nAreas){
@@ -1021,7 +1021,7 @@ for (i in 2:nAreas){
 
 # 20 causes
 precision_list20 <- rep(0, nAreas) #maybe define nAreas at the start?
-tau_list <- res_list_NSRW1[[2]]$mean$Tau2*mean(1/(res_list_NSRW1[[2]]$mean$sd.phi)^2)
+tau_list <- res_list_EW[[2]]$mean$Tau2*mean(1/(res_list_EW[[2]]$mean$sd.phi)^2)
 
 precision_list20[1] <- sum(tau_list[my_list[index[1]:index[2]]])
 for (i in 2:nAreas){
@@ -1030,7 +1030,7 @@ for (i in 2:nAreas){
 
 # 50 causes
 precision_list50 <- rep(0, nAreas) #maybe define nAreas at the start?
-tau_list <- res_list_NSRW1[[3]]$mean$Tau2*mean(1/(res_list_NSRW1[[3]]$mean$sd.phi)^2)
+tau_list <- res_list_EW[[3]]$mean$Tau2*mean(1/(res_list_EW[[3]]$mean$sd.phi)^2)
 
 precision_list50[1] <- sum(tau_list[my_list[index[1]:index[2]]])
 for (i in 2:nAreas){
@@ -1039,49 +1039,49 @@ for (i in 2:nAreas){
 
 # 86 causes
 precision_list86 <- rep(0, nAreas) #maybe define nAreas at the start?
-tau_list <- res_list_NSRW1[[4]]$mean$Tau2*mean(1/(res_list_NSRW1[[4]]$mean$sd.phi)^2)
+tau_list <- res_list_EW[[4]]$mean$Tau2*mean(1/(res_list_EW[[4]]$mean$sd.phi)^2)
 
 precision_list86[1] <- sum(tau_list[my_list[index[1]:index[2]]])
 for (i in 2:nAreas){
   precision_list86[i] <- sum(tau_list[my_list[(index[i] + 1):index[i + 1]]])
 }
 
-ss_provinces$color10_NSRW1 <- precision_list10
-ss_provinces$color20_NSRW1 <- precision_list20
-ss_provinces$color50_NSRW1 <- precision_list50
-ss_provinces$color86_NSRW1 <- precision_list86
+ss_provinces$color10_EW <- precision_list10
+ss_provinces$color20_EW <- precision_list20
+ss_provinces$color50_EW <- precision_list50
+ss_provinces$color86_EW <- precision_list86
 
 #can change the fill=NA to add colours
-precplot_NSRW1_10 <- ggplot() +
+precplot_EW_10 <- ggplot() +
   geom_sf(data = ss_ar, color="black") + #do not really need this line
-  geom_sf(data=ss_provinces, aes(fill=color10_NSRW1), color="grey") +
+  geom_sf(data=ss_provinces, aes(fill=color10_EW), color="grey") +
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
   theme_minimal() +
   theme(axis.text = element_blank(),axis.ticks = element_blank(),
         axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18)) +
    guides(fill = guide_colorbar(title = "Color mapping"))
 
-precplot_NSRW1_20 <- ggplot() +
+precplot_EW_20 <- ggplot() +
   geom_sf(data = ss_ar, color="black") + #do not really need this line
-  geom_sf(data=ss_provinces, aes(fill=color20_NSRW1), color="grey") +
+  geom_sf(data=ss_provinces, aes(fill=color20_EW), color="grey") +
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
   theme_minimal() +
   theme(axis.text = element_blank(),axis.ticks = element_blank(),
         axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18)) +
    guides(fill = guide_colorbar(title = "Color mapping"))
 
-precplot_NSRW1_50 <- ggplot() +
+precplot_EW_50 <- ggplot() +
   geom_sf(data = ss_ar, color="black") + #do not really need this line
-  geom_sf(data=ss_provinces, aes(fill=color50_NSRW1), color="grey") +
+  geom_sf(data=ss_provinces, aes(fill=color50_EW), color="grey") +
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
   theme_minimal() +
   theme(axis.text = element_blank(),axis.ticks = element_blank(),
         axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18)) +
    guides(fill = guide_colorbar(title = "Color mapping"))
 
-precplot_NSRW1_86 <- ggplot() +
+precplot_EW_86 <- ggplot() +
   geom_sf(data = ss_ar, color="black") + #do not really need this line
-  geom_sf(data=ss_provinces, aes(fill=color86_NSRW1), color="grey") +
+  geom_sf(data=ss_provinces, aes(fill=color86_EW), color="grey") +
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4)  +
   labs(x = "EW-ICAR") +
   theme_minimal() +
@@ -1090,7 +1090,7 @@ precplot_NSRW1_86 <- ggplot() +
    guides(fill = guide_colorbar(title = "Color mapping"))
 ```
 
-## Precision plots for the adaptive BYM by Miguel
+## Precision plots for the RW-ICAR by Miguel
 
 
 ```{r}
@@ -1099,44 +1099,44 @@ precplot_NSRW1_86 <- ggplot() +
 # 10 causes
 precision_list10 <- rep(0, nAreas) 
 
-precision_list10[1] <- sum(tau_list_ABYM_10[index[1]:index[2]])
+precision_list10[1] <- sum(tau_list_RW_10[index[1]:index[2]])
 for (i in 2:nAreas){
-  precision_list10[i] <- sum(tau_list_ABYM_10[(index[i] + 1):index[i + 1]])
+  precision_list10[i] <- sum(tau_list_RW_10[(index[i] + 1):index[i + 1]])
 }
 
 # 20 causes
 precision_list20 <- rep(0, nAreas)
 
-precision_list20[1] <- sum(tau_list_ABYM_20[index[1]:index[2]])
+precision_list20[1] <- sum(tau_list_RW_20[index[1]:index[2]])
 for (i in 2:nAreas){
-  precision_list20[i] <- sum(tau_list_ABYM_20[(index[i] + 1):index[i + 1]])
+  precision_list20[i] <- sum(tau_list_RW_20[(index[i] + 1):index[i + 1]])
 }
 
 # 50 causes
 precision_list50 <- rep(0, nAreas) 
 
-precision_list50[1] <- sum(tau_list_ABYM_50[index[1]:index[2]])
+precision_list50[1] <- sum(tau_list_RW_50[index[1]:index[2]])
 for (i in 2:nAreas){
-  precision_list50[i] <- sum(tau_list_ABYM_50[(index[i] + 1):index[i + 1]])
+  precision_list50[i] <- sum(tau_list_RW_50[(index[i] + 1):index[i + 1]])
 }
 
 # 86 causes
 precision_list86 <- rep(0, nAreas) 
 
-precision_list86[1] <- sum(tau_list_ABYM_86[index[1]:index[2]])
+precision_list86[1] <- sum(tau_list_RW_86[index[1]:index[2]])
 for (i in 2:nAreas){
-  precision_list86[i] <- sum(tau_list_ABYM_86[(index[i] + 1):index[i + 1]])
+  precision_list86[i] <- sum(tau_list_RW_86[(index[i] + 1):index[i + 1]])
 }
 
-ss_provinces$color10_ABYM <- precision_list10
-ss_provinces$color20_ABYM <- precision_list20
-ss_provinces$color50_ABYM <- precision_list50
-ss_provinces$color86_ABYM <- precision_list86
+ss_provinces$color10_RW <- precision_list10
+ss_provinces$color20_RW <- precision_list20
+ss_provinces$color50_RW <- precision_list50
+ss_provinces$color86_RW <- precision_list86
 
 #can change the fill=NA to add colours
-precplot_ABYM_10 <- ggplot() +
+precplot_RW_10 <- ggplot() +
   geom_sf(data = ss_ar, color="black") + #do not really need this line
-  geom_sf(data=ss_provinces, aes(fill=color10_ABYM), color="grey") +
+  geom_sf(data=ss_provinces, aes(fill=color10_RW), color="grey") +
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
   labs(y = "n = 10") +
   theme_minimal() +
@@ -1144,9 +1144,9 @@ precplot_ABYM_10 <- ggplot() +
         axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18)) +
    guides(fill = guide_colorbar(title = "Color mapping"))
 
-precplot_ABYM_20 <- ggplot() +
+precplot_RW_20 <- ggplot() +
   geom_sf(data = ss_ar, color="black") + #do not really need this line
-  geom_sf(data=ss_provinces, aes(fill=color20_ABYM), color="grey") +
+  geom_sf(data=ss_provinces, aes(fill=color20_RW), color="grey") +
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
   labs(y = "n = 20") +
   theme_minimal() +
@@ -1154,9 +1154,9 @@ precplot_ABYM_20 <- ggplot() +
         axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18)) +
    guides(fill = guide_colorbar(title = "Color mapping"))
 
-precplot_ABYM_50 <- ggplot() +
+precplot_RW_50 <- ggplot() +
   geom_sf(data = ss_ar, color="black") + #do not really need this line
-  geom_sf(data=ss_provinces, aes(fill=color50_ABYM), color="grey") +
+  geom_sf(data=ss_provinces, aes(fill=color50_RW), color="grey") +
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
   labs(y = "n = 50") +
   theme_minimal() +
@@ -1164,9 +1164,9 @@ precplot_ABYM_50 <- ggplot() +
         axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18)) +
    guides(fill = guide_colorbar(title = "Color mapping"))
 
-precplot_ABYM_86 <- ggplot() +
+precplot_RW_86 <- ggplot() +
   geom_sf(data = ss_ar, color="black") + #do not really need this line
-  geom_sf(data=ss_provinces, aes(fill=color86_ABYM), color="grey") +
+  geom_sf(data=ss_provinces, aes(fill=color86_RW), color="grey") +
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) +
   labs(x = "RW-ICAR",y = "n = 86") +
   theme_minimal() +
@@ -1178,8 +1178,8 @@ precplot_ABYM_86 <- ggplot() +
 ## Collecting the 8 precision plots in the same figure
 
 ```{r}
-precplots <- list(precplot_ABYM_10, precplot_NSRW1_10, precplot_ABYM_20, precplot_NSRW1_20,
-               precplot_ABYM_50, precplot_NSRW1_50, precplot_ABYM_86, precplot_NSRW1_86)
+precplots <- list(precplot_RW_10, precplot_EW_10, precplot_RW_20, precplot_EW_20,
+               precplot_RW_50, precplot_EW_50, precplot_RW_86, precplot_EW_86)
 
 final_precplot <- ggarrange(plotlist = precplots, ncol = 2, nrow = 4, labels = NULL)
 
@@ -1192,8 +1192,8 @@ The scatterplots are again 8 plots, 4 for precision in each region and 4 for the
 
 ```{r}
 # So we have a vector of 111, or 222, precisions for the edges
-#edges_sf$edge_value_NSRW1_10 #format for NSRW1
-#edges_sf$edge_value_ABYM_10 #format for ABYM
+#edges_sf$edge_value_EW_10 #format for EW
+#edges_sf$edge_value_RW_10 #format for RW
 #index2 <- index
 #index2[1] <- 0 #so the first node works as the rest, i.e. from index[t]+1:index[t+1] 
 
@@ -1218,9 +1218,9 @@ Lets now make the four plots for the different number of causes n.
 
 ```{r}
 # 10 causes
-cor_edges_10 <- cor(edges_sf$edge_value_ABYM_10, edges_sf$edge_value_NSRW1_10)
+cor_edges_10 <- cor(edges_sf$edge_value_RW_10, edges_sf$edge_value_EW_10)
 
-SCplot_edges_10 <- ggplot(edges_sf, aes(x = edge_value_ABYM_10, y = edge_value_NSRW1_10, 
+SCplot_edges_10 <- ggplot(edges_sf, aes(x = edge_value_RW_10, y = edge_value_EW_10, 
                      color = factor(inter_region_edges))) +
   geom_point() +
   labs(x = "RW-ICAR", y = "EW-ICAR", 
@@ -1229,9 +1229,9 @@ SCplot_edges_10 <- ggplot(edges_sf, aes(x = edge_value_ABYM_10, y = edge_value_N
   guides(color = "none")
 
 # 20 causes
-cor_edges_20 <- cor(edges_sf$edge_value_ABYM_20, edges_sf$edge_value_NSRW1_20)
+cor_edges_20 <- cor(edges_sf$edge_value_RW_20, edges_sf$edge_value_EW_20)
 
-SCplot_edges_20 <- ggplot(edges_sf, aes(x = edge_value_ABYM_20, y = edge_value_NSRW1_20, 
+SCplot_edges_20 <- ggplot(edges_sf, aes(x = edge_value_RW_20, y = edge_value_EW_20, 
                      color = factor(inter_region_edges))) +
   geom_point() +
   labs(x = "RW-ICAR", y = "EW-ICAR", 
@@ -1240,9 +1240,9 @@ SCplot_edges_20 <- ggplot(edges_sf, aes(x = edge_value_ABYM_20, y = edge_value_N
   guides(color = "none")
 
 # 50 causes
-cor_edges_50 <- cor(edges_sf$edge_value_ABYM_50, edges_sf$edge_value_NSRW1_50)
+cor_edges_50 <- cor(edges_sf$edge_value_RW_50, edges_sf$edge_value_EW_50)
 
-SCplot_edges_50 <- ggplot(edges_sf, aes(x = edge_value_ABYM_50, y = edge_value_NSRW1_50, 
+SCplot_edges_50 <- ggplot(edges_sf, aes(x = edge_value_RW_50, y = edge_value_EW_50, 
                      color = factor(inter_region_edges))) +
   geom_point() +
   labs(x = "RW-ICAR", y = "EW-ICAR", 
@@ -1251,9 +1251,9 @@ SCplot_edges_50 <- ggplot(edges_sf, aes(x = edge_value_ABYM_50, y = edge_value_N
   guides(color = "none")
 
 # 86 causes
-cor_edges_86 <- cor(edges_sf$edge_value_ABYM_86, edges_sf$edge_value_NSRW1_86)
+cor_edges_86 <- cor(edges_sf$edge_value_RW_86, edges_sf$edge_value_EW_86)
 
-SCplot_edges_86 <- ggplot(edges_sf, aes(x = edge_value_ABYM_86, y = edge_value_NSRW1_86, 
+SCplot_edges_86 <- ggplot(edges_sf, aes(x = edge_value_EW_86, y = edge_value_EW_86, 
                      color = factor(inter_region_edges))) +
   geom_point() +
   labs(x = "RW-ICAR", y = "EW-ICAR", 
@@ -1268,33 +1268,33 @@ For the above plots, red correspond to edges between different autonomous region
 
 ```{r}
 # 10 causes
-cor_prec_10 <- cor(ss_provinces$color10_ABYM, ss_provinces$color10_NSRW1)
+cor_prec_10 <- cor(ss_provinces$color10_RW, ss_provinces$color10_EW)
 
-SCplot_prec_10 <- ggplot(ss_provinces, aes(x = color10_ABYM, y = color10_NSRW1)) +
+SCplot_prec_10 <- ggplot(ss_provinces, aes(x = color10_RW, y = color10_EW)) +
   geom_point() +
   labs(x = "RW-ICAR", y = "EW-ICAR", 
        title = paste("Cor =", round(cor_prec_10, 3), "(n = 10)"))
 
 # 20 causes
-cor_prec_20 <- cor(ss_provinces$color20_ABYM, ss_provinces$color20_NSRW1)
+cor_prec_20 <- cor(ss_provinces$color20_RW, ss_provinces$color20_EW)
 
-SCplot_prec_20 <- ggplot(ss_provinces, aes(x = color20_ABYM, y = color20_NSRW1)) +
+SCplot_prec_20 <- ggplot(ss_provinces, aes(x = color20_RW, y = color20_EW)) +
   geom_point() +
   labs(x = "RW-ICAR", y = "EW-ICAR",
        title = paste("Cor =", round(cor_prec_20, 3), "(n = 20)"))
 
 # 50 causes
-cor_prec_50 <- cor(ss_provinces$color50_ABYM, ss_provinces$color50_NSRW1)
+cor_prec_50 <- cor(ss_provinces$color50_RW, ss_provinces$color50_EW)
 
-SCplot_prec_50 <- ggplot(ss_provinces, aes(x = color50_ABYM, y = color50_NSRW1)) +
+SCplot_prec_50 <- ggplot(ss_provinces, aes(x = color50_RW, y = color50_EW)) +
   geom_point() +
   labs(x = "RW-ICAR", y = "EW-ICAR",
        title = paste("Cor =", round(cor_prec_50, 3), "(n = 50)"))
 
 # 86 causes
-cor_prec_86 <- cor(ss_provinces$color86_ABYM, ss_provinces$color86_NSRW1)
+cor_prec_86 <- cor(ss_provinces$color86_RW, ss_provinces$color86_EW)
 
-SCplot_prec_86 <- ggplot(ss_provinces, aes(x = color86_ABYM, y = color86_NSRW1)) +
+SCplot_prec_86 <- ggplot(ss_provinces, aes(x = color86_RW, y = color86_EW)) +
   geom_point() +
   labs(x = "RW-ICAR", y = "EW-ICAR",
        title = paste("Cor =", round(cor_prec_86, 3), "(n = 86)"))
@@ -1320,33 +1320,33 @@ At the log scale for the precisions!
 
 ```{r}
 
-anova_NSRW1_10 <- summary(aov(log(edges_sf$edge_value_NSRW1_10) ~ 
+anova_EW_10 <- summary(aov(log(edges_sf$edge_value_EW_10) ~ 
                                 edges_sf$between_region_edges))
-anova_NSRW1_20 <- summary(aov(log(edges_sf$edge_value_NSRW1_20) ~
+anova_EW_20 <- summary(aov(log(edges_sf$edge_value_EW_20) ~
                                 edges_sf$between_region_edges))
-anova_NSRW1_50 <- summary(aov(log(edges_sf$edge_value_NSRW1_50) ~
+anova_EW_50 <- summary(aov(log(edges_sf$edge_value_EW_50) ~
                                 edges_sf$between_region_edges))
-anova_NSRW1_86 <- summary(aov(log(edges_sf$edge_value_NSRW1_86) ~
+anova_EW_86 <- summary(aov(log(edges_sf$edge_value_EW_86) ~
                                 edges_sf$between_region_edges))
 
-anova_ABYM_10 <- summary(aov(log(edges_sf$edge_value_ABYM_10) ~
+anova_RW_10 <- summary(aov(log(edges_sf$edge_value_RW_10) ~
                                edges_sf$between_region_edges))
-anova_ABYM_20 <- summary(aov(log(edges_sf$edge_value_ABYM_20) ~
+anova_RW_20 <- summary(aov(log(edges_sf$edge_value_RW_20) ~
                                edges_sf$between_region_edges))
-anova_ABYM_50 <- summary(aov(log(edges_sf$edge_value_ABYM_50) ~
+anova_RW_50 <- summary(aov(log(edges_sf$edge_value_RW_50) ~
                                edges_sf$between_region_edges))
-anova_ABYM_86 <- summary(aov(log(edges_sf$edge_value_ABYM_86) ~
+anova_RW_86 <- summary(aov(log(edges_sf$edge_value_RW_86) ~
                                edges_sf$between_region_edges))
 
-anova_result_log <- c(anova_NSRW1_10[[1]][1, "Pr(>F)"], anova_NSRW1_20[[1]][1, "Pr(>F)"], 
-                  anova_NSRW1_50[[1]][1, "Pr(>F)"], anova_NSRW1_86[[1]][1, "Pr(>F)"],
-                  anova_ABYM_10[[1]][1, "Pr(>F)"], anova_ABYM_20[[1]][1, "Pr(>F)"],
-                  anova_ABYM_50[[1]][1, "Pr(>F)"], anova_ABYM_86[[1]][1, "Pr(>F)"])
+anova_result_log <- c(anova_EW_10[[1]][1, "Pr(>F)"], anova_EW_20[[1]][1, "Pr(>F)"], 
+                  anova_EW_50[[1]][1, "Pr(>F)"], anova_EW_86[[1]][1, "Pr(>F)"],
+                  anova_RW_10[[1]][1, "Pr(>F)"], anova_RW_20[[1]][1, "Pr(>F)"],
+                  anova_RW_50[[1]][1, "Pr(>F)"], anova_RW_86[[1]][1, "Pr(>F)"])
 
 anova_result_log <- round(anova_result_log,  4)
 
-anova_log_df <- data.frame(Adaptive_BYM = anova_result_log[5:8],
-                       NSRW1 = anova_result_log[1:4])
+anova_log_df <- data.frame(RW = anova_result_log[5:8],
+                       EW = anova_result_log[1:4])
 
 row.names(anova_log_df) <- c("n=10", "n=20", "n=50", "n=86")
 colnames(anova_log_df) <- c("RW-ICAR", "EW-ICAR")
@@ -1367,18 +1367,18 @@ library(gt)
 library(tibble)
 library(webshot2)
 
-df_corr_NSRW1 <- round(cor(cbind(edges_sf$edge_value_NSRW1_10, edges_sf$edge_value_NSRW1_20,
-                                 edges_sf$edge_value_NSRW1_50, edges_sf$edge_value_NSRW1_86)),
+df_corr_EW <- round(cor(cbind(edges_sf$edge_value_EW_10, edges_sf$edge_value_EW_20,
+                                 edges_sf$edge_value_EW_50, edges_sf$edge_value_EW_86)),
                            4)
                                  
                             
 
-df_corr_NSRW1 <- as.matrix(df_corr_NSRW1)
+df_corr_EW <- as.matrix(df_corr_EW)
 
-rownames(df_corr_NSRW1) <- c("n=10", "n=20", "n=50", "n=86")
-colnames(df_corr_NSRW1) <- c("n=10", "n=20", "n=50", "n=86")
+rownames(df_corr_EW) <- c("n=10", "n=20", "n=50", "n=86")
+colnames(df_corr_EW) <- c("n=10", "n=20", "n=50", "n=86")
 
-df_corr_tbl <- as.data.frame(df_corr_NSRW1)
+df_corr_tbl <- as.data.frame(df_corr_EW)
 df_corr_tbl <- tibble::rownames_to_column(df_corr_tbl, var = "Sample size")
 
 # Create gt table
@@ -1400,16 +1400,16 @@ gt_table
 
 ## Then for RW-ICAR
 ```{r}
-df_corr_ABYM <- round(cor(cbind(edges_sf$edge_value_ABYM_10, edges_sf$edge_value_ABYM_20,
-                                 edges_sf$edge_value_ABYM_50, edges_sf$edge_value_ABYM_86)),
+df_corr_RW <- round(cor(cbind(edges_sf$edge_value_RW_10, edges_sf$edge_value_RW_20,
+                                 edges_sf$edge_value_RW_50, edges_sf$edge_value_RW_86)),
                            4)
 
-df_corr_ABYM <- as.matrix(df_corr_ABYM)
+df_corr_RW <- as.matrix(df_corr_RW)
 
-rownames(df_corr_ABYM) <- c("n=10", "n=20", "n=50", "n=86")
-colnames(df_corr_ABYM) <- c("n=10", "n=20", "n=50", "n=86")
+rownames(df_corr_RW) <- c("n=10", "n=20", "n=50", "n=86")
+colnames(df_corr_RW) <- c("n=10", "n=20", "n=50", "n=86")
 
-df_corr_tbl <- as.data.frame(df_corr_ABYM)
+df_corr_tbl <- as.data.frame(df_corr_RW)
 df_corr_tbl <- tibble::rownames_to_column(df_corr_tbl, var = "Sample size")
 
 # Create gt table
