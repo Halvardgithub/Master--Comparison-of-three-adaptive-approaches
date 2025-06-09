@@ -427,11 +427,11 @@ my_list <- as.integer(my_list[which(my_list != 0)])
 
 ```{r}
 # Multivariate edge weighted model, WinBUGS code and iid spatial effect theta
-EW_ICAR <- function() {
+EW_ICAR_withIID <- function() {
   # Likelihood
   for (i in 1:Nareas) {
     for (m in 1:Ndiseases) {
-      O[i, m] ~ dpois(lambda[i, m])
+      Y[i, m] ~ dpois(lambda[i, m])
       # Modeling of the mean for each census tract and disease
       log(lambda[i, m]) <- log(E[i, m]) + mu[m] + phi[i,m] + sd.theta[m] * theta[i, m]
       # Prior distribution for spatial effects
@@ -469,7 +469,7 @@ EW_ICAR <- function() {
     ceros[m] ~ dnorm(sum.phi[m], 10)
     sum.phi[m] <- sum(phi[, m])
   }
-  ## Prior distributions for Tau2 and its hyperparameters
+  # Prior distributions for Tau2 and its hyperparameters
   for (t in 1:(n.adj/2)){
     Tau2[t] ~ dgamma(alpha, alpha) %_% I(0.001, )
   }
@@ -493,7 +493,7 @@ EW_ICAR_NOiid <- function() {
   # Likelihood
   for (i in 1:Nareas) {
     for (m in 1:Ndiseases) {
-      O[i, m] ~ dpois(lambda[i, m])
+      Y[i, m] ~ dpois(lambda[i, m])
       # Modeling of the mean for each census tract and disease
       log(lambda[i, m]) <- log(E[i, m]) + mu[m] + phi[i,m]
       # Prior distribution for spatial effects
@@ -529,7 +529,7 @@ EW_ICAR_NOiid <- function() {
     ceros[m] ~ dnorm(sum.phi[m], 10)
     sum.phi[m] <- sum(phi[, m])
   }
-  ## Prior distributions for Tau2 and its hyperparameters
+  # Prior distributions for Tau2 and its hyperparameters
   for (t in 1:(n.adj/2)){
     Tau2[t] ~ dgamma(alpha, alpha) %_% I(0.001, )
   }
@@ -554,7 +554,7 @@ t0 <- Sys.time()
 
 causes.id <- causes10
 # Data
-data <- list(O = ObservedCases, E = ExpectedCases,
+data <- list(Y = ObservedCases, E = ExpectedCases,
              Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
              n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index, 
              tau.list = my_list)
@@ -598,7 +598,7 @@ t0 <- Sys.time()
 
 causes.id <- causes20
 # Data
-data <- list(O = ObservedCases, E = ExpectedCases,
+data <- list(Y = ObservedCases, E = ExpectedCases,
              Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
              n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index,
              tau.list = my_list)
@@ -618,7 +618,7 @@ t0 <- Sys.time()
 causes.id <- 7:33 # indexes for the cancers
 
 # Data
-data <- list(O = ObservedCases, E = ExpectedCases,
+data <- list(Y = ObservedCases, E = ExpectedCases,
              Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
              n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index,
              tau.list = my_list)
@@ -637,7 +637,7 @@ t0 <- Sys.time()
 
 causes.id <- causes50
 # Data
-data <- list(O = ObservedCases, E = ExpectedCases,
+data <- list(Y = ObservedCases, E = ExpectedCases,
              Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
              n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index,
              tau.list = my_list)
@@ -656,7 +656,7 @@ t0 <- Sys.time()
 
 causes.id <- causes86
 # Data
-data <- list(O = ObservedCases, E = ExpectedCases,
+data <- list(Y = ObservedCases, E = ExpectedCases,
              Nareas = nrow(ObservedCases), Ndiseases = length(causes.id),
              n.adj = length(carto.wb$adj), adj = carto.wb$adj, index = index,
              tau.list = my_list)

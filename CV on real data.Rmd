@@ -31,11 +31,9 @@ constructQ <- function(tau, indexes, nAreas, adj){
   count_num <- 1
   for (i in 1:nAreas){
     for (j in adj[(indexes[i]+1):indexes[i+1]]){
-      #if (i < j){ #only need to construct the upper half of Q for INLA
-        Q[i, j] <- -tau[count_num]
-        
-        Q[i, i] <- Q[i, i] + tau[count_num]
-      #}
+      Q[i, j] <- -tau[count_num]
+      
+      Q[i, i] <- Q[i, i] + tau[count_num]
       count_num <- count_num + 1
     }
   }
@@ -72,7 +70,7 @@ Should I scale with inla.model.scale = T, or scale it manually inside the rgenri
 Is it fine with numeric(0) for the log constant??
 
 ```{r}
-inla.rgeneric.Adaptive.ICAR = function(
+inla.rgeneric.Validation = function(
   cmd = c("graph", "Q", "mu", "initial", "log.norm.const","log.prior", "quit"),
   theta = NULL)
 {
@@ -135,17 +133,17 @@ inla.rgeneric.Adaptive.ICAR = function(
 #prior_str <- "gamma"
 prior_str <- "U"
 
-RW10_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_RW10, nAreas = nAreas, pr_str = prior_str)
-RW20_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_RW20, nAreas = nAreas, pr_str = prior_str)
-RW50_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_RW50, nAreas = nAreas, pr_str = prior_str)
-RW86_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_RW86, nAreas = nAreas, pr_str = prior_str)
-RW_C_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_RW_Cancer, nAreas = nAreas, pr_str = prior_str)
+RW10_model <- inla.rgeneric.define(inla.rgeneric.Validation, R = Q_RW10, nAreas = nAreas, pr_str = prior_str)
+RW20_model <- inla.rgeneric.define(inla.rgeneric.Validation, R = Q_RW20, nAreas = nAreas, pr_str = prior_str)
+RW50_model <- inla.rgeneric.define(inla.rgeneric.Validation, R = Q_RW50, nAreas = nAreas, pr_str = prior_str)
+RW86_model <- inla.rgeneric.define(inla.rgeneric.Validation, R = Q_RW86, nAreas = nAreas, pr_str = prior_str)
+RW_C_model <- inla.rgeneric.define(inla.rgeneric.Validation, R = Q_RW_Cancer, nAreas = nAreas, pr_str = prior_str)
 
-EW10_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_EW10, nAreas = nAreas, pr_str = prior_str)
-EW20_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_EW20, nAreas = nAreas, pr_str = prior_str)
-EW50_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_EW50, nAreas = nAreas, pr_str = prior_str)
-EW86_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_EW86, nAreas = nAreas, pr_str = prior_str)
-EW_C_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, R = Q_EW_Cancer, nAreas = nAreas, pr_str = prior_str)
+EW10_model <- inla.rgeneric.define(inla.rgeneric.Validation, R = Q_EW10, nAreas = nAreas, pr_str = prior_str)
+EW20_model <- inla.rgeneric.define(inla.rgeneric.Validation, R = Q_EW20, nAreas = nAreas, pr_str = prior_str)
+EW50_model <- inla.rgeneric.define(inla.rgeneric.Validation, R = Q_EW50, nAreas = nAreas, pr_str = prior_str)
+EW86_model <- inla.rgeneric.define(inla.rgeneric.Validation, R = Q_EW86, nAreas = nAreas, pr_str = prior_str)
+EW_C_model <- inla.rgeneric.define(inla.rgeneric.Validation, R = Q_EW_Cancer, nAreas = nAreas, pr_str = prior_str)
 ```
 
 Then also create the structure matrices R1 and R2 for the BW-ICAR from Wakefield.
@@ -275,7 +273,7 @@ for (j in test_indecies){
   mode_prec2 <- summary_prec2$mean
   
   Q_mat <- mode_prec1*R1 + mode_prec2*R2
-  BW_2_model <- inla.rgeneric.define(inla.rgeneric.Adaptive.ICAR, 
+  BW_2_model <- inla.rgeneric.define(inla.rgeneric.Validation, 
                                      R = Q_mat, nAreas = nAreas, pr_str = prior_str)
   
   formula_BW_2 <- Y ~ offset(log(E)) + f(ID, model = BW_2_model)

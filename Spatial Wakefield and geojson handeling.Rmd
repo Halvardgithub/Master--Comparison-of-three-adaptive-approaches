@@ -194,7 +194,7 @@ examplePlots <- ggarrange(ExamplePlot1, ExamplePlot2, ncol = 2)
 #   geom_sf(data = centroids, color = "red", size = 2) +  # Centroids
 #   geom_sf(data = edges_sf, aes(linewidth = edge_value_ABYM_86), color = "blue") +
 #   scale_linewidth(range = c(0.2, 1.7)) +
-#   labs(x = "Adaptive BYM",y = "n = 86") +
+#   labs(x = "RW",y = "n = 86") +
 #   theme_minimal() +
 #   theme(axis.text = element_blank(),axis.ticks = element_blank(),
 #         axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18)) +
@@ -286,7 +286,7 @@ NB: There must be consistent ordering of regions and so on for the weight matrix
 ```{r}
 library(INLA)
 
-inla.rgeneric.AdaptiveICAR = function(
+inla.rgeneric.BWICAR = function(
   cmd = c("graph", "Q", "mu", "initial", "log.norm.const","log.prior", "quit"),
   theta = NULL)
 {
@@ -330,23 +330,24 @@ inla.rgeneric.AdaptiveICAR = function(
     p <- interpret_theta()
     Q <- R_star_list$R1 * p$tau1 + R_star_list$R2 * p$tau2
     return(inla.as.sparse(Q)) #sparse representation
-    
-    
-    for( i in 1:(N - 1)){
-      if(i %in% conflict_years | (i + 1) %in% conflict_years) {
-        R2[c(i, i+1), c(i, i+1)] <- R2[c(i, i+1), c(i, i+1)] + c(1, -1, -1, 1)
-      }
-      else {
-        R1[c(i, i+1), c(i, i+1)] <- R1[c(i, i+1), c(i, i+1)] + c(1, -1, -1, 1)
-      }
-    }
-    gv <- exp(1 / N * sum(log(diag(INLA:::inla.ginv(R1 + R2))))) #scaling constant
-    R_star_list <- list(R1 = R1*gv, R2 = R2*gv)
-    
-    p <- interpret_theta()
-    Q <- R_star_list$R1 * p$tau1 + R_star_list$R2 * p$tau2
-    return(inla.as.sparse(Q)) #sparse representation
   }
+    
+    
+  #   for( i in 1:(N - 1)){
+  #     if(i %in% conflict_years | (i + 1) %in% conflict_years) {
+  #       R2[c(i, i+1), c(i, i+1)] <- R2[c(i, i+1), c(i, i+1)] + c(1, -1, -1, 1)
+  #     }
+  #     else {
+  #       R1[c(i, i+1), c(i, i+1)] <- R1[c(i, i+1), c(i, i+1)] + c(1, -1, -1, 1)
+  #     }
+  #   }
+  #   gv <- exp(1 / N * sum(log(diag(INLA:::inla.ginv(R1 + R2))))) #scaling constant
+  #   R_star_list <- list(R1 = R1*gv, R2 = R2*gv)
+  #   
+  #   p <- interpret_theta()
+  #   Q <- R_star_list$R1 * p$tau1 + R_star_list$R2 * p$tau2
+  #   return(inla.as.sparse(Q)) #sparse representation
+  # }
   
   mu <- function() {return(numeric(0))}
   
@@ -376,7 +377,7 @@ To initialize the resulting latent term we call the rgeneric function as below:
 nb <- poly2nb(ss_provinces)
 adj_matrix <- nb2mat(nb, style = "B", zero.policy = TRUE)
 
-BW_model <- inla.rgeneric.define(inla.rgeneric.AdaptiveICAR, df = ss_provinces, 
+BW_model <- inla.rgeneric.define(inla.rgeneric.BWICAR, df = ss_provinces, 
                                     AMat = adj_matrix) #might pass u and a
 
 ```
