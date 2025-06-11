@@ -5,15 +5,19 @@ The codebase for my Master in Applied physics and mathematics concerning spatial
 Without scale and with iid Theta refers to the two WinBUGS models with an iid effect and the plots are not scaled by the disease specific precision included in the model. With scaling and iid theta still has the iid and now scales with the average of the diseases specific precision to make the plots more comparable for different methods and different n's. Note that the result for ABYM (or RW-ICAR) is the same, but the plots are different because of scaling. Lastly, the methods with scalign and without iid theta for comparison, and to only focus on the structured spatial effect without interference from the iid theta, even though most actual models would include this.
 
 
-## Questions and things to do
+## The different .Rmd files
+All the code is contained in the four .Rmd files, and they were used to produce all the figures and plots in the thesis.
 
-* The total prec plot with scaling and without theta looks very wrong, check that.
-* Get the CV to work, maybe make some tests for the matrices, like non-zero elements in the same places and so on
-* Possibly add n=70 and try with a different seed to compare the two
-* Need to write more!
-* Ta med ICAR og standard Wakefield i CV
-* lag box plot for resultater
-* Cpo or logaritmic scoring??? Think I use CPO wrong
+### Temporal simulations.Rmd
+This file contains the code for the temporal simulations used to produce Figure X in the thesis. To obtain the same plot simply run the file and the plot will be produced. To save it locally uncomment the last code line and assign the desired location.
 
-* Gruppere etter kreft
-* Legge til ICAR eksempel
+### Spatial Wakefield and geojson handeling.Rmd
+This file handles the inital geojson file for Spain as well as defining the Border weighted model from Wakefield(2024) (THIS MIGHT CHANGE). The last code chunk on line X-X was used to preprocess the data and was only used to generate the desired data back in march. 
+
+### WinBUGS and the adaptive multivariate model.Rmd
+This is where the WinBUGS models are defined, specifically RW-ICAR and EW-ICAR. Additionally, the plots for the training part of the results, i.e. the precision plots, edge plots, scatterplots and p-value tables were also produced in this file. To save any of the figures simply uncomment the lines with ggsave and change the location. Note that the training is rather slow, so the training chucnks are not evaluated when the file is ran. Changing the eval to True at the top of those chunks increases the runtimes to around 12 hours, cirka 6 hours for each multivariate model. 
+
+### CV on real data.Rmd
+This is where the "cross validation" takes place. As there are three different priors for the precision these can be chosen in lines X-Y and then run the whole file. This could take some time, for me it takes just under two hours. Then all the boxplot are generated.
+
+
