@@ -446,7 +446,7 @@ EW_ICAR_withIID <- function() {
       phi.adj[i, m] <- phi[adj[i], m]
     }
   }
-
+  # Precision of the conditional distribution of spatial effects
   for (m in 1:Ndiseases) {
      prec.phi[1, m] <- pow(sd.phi[m], -2) * sum(Tau2.tau.list[index[1]:index[2]])
      for (i in 2:Nareas) {
@@ -506,7 +506,7 @@ EW_ICAR_NOiid <- function() {
       phi.adj[i, m] <- phi[adj[i], m]
     }
   }
-
+  # Precision of the conditional distribution of spatial effects
   for (m in 1:Ndiseases) {
      prec.phi[1, m] <- pow(sd.phi[m], -2) * sum(Tau2.tau.list[index[1]:index[2]])
      for (i in 2:Nareas) {
