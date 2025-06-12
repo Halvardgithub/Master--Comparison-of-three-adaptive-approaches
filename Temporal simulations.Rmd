@@ -79,6 +79,7 @@ IID <- function(sigma, N){
 library(ggplot2)
 library(tidyr)
 library(dplyr)
+library(ggpubr)
 
 N <- 50
 sigma <- 1

@@ -8,19 +8,151 @@ output: pdf_document
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
+# Copy relevant code from the other files
+First, lets copy the necessary code from the file "WinBUGS and the adaptive multivariate model.Rmd", as importing .Rmd files is problematic, the important parts of the code will be copied in here:
+```{r}
+library(readr)
+library(ggplot2)
+
+library(sf)
+library(spdep)
+library(dplyr)
+
+ExpectedCases <- readRDS("ExpectedCasesMiguel.rds")
+ObservedCases <- readRDS("ObservedCases.rds")
+PopulationData <- readRDS("PopulationData.rds")
+nDiseasesTot <- as.numeric(ncol(ObservedCases)) #the number of causes
+
+shp_prov <- st_read("Data/Provinces/Provincias_ETRS89_30N.shp")
+colnames(shp_prov) <- c("Index", "ProvName", "ProvName1", "CCAA_Index", "CCAA_Name", "geometry")
+CCAA_to_remove <- c("Illes Balears", "Canarias", "Ceuta", "Melilla")
+shp_prov <- filter(shp_prov, !CCAA_Name %in% CCAA_to_remove)
+carto <- shp_prov
+
+#Spatial structure
+carto.nb <- poly2nb(carto) # Neighbours list of each geographic unit with class nb
+carto.wb <- nb2WB(carto.nb) # List with the adjacency vector (carto.wb$adj) and
+index <- c(1, cumsum(carto.wb$num)) # Vector to identify the positions of the neighbors
+
+ss_provinces = read_sf("Data/Provinces/Provincias_ETRS89_30N.shp")
+
+ss_ar = read_sf("Data/AutonomousRegions/Comunidades_Autonomas_ETRS89_30N.shp")
+
+# remove provinces outside mainland Spain
+
+out = c("Islas Baleares", "Las Palmas", "Santa Cruz de Tenerife", "Ceuta", "Melilla")
+
+out2 = c("Canarias", "Islas Baleares", "Ceuta", "Melilla")
+
+ss_provinces = ss_provinces |> filter(!(Texto %in% out))
+
+ss_ar = ss_ar %>% filter(!(Texto %in% out2))
+
+nAreas <- length(carto.wb$num)
+nEdges <- length(carto.wb$adj)/2
+```
+
+
+
+Secondly, import the necessary code for the Border weighted ICAR, again copied in:
+```{r}
+library(INLA)
+
+inla.rgeneric.BWICAR = function(
+  cmd = c("graph", "Q", "mu", "initial", "log.norm.const","log.prior", "quit"),
+  theta = NULL)
+{
+#Input:
+#df: contains the relevant information for the areal data
+#prior_str is either Gamma, PC1, PC3 or U
+#AMat is the adjacency matrix, so 1 for bordering regions representing a first order structure
+  
+  envir = parent.env(environment())
+  
+  interpret_theta <- function() { return(list(tau1 = exp(theta[1L]), 
+                                              tau2 = exp(theta[2L])))}
+  
+  graph <- function() {return(Q())}
+  
+  Q <- function() {
+    N <- nrow(df) #df is passed as an argument, N is the number of regions
+    R1 <- matrix(0, nrow = N, ncol = N) #non-conflict
+    R2 <- matrix(0, nrow = N, ncol = N) #conflict
+    
+    #assume the adjacency matrix is called AMat, then
+    non_zero_indices <- which(AMat == 1, arr.ind = TRUE)
+    
+    for (k in seq_len(nrow(non_zero_indices))) { #nrow?
+      i <- non_zero_indices[k, 1]
+      j <- non_zero_indices[k, 2]
+      
+      if(df[["Cod_CCAA"]][i] == df[["Cod_CCAA"]][j]){
+        R1[i, j] <- -1
+        R1[i, i] <- R1[i, i] + 1
+      }
+      else{
+        R2[i, j] <- -1
+        R2[i, i] <- R2[i, i] + 1
+      }
+    }
+    
+    gv <- exp(1 / N * sum(log(diag(INLA:::inla.ginv(R1 + R2))))) #scaling constant
+    R_star_list <- list(R1 = R1*gv, R2 = R2*gv)
+    
+    p <- interpret_theta()
+    Q <- R_star_list$R1 * p$tau1 + R_star_list$R2 * p$tau2
+    return(inla.as.sparse(Q)) #sparse representation
+  }
+    
+  mu <- function() {return(numeric(0))}
+  
+  initial <- function() {return(c(4, 4))}#Default initial for precisions is 4
+  
+  log.norm.const <- function() {return(numeric(0))}
+  
+  # log.prior <- function() {
+  #   p <- interpret_theta()
+  #   prior <- inla.pc.dprec(p$tau1, u = 1, alpha = 0.01, log=TRUE) + log(p$tau1) +
+  #          inla.pc.dprec(p$tau2, u = 1, alpha = 0.01, log = TRUE) + log(p$tau2)
+  #   return(prior)
+  # }
+  
+  log.prior <- function() {#default: shape = 1, rate = 0.00005 for tau
+    p <- interpret_theta()
+    if (pr_str == "gamma")  {
+      prior <- dgamma(p$tau1, shape = 1, rate = 0.00005, log = TRUE) + log(p$tau1) +
+        dgamma(p$tau2, shape = 1, rate = 0.00005, log = TRUE) + log(p$tau2)}
+    else if (pr_str == "PC3") {
+      prior <- inla.pc.dprec(p$tau1, u = 3, alpha = 0.05, log=TRUE) + log(p$tau1) +
+        inla.pc.dprec(p$tau2, u = 3, alpha = 0.05, log=TRUE) + log(p$tau2)}
+    else if (pr_str == "PC1") {
+      prior <- inla.pc.dprec(p$tau1, u = 1, alpha = 0.01, log=TRUE) + log(p$tau1) +
+        inla.pc.dprec(p$tau2, u = 1, alpha = 0.01, log=TRUE) + log(p$tau2)}
+    else if (pr_str == "U") {prior <- -0.5*log(p$tau1) - 0.5*log(p$tau2)}
+    return(prior)
+  }
+  
+  quit <- function() {return(invisible())}
+  
+  #to ensure theta is defined
+  if (!length(theta)) theta = initial()
+  
+  vals <- do.call(match.arg(cmd), args = list())
+  return(vals)
+}
+
+nb <- poly2nb(ss_provinces)
+adj_matrix <- nb2mat(nb, style = "B", zero.policy = TRUE)
+
+BW_model <- inla.rgeneric.define(inla.rgeneric.BWICAR, df = ss_provinces,
+                                    AMat = adj_matrix, pr_str = "PC3")
+```
+
 
 # Implementing the adaptive ICARS with rgeneric
 Both EW-ICAR and RW-ICAR can easily compute a list of all the taus for the edges. From this it is possible to construct the precision matrix Q, maybe along with the index set as well. I will start by experimenting with the creation of Q before implementing the whole matrix in rgeneric. After the models are defined in rgeneric I will perform cross validation for all the diseases, and further investigate the scarce and prominent cause of death, maybe also total mortality. The comparison of the models will be done for all n, which is always one for Wakefield, and a choice concerning test diseases for lower n, i.e. 10, 20, 50 must be made in regards to using a known disease or not in the training data.
 
 ```{r}
-library(INLA)
-#res_list_testing <- readRDS("Results//result_list_RW.rds")
-
-#define nAreas and maybe nDiseases
-
-# constuct tau_list as in the other file, then make Q
-# also make index, maybe from carto.wb as in the other file
-
 index2 <- index
 index2[1] <- 0
 
@@ -115,18 +247,6 @@ inla.rgeneric.Validation = function(
   return(vals)
 }
 
-# INLA:::inla.ginv(Q_RW10)
-# image(Q_RW10)
-# diag(INLA:::inla.ginv(Q_RW10))
- 
- # rowSums(Q_RW10)
- # Q_RW10[1, 8]
- # edges_df$edge_value_RW_10[1]
-
-#rowSums(R1 + R2)
-#diag(INLA:::inla.ginv(R1 + R2))
- 
-
 #The specific models
 
 #prior_str <- "PC"
@@ -146,7 +266,7 @@ EW86_model <- inla.rgeneric.define(inla.rgeneric.Validation, R = Q_EW86, nAreas 
 EW_C_model <- inla.rgeneric.define(inla.rgeneric.Validation, R = Q_EW_Cancer, nAreas = nAreas, pr_str = prior_str)
 ```
 
-Then also create the structure matrices R1 and R2 for the BW-ICAR from Wakefield.
+Then also create the structure matrices R1 and R2 for the BW-ICAR from Wakefield, which will be used in the validation step to construct the scaled precision matrix Q in the validation loop.
 
 ```{r}
 R1 <- matrix(0, nrow = nAreas, ncol = nAreas) #non-conflict
@@ -185,13 +305,13 @@ with the Q matrix assigned from the fitted models in the file "WinBUGS and the a
 
 ### The testing
 Note that `res$cpo$logcpo` gets the log sum of the individual cpo-values, so taking minus and dividing by nAreas gives the same as `-mean(log(res$cpo$cpo))`.
-```{r}
+```{r, eval=FALSE}
 
 ExpectedCases <- readRDS("ExpectedCasesMiguel.rds")
 ObservedCases <- readRDS("ObservedCases.rds")
 
 #For all diseases
-test_indecies <- 1:86 #some numbers for the diseases to be validated on
+test_indecies <- 1:86 #the diseases to be validated on
 
 criteria_df <- data.frame(matrix(NA, nrow = length(test_indecies), ncol = ((2*4 + 3 + 2)*3)))
 colnames(criteria_df) <- c("RW_10_WAIC", "RW_20_WAIC", "RW_50_WAIC", "RW_86_WAIC",
@@ -336,12 +456,6 @@ data_df <- data.frame(Y = Y, E = E, ID = 1:nAreas)
 
 ```
 
-currently running again with PC priors, save as W_C_3
-and same for the folder for the plots
-
-failed for disease 60 randomly, worked right afterwards
-
-NOTE: when addign cancer models I made the ICAR use a pc.prior, and forgot to make it flexible, so the gamma validation with cancer is wrong as the ICAR has a different prior than the rest.
 
 ```{r}
 # save the criteria_df
@@ -362,6 +476,7 @@ Plot for all the diseases without a reference level.
 library(tidyr)
 library(dplyr)
 library(ggplot2)
+library(ggpubr)
 
 #res_df <- readRDS(file = "CV-Results//CV_no_iidTheta_gamma_W_C_final.rds")
 
@@ -382,7 +497,8 @@ desired_order <- c("ICAR", "BW", "BW_2","RW_10", "EW_10","RW_20", "EW_20",
 
 res_WAIC <- res_df[index_WAIC]
 
-colnames(res_WAIC) <- sub("_(?!.*_).*", "", colnames(res_WAIC), perl = TRUE) #chatGPT
+#removes the last "_xyz" from each colname, i.e. _DIC or _CPO
+colnames(res_WAIC) <- sub("_(?!.*_).*", "", colnames(res_WAIC), perl = TRUE)
 
 WAIC_long <-  res_WAIC |>
   mutate(row_id = row_number()) |>

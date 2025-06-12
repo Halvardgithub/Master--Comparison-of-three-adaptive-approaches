@@ -56,7 +56,7 @@ causes20 <- get_causes(20)
 causes50 <- get_causes(50)
 causes86 <- get_causes(86)
 ```
-Note that "Tumor Maligno del cruello del utero" in exp10 are all zero, so should be removed from the original datasets."Tumores in suto" is also extremely low. "XV.Embarazo, parto y puerpeira" as well. There is also some for homocides and maybe also accidents and such. 
+
 
 ### Implement the multivariate adaptive model with WinBUGS
 
@@ -296,7 +296,7 @@ runtime_RW
 result_list_RW <- list(results.RW.10, results.RW.20, 
                          results.RW.50, results.RW.86, 
                          runtime_RW, results.RW.cancer)
-saveRDS(result_list_RW, file = "Results//result_list_RW.rds") #move it to correct folder afterwards
+#saveRDS(result_list_RW, file = "Results//result_list_RW.rds") #move it to correct folder afterwards
 ```
 
 Runtimes for RW model in WinBUGS(cirka): 
@@ -676,7 +676,7 @@ runtime_EW
 
 result_list_EW <- list(results.EW.10, results.EW.20, results.EW.50, 
                     results.EW.86, runtime_EW, results.EW.cancer)
-saveRDS(result_list_EW, file = "Results//result_list_EW.rds") #then move to correct folder
+#saveRDS(result_list_EW, file = "Results//result_list_EW.rds") #then move to correct folder
 ```
 
 Assessing convergence and other properties of the MCMC simulations.

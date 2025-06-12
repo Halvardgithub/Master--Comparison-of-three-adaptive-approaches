@@ -28,18 +28,6 @@ shp_prov <- filter(shp_prov, !CCAA_Name %in% CCAA_to_remove)
 
 plot(shp_prov["ProvName"], key.pos = NULL, main = "Map of the provinces of Spain")
 
-# shp_AutReg <- st_read("Data/AutonomousRegions/Comunidades_Autonomas_ETRS89_30N.shp")
-# colnames(shp_AutReg) <- c("Index", "CCAA_Name", "CCAA_Name1", "geometry")
-# plot(shp_AutReg["CCAA_Name1"], key.pos = NULL, main = "Map of the autonomous regions of Spain")
-
-# shp_prov <- st_read("Data/Provinces/Provincias_ETRS89_30N.shp")
-# 
-# shp_AutReg <- st_read("Data/AutonomousRegions/Comunidades_Autonomas_ETRS89_30N.shp")
-# 
-# colnames(shp_prov) <- c("Index", "ProvName", "ProvName1", "CCAA_Index", "CCAA_Name", "geometry")
-# colnames(shp_AutReg) <- c("Index", "CCAA_Name", "CCAA_Name1", "geometry")
-
-
 shp_prov_large <- shp_prov |>
   group_by(CCAA_Name) |>
   summarise(geometry = st_union(geometry))
@@ -55,18 +43,20 @@ MapSpainFig
 ```
 
 
-## Code from Andrea and Miguel for data preperation and plotting
+## Code for data preperation and plotting
 
 ```{r}
 library(sf)
 library(ggplot2)
 library(dplyr)
 
+edges_df <- readRDS("Edges_df//Edges_W_scaling_WO_theta")
+
 ss_provinces = read_sf("Data/Provinces/Provincias_ETRS89_30N.shp")
 
-ss_ar = read_sf("Data/AutonomousRegions/Comunidades_Autonomas_ETRS89_30N.shp")
+centroids <- st_centroid(ss_provinces)
 
-#ggplot() + geom_sf(data = ss_provinces) + geom_sf(data = ss_ar)
+ss_ar = read_sf("Data/AutonomousRegions/Comunidades_Autonomas_ETRS89_30N.shp")
 
 # we only work with mainland Spain, remove the islands
 
@@ -90,7 +80,7 @@ SpainMap <- ggplot() +
 #   geom_sf(data = ss_provinces, fill = NA, color = "grey40") +  # Provinces
 #   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 1) + # Autonomous regions
 #   geom_sf(data = centroids, color = "red", size = 3) +  # Centroids
-#   geom_sf(data = edges_sf, linewidth = 0.8, color = "blue") + 
+#   geom_sf(data = edges_df, linewidth = 0.8, color = "blue") + 
 #   theme_minimal()
 
 #ggsave("Plots//SpainMap_W_grpah.png", plot = SpainMap_W_graph, height = 21, width = 21,  units = "cm",  dpi = 300)
@@ -99,7 +89,7 @@ SpainMap_Wakefieldgraph <- ggplot() +
   geom_sf(data = ss_provinces, fill = NA, color = "grey40") +  # Provinces
   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 1) + # Autonomous regions
   geom_sf(data = centroids, color = "black", size = 3) +  # Centroids
-  geom_sf(data = edges_sf, linewidth = 1, aes(color = factor(inter_region_edges))) + 
+  geom_sf(data = edges_df, linewidth = 1, aes(color = factor(inter_region_edges))) + 
   #scale_linewidth(range = c(0.5, 1.5)) +  
   scale_color_manual(values = c("1" = "blue", "0" = "red")) + 
   theme_minimal() +
@@ -113,13 +103,11 @@ SpainMap_Wakefieldgraph <- ggplot() +
 First up is maps with edges to illustrate the Wakefield neighborhood structure. One map with grouping based on inside or across autonomous regions and one based on a "shocked" subset of provinces. Show one edge groups with red edges and the other as blue.
 
 ```{r}
-#include <- c("15", "24", "27", "32", "33", "36", "49") 
+# Figures to illustarte two choices for grouping the edges in the Border weighted ICAR
 
-include <- c("15", "27", "32", "36")  #only prov in op left autonomous region of spain
+include <- c("15", "24", "27", "32", "33", "36", "49") 
 
-#include2 <- c("03", "12")
-
-include2 <- c("12")
+include2 <- c("03", "12")
 
 ss_provinces_example = filter(ss_provinces, Codigo %in% include)
 
@@ -182,28 +170,13 @@ ExamplePlot2 <- ggplot() +
 
 examplePlots <- ggarrange(ExamplePlot1, ExamplePlot2, ncol = 2)
 
-# example_edgeStructuresFigure <- annotate_figure(examplePlots, 
-#                                 top = text_grob("Two examples of grouping the edges",
-#                                 face = "bold", size = 30))
-
 #ggsave("Plots//ExampleEdgesFigure.png", plot = examplePlots, height = 10, width = 21,  units = "cm",  dpi = 300)
-
-# edgeplot_example1 <- ggplot() +
-#   geom_sf(data = ss_provinces, fill = NA, color = "grey") +  # Provinces
-#   geom_sf(data = ss_ar, color="black", fill=NA,linewidth = 0.4) + # Autonomous regions
-#   geom_sf(data = centroids, color = "red", size = 2) +  # Centroids
-#   geom_sf(data = edges_sf, aes(linewidth = edge_value_ABYM_86), color = "blue") +
-#   scale_linewidth(range = c(0.2, 1.7)) +
-#   labs(x = "RW",y = "n = 86") +
-#   theme_minimal() +
-#   theme(axis.text = element_blank(),axis.ticks = element_blank(),
-#         axis.title.x = element_text(size = 18), axis.title.y = element_text(size = 18)) +
-#    guides(linewidth = guide_legend(title = "Width mapping"))
 ```
 
 Making figures for the top-left autonomous region and the graph for the four provinces within it. 
 
 ```{r}
+#Figure to show the corresponding graph with numbered nodes for the top left autonomous region of Spain
 
 include <- c("15", "27", "32", "36")  #only prov in op left autonomous region of spain
 
@@ -290,10 +263,10 @@ inla.rgeneric.BWICAR = function(
   cmd = c("graph", "Q", "mu", "initial", "log.norm.const","log.prior", "quit"),
   theta = NULL)
 {
-  #Input: (prior_str currently not passed, just using pc)
-  #df: contains the relevant information for the areal data
-  #prior_str is either Gamma0.005, Gamma0.00005 or PC    , might not need this, but useful for sensitivity analysis, or just include an argument which is the p and a used in the pc.priors
-  # AMat is the adjacency matrix, so simply 1 for bordering regions, an ICAR structure
+#Input:
+#df: contains the relevant information for the areal data
+#prior_str is either Gamma, PC1, PC3 or U
+#AMat is the adjacency matrix, so 1 for bordering regions representing a first order structure
   
   envir = parent.env(environment())
   
@@ -332,33 +305,24 @@ inla.rgeneric.BWICAR = function(
     return(inla.as.sparse(Q)) #sparse representation
   }
     
-    
-  #   for( i in 1:(N - 1)){
-  #     if(i %in% conflict_years | (i + 1) %in% conflict_years) {
-  #       R2[c(i, i+1), c(i, i+1)] <- R2[c(i, i+1), c(i, i+1)] + c(1, -1, -1, 1)
-  #     }
-  #     else {
-  #       R1[c(i, i+1), c(i, i+1)] <- R1[c(i, i+1), c(i, i+1)] + c(1, -1, -1, 1)
-  #     }
-  #   }
-  #   gv <- exp(1 / N * sum(log(diag(INLA:::inla.ginv(R1 + R2))))) #scaling constant
-  #   R_star_list <- list(R1 = R1*gv, R2 = R2*gv)
-  #   
-  #   p <- interpret_theta()
-  #   Q <- R_star_list$R1 * p$tau1 + R_star_list$R2 * p$tau2
-  #   return(inla.as.sparse(Q)) #sparse representation
-  # }
-  
   mu <- function() {return(numeric(0))}
   
   initial <- function() {return(c(4, 4))}#Default initial for precisions is 4
   
   log.norm.const <- function() {return(numeric(0))}
   
-  log.prior <- function() {
+  log.prior <- function() {#default: shape = 1, rate = 0.00005 for tau
     p <- interpret_theta()
-    prior <- inla.pc.dprec(p$tau1, u = 1, alpha = 0.01, log=TRUE) + log(p$tau1) +
-           inla.pc.dprec(p$tau2, u = 1, alpha = 0.01, log = TRUE) + log(p$tau2)
+    if (pr_str == "gamma")  {
+      prior <- dgamma(p$tau1, shape = 1, rate = 0.00005, log = TRUE) + log(p$tau1) +
+        dgamma(p$tau2, shape = 1, rate = 0.00005, log = TRUE) + log(p$tau2)}
+    else if (pr_str == "PC3") {
+      prior <- inla.pc.dprec(p$tau1, u = 3, alpha = 0.05, log=TRUE) + log(p$tau1) +
+        inla.pc.dprec(p$tau2, u = 3, alpha = 0.05, log=TRUE) + log(p$tau2)}
+    else if (pr_str == "PC1") {
+      prior <- inla.pc.dprec(p$tau1, u = 1, alpha = 0.01, log=TRUE) + log(p$tau1) +
+        inla.pc.dprec(p$tau2, u = 1, alpha = 0.01, log=TRUE) + log(p$tau2)}
+    else if (pr_str == "U") {prior <- -0.5*log(p$tau1) - 0.5*log(p$tau2)}
     return(prior)
   }
   
@@ -372,15 +336,126 @@ inla.rgeneric.BWICAR = function(
 }
 ```
 
-To initialize the resulting latent term we call the rgeneric function as below:
+The following is used to initialize the Border weighted model inside the loop in the chuck below.
 ```{r}
 nb <- poly2nb(ss_provinces)
 adj_matrix <- nb2mat(nb, style = "B", zero.policy = TRUE)
+nAreas <- nrow(adj_matrix)
+```
 
-BW_model <- inla.rgeneric.define(inla.rgeneric.BWICAR, df = ss_provinces, 
-                                    AMat = adj_matrix) #might pass u and a
+## Sensitivity analysis for BW-ICAR
+Comparison of four different priors for the two precisions in BW. 
+
+```{r, eval=FALSE}
+#Load the data
+ExpectedCases <- readRDS("ExpectedCasesMiguel.rds")
+ObservedCases <- readRDS("ObservedCases.rds")
+
+#Which diseases to include
+test_indecies <- 1:86
+
+sensitivity_df <- data.frame(matrix(NA, nrow = length(test_indecies), ncol = 12))
+colnames(sensitivity_df) <- c("gamma_WAIC", "PC1_WAIC", "PC3_WAIC", "U_WAIC", 
+                              "gamma_DIC", "PC1_DIC", "PC3_DIC", "U_DIC",
+                              "gamma_CPO", "PC1_CPO", "PC3_CPO", "U_CPO")
+
+prior_options <- c("gamma", "PC1", "PC3", "U")
+
+for (i in 1:4){
+  BW_sens_model <- inla.rgeneric.define(inla.rgeneric.BWICAR, df = ss_provinces, 
+                                    AMat = adj_matrix, pr_str = prior_options[i]) 
+  for (m in 1:86){
+    Y <- as.vector(ObservedCases[, j])
+    E <- as.vector(ExpectedCases[, j])
+  
+    data_df <- data.frame(Y = Y, E = E, ID = 1:nAreas)
+    
+    formula_BW <- Y ~ offset(log(E)) + f(ID, model = BW_sens_model)
+    res_BW <- inla(formula_BW, family = "poisson", data = data_df,
+                 control.compute = list(cpo = T, waic = T, dic = T))
+    
+    sensitivity_df[m, i] <- res_BW$waic$waic
+    sensitivity_df[m, i + 4] <- res_BW$dic$dic
+    sensitivity_df[m, i + 8] <- -mean(log(res_BW$cpo$cpo))
+  }
+}
+
+#save the results
+#saveRDS(sensitivity_df, file = "Results//BW-sensitivity.rds")
+```
+
+Visualizing the results:
+```{r}
+library(tidyr)
+library(dplyr)
+
+sensitivity_df <- readRDS(file = "Results//BW-sensitivity.rds")
+
+index_WAIC <- 1:4
+
+index_DIC <- 5:8
+
+index_CPO <- 9:12
+
+#For WAIC
+sens_WAIC <- sensitivity_df[index_WAIC]
+
+colnames(sens_WAIC) <- sub("_(?!.*_).*", "", colnames(sens_WAIC), perl = TRUE)
+
+#transform to PC3 as a referance level
+sens_WAIC <- sens_WAIC |>
+  mutate(across(everything(), ~ .x - .data$PC3))
+
+WAIC_long <-  sens_WAIC |>
+  mutate(row_id = row_number()) |>
+  pivot_longer(-row_id, names_to = "Model", values_to = "WAIC")
+
+WAIC_boxplot <- ggplot(WAIC_long, aes(x = Model, y = WAIC)) +
+  geom_boxplot(fill = "skyblue") +
+  theme_minimal() +
+  labs(x = "", y = "WAIC") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+#For DIC
+sens_DIC <- sensitivity_df[index_DIC]
+
+colnames(sens_DIC) <- sub("_(?!.*_).*", "", colnames(sens_DIC), perl = TRUE)
+
+#transform to PC3 as a referance level
+sens_DIC <- sens_DIC |>
+  mutate(across(everything(), ~ .x - .data$PC3))
+
+DIC_long <-  sens_DIC |>
+  mutate(row_id = row_number()) |>
+  pivot_longer(-row_id, names_to = "Model", values_to = "DIC")
+
+DIC_boxplot <- ggplot(DIC_long, aes(x = Model, y = DIC)) +
+  geom_boxplot(fill = "skyblue") +
+  theme_minimal() +
+  labs(x = "", y = "DIC") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+
+#For CPO
+sens_CPO <- sensitivity_df[index_CPO]
+
+colnames(sens_CPO) <- sub("_(?!.*_).*", "", colnames(sens_CPO), perl = TRUE)
+
+#transform to PC3 as a referance level
+sens_CPO <- sens_CPO |>
+  mutate(across(everything(), ~ .x - .data$PC3))
+
+CPO_long <-  sens_CPO |>
+  mutate(row_id = row_number()) |>
+  pivot_longer(-row_id, names_to = "Model", values_to = "CPO")
+
+CPO_boxplot <- ggplot(CPO_long, aes(x = Model, y = CPO)) +
+  geom_boxplot(fill = "skyblue") +
+  theme_minimal() +
+  labs(x = "", y = "CPO") +
+  theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 ```
+
 
 # Load and preprocess the disease data
 The data for male mortality cases nationally and at province level is collected in 5-year age bins for each disease. These must be aggregated to the total cases per disease in each province and summarized in a matrix called ObservedCases. Furthermore, we calculate the expected cases based on the population per age bin in each province, which is denoted as ExpectedCases. Lastly, some choice of the mortality causes must be done. For instance, some causes are extremely rare, for instance only 1 or 2 cases nationally. Therefore, we implemented a lower limit of an average of 2 cases per province, which for 47 provinces equals 94 cases nationally. Additionally, some of the mortality causes are not disease related, for instance homicides, but they are kept in the data. 
