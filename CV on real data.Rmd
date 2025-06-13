@@ -249,9 +249,9 @@ inla.rgeneric.Validation = function(
 
 #The specific models
 
-#prior_str <- "PC"
+prior_str <- "PC"
 #prior_str <- "gamma"
-prior_str <- "U"
+#prior_str <- "U"
 
 RW10_model <- inla.rgeneric.define(inla.rgeneric.Validation, R = Q_RW10, nAreas = nAreas, pr_str = prior_str)
 RW20_model <- inla.rgeneric.define(inla.rgeneric.Validation, R = Q_RW20, nAreas = nAreas, pr_str = prior_str)
@@ -407,12 +407,10 @@ for (j in test_indecies){
     formula_ICAR <- Y ~ offset(log(E)) + 
       f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE,
       hyper = list(prec = list(prior = "pc.prec", param = c(3, 0.05),log = TRUE)))
-  }
-  else if (prior_str == "gamma"){
+  } else if (prior_str == "gamma"){
     formula_ICAR <- Y ~ offset(log(E)) + 
       f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE)
-  }
-  else if (prior_str == "U"){
+  } else if (prior_str == "U"){
     sdunif="expression: logdens=-log_precision/2; return(logdens)"
     formula_ICAR <- Y ~ offset(log(E)) + 
       f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE, 
@@ -449,23 +447,25 @@ CV_runtime <- Sys.time() - t0
 CV_runtime
 
 #testing
-Y <- as.vector(ObservedCases[, 60])
-E <- as.vector(ExpectedCases[, 60])
- 
-data_df <- data.frame(Y = Y, E = E, ID = 1:nAreas)
+# Y <- as.vector(ObservedCases[, 60])
+# E <- as.vector(ExpectedCases[, 60])
+#  
+# data_df <- data.frame(Y = Y, E = E, ID = 1:nAreas)
 
 ```
+
+Failed on the sixth disease with gamma prior, should mention that the valdation sometimes chrashes, but not consistently.
 
 
 ```{r}
 # save the criteria_df
 prior_str
 
-#saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta_gamma_W_C_final.rds")
+#saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta_gamma_W_C_final_final.rds")
 
-#saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta_PC_W_C_final.rds")
+#saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta_PC_W_C_final_final.rds")
 
-#saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta_U_W_C_final.rds")
+#saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta_U_W_C_final_final.rds")
 ```
 
 
