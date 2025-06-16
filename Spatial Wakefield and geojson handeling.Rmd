@@ -227,9 +227,9 @@ centroids_example_coords <- cbind(
 )
 
 ExamplePlot1 <- ggplot() +
-  geom_sf(data = ss_ar_example, color="black") + #do not really need this line
-  geom_sf(data=ss_provinces_example, color="grey") +
-  geom_sf(data = ss_ar_example, color="black", fill=NA,linewidth = 0.4) +
+  #geom_sf(data = ss_ar_example, color="black") + #do not really need this line
+  geom_sf(data = ss_provinces_example, fill = "grey80", color = "grey10", linewidth = 0.7) +
+  geom_sf(data = ss_ar_example, color="black", fill=NA,linewidth = 0.8) +
   geom_sf(data = centroids_example, color = "red", size = 4)  + # Centroids
   geom_sf(data = edges_sf_example, aes(color = Wex21), linewidth = 1, show.legend = FALSE) +
   scale_color_manual(values = c("0" = "blue", "1" = "red")) +
