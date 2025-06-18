@@ -457,6 +457,48 @@ CPO_boxplot <- ggplot(CPO_long, aes(x = Model, y = CPO)) +
 ```
 
 
+# Plot for different priors on a precision tau
+Specifically a gamma, PC and uniform on sd sigma prior.
+
+```{r}
+
+# the x-values
+x_gamma <- seq(1/25, 100000, length.out = 10000)
+
+#gamma
+
+y_gamma <- dgamma(x_gamma, shape = 1, rate = 0.00005)
+
+plot(x_gamma, y_gamma)
+
+#uniform on sigma
+
+x_uniform <- seq(1/25, 1, length.out = 10000)
+
+U_function <- function(x){
+  return(0.1*x**(-3/2))
+}
+
+y_uniform <- U_function(x_uniform)
+
+plot(x_uniform, y_uniform)
+
+#PC
+
+x_PC <- seq(1/25, 2, length.out = 10000)
+
+u <- 3
+alpha <- 0.05
+lambda <- -log(alpha) / u
+
+y_PC <- (lambda / 2) * x_PC**(-3/2) * exp(-lambda / sqrt(x_PC))
+
+plot(x_PC, y_PC)
+
+```
+
+
+
 # Load and preprocess the disease data
 The data for male mortality cases nationally and at province level is collected in 5-year age bins for each disease. These must be aggregated to the total cases per disease in each province and summarized in a matrix called ObservedCases. Furthermore, we calculate the expected cases based on the population per age bin in each province, which is denoted as ExpectedCases. Lastly, some choice of the mortality causes must be done. For instance, some causes are extremely rare, for instance only 1 or 2 cases nationally. Therefore, we implemented a lower limit of an average of 2 cases per province, which for 47 provinces equals 94 cases nationally. Additionally, some of the mortality causes are not disease related, for instance homicides, but they are kept in the data. 
 
