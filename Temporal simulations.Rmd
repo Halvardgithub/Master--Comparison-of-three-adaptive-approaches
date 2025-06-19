@@ -214,8 +214,7 @@ Plotting:
 stand_plot <- ggplot(df, aes(x = x)) +
   geom_point(aes(y = y), color = "blue") +
   geom_line(aes(y = standard), color = "red", linewidth = 1) +
-  labs(title = expression(mu %~% N(0, 10^6) * " and " * beta %~% N(0, 10^6)), 
-       x = "x", y = "y") +
+  labs(x = "x", y = "y") +
   theme_minimal() +
   theme(plot.title = element_text(size = 18),
     axis.title.x = element_text(size = 14), 
@@ -224,8 +223,7 @@ stand_plot <- ggplot(df, aes(x = x)) +
 bad_mu_plot <- ggplot(df, aes(x = x)) +
   geom_point(aes(y = y), color = "blue") +
   geom_line(aes(y = bad_mu), color = "red", linewidth = 1) +
-  labs(title = expression(mu %~% N(0, 10^{-2}) * " and " * beta %~% N(0, 10^6)), 
-       x = "x", y = "y") +
+  labs(x = "x", y = "y") +
   theme_minimal() +
   theme(plot.title = element_text(size = 18),
     axis.title.x = element_text(size = 14), 
@@ -234,8 +232,7 @@ bad_mu_plot <- ggplot(df, aes(x = x)) +
 bad_beta_plot <- ggplot(df, aes(x = x)) +
   geom_point(aes(y = y), color = "blue") +
   geom_line(aes(y = bad_beta), color = "red", linewidth = 1) +
-  labs(title = expression(mu %~% N(0, 10^6) * " and " * beta %~% N(2, 10^{-2})), 
-       x = "x", y = "y") +
+  labs(x = "x", y = "y") +
   theme_minimal() +
   theme(plot.title = element_text(size = 18),
     axis.title.x = element_text(size = 14), 
@@ -244,8 +241,7 @@ bad_beta_plot <- ggplot(df, aes(x = x)) +
 both_bad_plot <- ggplot(df, aes(x = x)) +
   geom_point(aes(y = y), color = "blue") +
   geom_line(aes(y = both_bad), color = "red", linewidth = 1) +
-  labs(title = expression(mu %~% N(0, 10^{-2}) * " and " * beta %~% N(2, 10^{-2})), 
-       x = "x", y = "y") +
+  labs(x = "x", y = "y") +
   theme_minimal() +
   theme(plot.title = element_text(size = 18),
     axis.title.x = element_text(size = 14), 
@@ -254,6 +250,16 @@ both_bad_plot <- ggplot(df, aes(x = x)) +
 full_plot <- ggarrange(stand_plot, bad_mu_plot, bad_beta_plot, both_bad_plot, ncol = 2, nrow = 2)
 
 #ggsave("Plots//linearRegressionWPriors.png", plot = full_plot, height = 21, width = 21,  units = "cm",  dpi = 300)
+
+#saving the individual plots withou titles
+
+# ggsave("Plots//linRegStandPlot.png", plot = stand_plot, height = 6, width = 6,  units = "cm",  dpi = 300)
+# ggsave("Plots//linRegBadMu.png", plot = bad_mu_plot, height = 6, width = 6,  units = "cm",  dpi = 300)
+# ggsave("Plots//linRegBadBeta.png", plot = bad_beta_plot, height = 6, width = 6,  units = "cm",  dpi = 300)
+# ggsave("Plots//linRegBadBoth.png", plot = both_bad_plot, height = 6, width = 6,  units = "cm",  dpi = 300)
+
+
+
 
 ```
 

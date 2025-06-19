@@ -150,18 +150,26 @@ edges_sf_example$Wex2 <- factor(weights_example2)
 
 ExamplePlot1 <- ggplot() +
   geom_sf(data = ss_ar_example, color="black") + #do not really need this line
-  geom_sf(data=ss_provinces_example, color="grey") +
-  geom_sf(data = ss_ar_example, color="black", fill=NA,linewidth = 0.4) +
+  geom_sf(data=ss_provinces_example, color="grey20", linewidth = 0.5) +
+  geom_sf(data = ss_ar_example, color="black", fill=NA,linewidth = 0.8) +
   geom_sf(data = centroids_example, color = "black", size = 2)  + # Centroids
   geom_sf(data = edges_sf_example, aes(color = Wex1), show.legend = FALSE) +
   scale_color_manual(values = c("0" = "blue", "1" = "red")) +
   theme(axis.text = element_blank(), axis.ticks = element_blank()) +
   theme_minimal()
 
+#to highlight the two abnormal regions
+ss_provinces_example_highlight_27 = filter(ss_provinces, Codigo %in% c(27))
+ss_provinces_example_highlight_33 = filter(ss_provinces, Codigo %in% c(33))
+
 ExamplePlot2 <- ggplot() +
   geom_sf(data = ss_ar_example, color="black") + #do not really need this line
-  geom_sf(data=ss_provinces_example, color="grey") +
-  geom_sf(data = ss_ar_example, color="black", fill=NA,linewidth = 0.4) +
+  geom_sf(data=ss_provinces_example, color="grey20", linewidth = 0.5) +
+  geom_sf(data = ss_ar_example, color="black", fill=NA,linewidth = 0.8) +
+  geom_sf(data = ss_provinces_example_highlight_27, color = "black", 
+          linewidth = 0.5, fill = "lightcoral") +
+  geom_sf(data = ss_provinces_example_highlight_33, color = "black", 
+          linewidth = 0.5, fill = "lightcoral") +
   geom_sf(data = centroids_example, color = "black", size = 2)  + # Centroids
   geom_sf(data = edges_sf_example, aes(color = Wex2), show.legend = FALSE) +
   scale_color_manual(values = c("0" = "blue", "1" = "red")) +
@@ -462,14 +470,36 @@ Specifically a gamma, PC and uniform on sd sigma prior.
 
 ```{r}
 
-# the x-values
-x_gamma <- seq(1/25, 100000, length.out = 10000)
-
 #gamma
+
+x_gamma <- seq(1/25, 100000, length.out = 10000)
 
 y_gamma <- dgamma(x_gamma, shape = 1, rate = 0.00005)
 
-plot(x_gamma, y_gamma)
+df <- data.frame(x = x_gamma, y = y_gamma)
+
+min_x <- 0
+max_x <- 100000
+
+plot_gamma <- ggplot(df, aes(x = x, y = y)) +
+  geom_line(color = "steelblue", size = 1.2) +
+  labs(x = expression(tau), y = expression(pi(tau))) +
+  scale_x_continuous(breaks = seq(min_x, max_x, length.out = 3)) +
+  theme_minimal(base_size = 14)
+
+#gamma2
+
+x_gamma2 <- seq(1/25, 2, length.out = 10000)
+
+y_gamma2 <- dgamma(x_gamma2, shape = 1, rate = 0.00005)
+
+df <- data.frame(x = x_gamma2, y = y_gamma2)
+
+plot_gamma2 <- ggplot(df, aes(x = x, y = y)) +
+  geom_line(color = "steelblue", size = 1.2) +
+  labs(x = expression(tau), y = expression(pi(tau))) +
+  theme_minimal(base_size = 14)
+
 
 #uniform on sigma
 
@@ -481,7 +511,12 @@ U_function <- function(x){
 
 y_uniform <- U_function(x_uniform)
 
-plot(x_uniform, y_uniform)
+df <- data.frame(x = x_uniform, y = y_uniform)
+
+plot_U <- ggplot(df, aes(x = x, y = y)) +
+  geom_line(color = "steelblue", size = 1.2) +
+  labs(x = expression(tau), y = expression(pi(tau))) +
+  theme_minimal(base_size = 14)
 
 #PC
 
@@ -493,7 +528,20 @@ lambda <- -log(alpha) / u
 
 y_PC <- (lambda / 2) * x_PC**(-3/2) * exp(-lambda / sqrt(x_PC))
 
-plot(x_PC, y_PC)
+df <- data.frame(x = x_PC, y = y_PC)
+
+plot_PC <- ggplot(df, aes(x = x, y = y)) +
+  geom_line(color = "steelblue", size = 1.2) +
+  labs(x = expression(tau), y = expression(pi(tau))) +
+  theme_minimal(base_size = 14)
+
+
+#saving the plots
+
+# ggsave("Plots//Prior Example gamma.png", plot = plot_gamma, height = 8, width = 8, units = "cm",  dpi = 300)
+# ggsave("Plots//Prior Example gamma [0, 2].png", plot = plot_gamma2, height = 8, width = 8, units = "cm",  dpi = 300)
+# ggsave("Plots//Prior Example uniform.png", plot = plot_U, height = 8, width = 8, units = "cm",  dpi = 300)
+# ggsave("Plots//Prior Example PC.png", plot = plot_PC, height = 8, width = 8, units = "cm",  dpi = 300)
 
 ```
 
@@ -529,7 +577,7 @@ library(tidyr)
 # df_wide <- df_wide[, -43] #remove a joint column
 # 
 # df_matrix <- as.matrix(df_wide[, -1]) #remove the province column
-# 
+#
 # ObservedCases <- as.matrix(ExpectedCases) #I made sure everything aligned, both rows and cols
 # 
 # ObservedCases[1:47, 1:102] <- df_matrix[1:47, 1:102]
