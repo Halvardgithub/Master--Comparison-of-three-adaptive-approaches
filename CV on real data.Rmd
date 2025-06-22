@@ -406,7 +406,7 @@ for (j in test_indecies){
   if (prior_str == "PC"){
     formula_ICAR <- Y ~ offset(log(E)) + 
       f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE,
-      hyper = list(prec = list(prior = "pc.prec", param = c(3, 0.05),log = TRUE)))
+      hyper = list(prec = list(prior = "pc.prec", param = c(3, 0.05))))
   } else if (prior_str == "gamma"){
     formula_ICAR <- Y ~ offset(log(E)) + 
       f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE)
@@ -451,10 +451,63 @@ CV_runtime
 # E <- as.vector(ExpectedCases[, 60])
 #  
 # data_df <- data.frame(Y = Y, E = E, ID = 1:nAreas)
-
 ```
 
 Failed on the sixth disease with gamma prior, should mention that the valdation sometimes chrashes, but not consistently.
+
+
+## Testing
+offset(log(E)) vs E in the INLA call
+
+log = TRUE or not, maybe not even an argument
+```{r, eval=FALSE}
+Y <- as.vector(ObservedCases[, 60])
+E <- as.vector(ExpectedCases[, 60])
+
+data_df <- data.frame(Y = Y, E = E, ID = 1:nAreas)
+
+#first for the offset log(E)
+
+formula_ICAR <- Y ~ offset(log(E)) + 
+      f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE,
+      hyper = list(prec = list(prior = "pc.prec", param = c(3, 0.05),log = TRUE)))
+
+res_ICAR <- inla(formula_ICAR, family = "poisson", data = data_df,
+                   control.compute = list(cpo = T, waic = T, dic = T))
+
+#versus
+
+formula_ICAR_2 <- Y ~ f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE,
+      hyper = list(prec = list(prior = "pc.prec", param = c(3, 0.05),log = TRUE)))
+
+res_ICAR_2 <- inla(formula_ICAR_2, family = "poisson", data = data_df, E = E,
+                   control.compute = list(cpo = T, waic = T, dic = T))
+
+summary(res_ICAR)
+summary(res_ICAR_2)
+#They are the same, can mention that in the implementation section
+
+# then for log=true
+
+formula_ICAR <- Y ~ offset(log(E)) + 
+      f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE,
+      hyper = list(prec = list(prior = "pc.prec", param = c(3, 0.05),log = TRUE)))
+
+res_ICAR <- inla(formula_ICAR, family = "poisson", data = data_df,
+                   control.compute = list(cpo = T, waic = T, dic = T))
+
+#versus
+
+formula_ICAR_2 <- Y ~ f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE,
+      hyper = list(prec = list(prior = "pc.prec", param = c(3, 0.05))))
+
+res_ICAR_2 <- inla(formula_ICAR_2, family = "poisson", data = data_df, E = E,
+                   control.compute = list(cpo = T, waic = T, dic = T))
+
+summary(res_ICAR)
+summary(res_ICAR_2)
+#also no difference, so then the log = true should be removed
+```
 
 
 ```{r}

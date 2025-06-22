@@ -179,6 +179,12 @@ ExamplePlot2 <- ggplot() +
 examplePlots <- ggarrange(ExamplePlot1, ExamplePlot2, ncol = 2)
 
 #ggsave("Plots//ExampleEdgesFigure.png", plot = examplePlots, height = 10, width = 21,  units = "cm",  dpi = 300)
+
+#saving the individual plots
+
+ggsave("Plots//ExampleEdgesFigureA.png", plot = ExamplePlot1, height = 10, width = 10,  units = "cm",  dpi = 300)
+ggsave("Plots//ExampleEdgesFigureB.png", plot = ExamplePlot2, height = 10, width = 10,  units = "cm",  dpi = 300)
+
 ```
 
 Making figures for the top-left autonomous region and the graph for the four provinces within it. 
