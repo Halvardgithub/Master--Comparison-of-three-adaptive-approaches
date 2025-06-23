@@ -1309,7 +1309,7 @@ final_scatterplot <- ggarrange(plotlist = scatterplots, ncol = 2, nrow = 4, labe
 At the log scale for the precisions!
 
 ```{r}
-?aov
+library(xtable)
 
 anova_EW_10 <- summary(aov(log(edges_sf$edge_value_EW_10) ~ 
                                 edges_sf$between_region_edges))
@@ -1342,9 +1342,11 @@ anova_log_df <- data.frame(RW = anova_result_log[5:8],
 row.names(anova_log_df) <- c("n=10", "n=20", "n=50", "n=86")
 colnames(anova_log_df) <- c("RW-ICAR", "EW-ICAR")
 
+xtable(anova_log_df, digits = 3)
+
 anova_log_edge_table <- ggtexttable(anova_log_df, theme = ttheme("mOrange"))
 
-ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//anovaLogFigure.png", plot = anova_log_edge_table, height = 4, width = 6,  units = "cm",  dpi = 300)
+#ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//anovaLogFigure.png", plot = anova_log_edge_table, height = 4, width = 6,  units = "cm",  dpi = 300)
 ```
 
 # Correlation between the precision matrices for different n's for both EW and RW
@@ -1367,6 +1369,8 @@ df_corr_EW <- as.matrix(df_corr_EW)
 
 rownames(df_corr_EW) <- c("n=10", "n=20", "n=50", "n=86")
 colnames(df_corr_EW) <- c("n=10", "n=20", "n=50", "n=86")
+
+print(xtable(df_corr_EW))
 
 df_corr_tbl <- as.data.frame(df_corr_EW)
 df_corr_tbl <- tibble::rownames_to_column(df_corr_tbl, var = "Sample size")
@@ -1398,6 +1402,8 @@ df_corr_RW <- as.matrix(df_corr_RW)
 
 rownames(df_corr_RW) <- c("n=10", "n=20", "n=50", "n=86")
 colnames(df_corr_RW) <- c("n=10", "n=20", "n=50", "n=86")
+
+print(xtable(df_corr_RW))
 
 df_corr_tbl <- as.data.frame(df_corr_RW)
 df_corr_tbl <- tibble::rownames_to_column(df_corr_tbl, var = "Sample size")
