@@ -1426,5 +1426,18 @@ gt_table
 ```
 
 
+# Table for the region specific weights c in the RW-ICAR
+```{r}
+
+df_weights_c <- data.frame(res_list_RW[[1]]$mean$c, res_list_RW[[2]]$mean$c,
+                           res_list_RW[[3]]$mean$c, res_list_RW[[4]]$mean$c,
+                           res_list_RW[[6]]$mean$c)
+
+rownames(df_weights_c) <- ss_provinces$Texto
+colnames(df_weights_c) <- c("n=10", "n=20", "n=50", "n=86", "Cancer")
+
+xtable(df_weights_c)
+```
+
 
 
