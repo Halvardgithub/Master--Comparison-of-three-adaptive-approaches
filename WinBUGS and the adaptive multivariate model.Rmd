@@ -1429,14 +1429,35 @@ gt_table
 # Table for the region specific weights c in the RW-ICAR
 ```{r}
 
+#retrieve the weights c
 df_weights_c <- data.frame(res_list_RW[[1]]$mean$c, res_list_RW[[2]]$mean$c,
                            res_list_RW[[3]]$mean$c, res_list_RW[[4]]$mean$c,
                            res_list_RW[[6]]$mean$c)
 
-rownames(df_weights_c) <- ss_provinces$Texto
-colnames(df_weights_c) <- c("n=10", "n=20", "n=50", "n=86", "Cancer")
+#retrieve the standard deciation for each c
+df_weights_c_sd <- data.frame(
+  res_list_RW[[1]]$summary[grep("^c\\[", rownames(res_list_RW[[1]]$summary)), "sd"],
+  res_list_RW[[2]]$summary[grep("^c\\[", rownames(res_list_RW[[2]]$summary)), "sd"],
+  res_list_RW[[3]]$summary[grep("^c\\[", rownames(res_list_RW[[3]]$summary)), "sd"],
+  res_list_RW[[4]]$summary[grep("^c\\[", rownames(res_list_RW[[4]]$summary)), "sd"],
+  res_list_RW[[6]]$summary[grep("^c\\[", rownames(res_list_RW[[6]]$summary)), "sd"])
 
-xtable(df_weights_c)
+formatted <- matrix(nrow = nrow(df_weights_c), ncol = ncol(df_weights_c))
+
+for (i in 1:nrow(df_weights_c)) {
+  for (j in 1:ncol(df_weights_c)) {
+    formatted[i, j] <- sprintf("%.2f (%.2f)", df_weights_c[i, j], df_weights_c_sd[i, j])
+  }
+}
+
+formatted_df <- as.data.frame(formatted)
+
+rownames(formatted_df) <- ss_provinces$Texto
+colnames(formatted_df) <- c("n=10", "n=20", "n=50", "n=86", "Cancer")
+
+
+
+xtable(formatted_df)
 ```
 
 
