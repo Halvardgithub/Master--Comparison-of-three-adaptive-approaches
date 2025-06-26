@@ -42,6 +42,24 @@ labs(title = "Map of autonomous regions and provinces in Spain") +
 theme_minimal()
 MapSpainFig
 
+#plotting the region of interest
+shp_prov_centroids <- shp_prov %>%
+  st_centroid() %>%
+  mutate(x = st_coordinates(.)[, 1],
+         y = st_coordinates(.)[, 2])
+
+# Plot
+SpainMapWithNames <- ggplot(shp_prov) +
+  geom_sf(aes(fill = ProvName), color = "grey70", lwd = 0.2) +  # Colored provinces with white borders
+  geom_sf(data = shp_prov_large, fill = NA, color = "black", linewidth = 0.8) +
+  geom_text(data = shp_prov_centroids,
+            aes(x = x, y = y, label = ProvName),
+            size = 3, color = "black") +
+  guides(fill = "none") +  # Hide legend (optional)
+  theme_minimal() +
+  labs(x = NULL, y = NULL)
+
+#ggsave("Plots//SpainMapWithNames.png", plot = SpainMapWithNames, height = 11, width = 11,  units = "cm",  dpi = 300)
 ```
 
 
