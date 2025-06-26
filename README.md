@@ -20,4 +20,7 @@ This is where the WinBUGS models are defined, specifically RW-ICAR and EW-ICAR. 
 ### CV on real data.Rmd
 This is where the "cross validation" takes place. As there are three different priors for the precision these can be chosen in lines X-Y and then run the whole file. This could take some time, for me it takes just under two hours. Then all the boxplot are generated.
 
+## Data
+All the data was retrived from Instituto Nacional de Estadística (INE). The data which contains the response variabel is in the file "Mortality.csv", which is the disease counts per disease per province. The additional data needed to calculate the expected number of cases is the population data per province per age group in the file "PopXProvincesXAge.csv" and the national disease counts for each age group is in "MortalityXAge". These are then used to create "ExpectedCasesMiguel.rds" and "ObservedCases.rds", which are then the $\mathbf{E}$ and $\mathbf{y}$ used in the model formulations.
+
 
