@@ -399,12 +399,13 @@ for (i in 1:4){
   BW_sens_model <- inla.rgeneric.define(inla.rgeneric.BWICAR, df = ss_provinces, 
                                     AMat = adj_matrix, pr_str = prior_options[i]) 
   for (m in 1:86){
-    Y <- as.vector(ObservedCases[, j])
-    E <- as.vector(ExpectedCases[, j])
+    Y <- as.vector(ObservedCases[, m])
+    E <- as.vector(ExpectedCases[, m])
   
     data_df <- data.frame(Y = Y, E = E, ID = 1:nAreas)
     
-    formula_BW <- Y ~ offset(log(E)) + f(ID, model = BW_sens_model)
+    formula_BW <- Y ~ offset(log(E)) + f(ID, model = BW_sens_model,
+                      extraconstr = list(A = matrix(1, nrow = 1, ncol = nAreas), e = 0))
     res_BW <- inla(formula_BW, family = "poisson", data = data_df,
                  control.compute = list(cpo = T, waic = T, dic = T))
     
@@ -415,7 +416,7 @@ for (i in 1:4){
 }
 
 #save the results
-#saveRDS(sensitivity_df, file = "Results//BW-sensitivity.rds")
+saveRDS(sensitivity_df, file = "Results//BW-sensitivity-constr.rds")
 ```
 
 Visualizing the results:
@@ -423,7 +424,7 @@ Visualizing the results:
 library(tidyr)
 library(dplyr)
 
-sensitivity_df <- readRDS(file = "Results//BW-sensitivity.rds")
+sensitivity_df <- readRDS(file = "Results//BW-sensitivity-constr.rds")
 
 index_WAIC <- 1:4
 
@@ -489,9 +490,9 @@ LS_boxplot <- ggplot(LS_long, aes(x = Model, y = LS)) +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 #saving the figures
-# ggsave("Plots//SenitivityFigureWAIC.png", plot = WAIC_boxplot, height = 7, width = 10,  units = "cm",  dpi = 300)
-# ggsave("Plots//SenitivityFigureDIC.png", plot = DIC_boxplot, height = 7, width = 10,  units = "cm",  dpi = 300)
-#ggsave("Plots//SenitivityFigureCPO.png", plot = LS_boxplot, height = 7, width = 10,  units = "cm",  dpi = 300)
+# ggsave("Plots//SenitivityFigureWAIC_constr.png", plot = WAIC_boxplot, height = 7, width = 10,  units = "cm",  dpi = 300)
+# ggsave("Plots//SenitivityFigureDIC_constr.png", plot = DIC_boxplot, height = 7, width = 10,  units = "cm",  dpi = 300)
+# ggsave("Plots//SenitivityFigureLS_constr.png", plot = LS_boxplot, height = 7, width = 10,  units = "cm",  dpi = 300)
 
 ```
 

@@ -249,9 +249,9 @@ inla.rgeneric.Validation = function(
 
 #The specific models
 
-prior_str <- "PC"
+#prior_str <- "PC"
 #prior_str <- "gamma"
-#prior_str <- "U"
+prior_str <- "U"
 
 RW10_model <- inla.rgeneric.define(inla.rgeneric.Validation, R = Q_RW10, nAreas = nAreas, pr_str = prior_str)
 RW20_model <- inla.rgeneric.define(inla.rgeneric.Validation, R = Q_RW20, nAreas = nAreas, pr_str = prior_str)
@@ -311,7 +311,7 @@ ExpectedCases <- readRDS("ExpectedCasesMiguel.rds")
 ObservedCases <- readRDS("ObservedCases.rds")
 
 #For all diseases
-test_indecies <- 1:86 #the diseases to be validated on
+test_indecies <- 16:86 #the diseases to be validated on
 
 criteria_df <- data.frame(matrix(NA, nrow = length(test_indecies), ncol = ((2*4 + 3 + 2)*3)))
 colnames(criteria_df) <- c("RW_10_WAIC", "RW_20_WAIC", "RW_50_WAIC", "RW_86_WAIC",
@@ -337,11 +337,11 @@ for (j in test_indecies){
   
   # The RW-ICAR by Miguel
   
-  formula_RW_10 <- Y ~ offset(log(E)) + f(ID, model = RW10_model) #intercept is automatically included
-  formula_RW_20 <- Y ~ offset(log(E)) + f(ID, model = RW20_model)
-  formula_RW_50 <- Y ~ offset(log(E)) + f(ID, model = RW50_model)
-  formula_RW_86 <- Y ~ offset(log(E)) + f(ID, model = RW86_model)
-  formula_RW_C <- Y ~ offset(log(E)) + f(ID, model = RW_C_model)
+  formula_RW_10 <- Y ~ offset(log(E)) + f(ID, model = RW10_model, extraconstr = list(A = matrix(1, nrow = 1, ncol = nAreas), e = 0)) #intercept is automatically included
+  formula_RW_20 <- Y ~ offset(log(E)) + f(ID, model = RW20_model, extraconstr = list(A = matrix(1, nrow = 1, ncol = nAreas), e = 0))
+  formula_RW_50 <- Y ~ offset(log(E)) + f(ID, model = RW50_model, extraconstr = list(A = matrix(1, nrow = 1, ncol = nAreas), e = 0))
+  formula_RW_86 <- Y ~ offset(log(E)) + f(ID, model = RW86_model, extraconstr = list(A = matrix(1, nrow = 1, ncol = nAreas), e = 0))
+  formula_RW_C <- Y ~ offset(log(E)) + f(ID, model = RW_C_model, extraconstr = list(A = matrix(1, nrow = 1, ncol = nAreas), e = 0))
   
   res_RW_10 <- inla(formula_RW_10, family = "poisson", data = data_df,
                     control.compute = list(cpo = T, waic = T, dic = T))
@@ -356,11 +356,11 @@ for (j in test_indecies){
   
   # The EW-ICAR by Riddervold/Jo
   
-  formula_EW_10 <- Y ~ offset(log(E)) + f(ID, model = EW10_model)
-  formula_EW_20 <- Y ~ offset(log(E)) + f(ID, model = EW20_model)
-  formula_EW_50 <- Y ~ offset(log(E)) + f(ID, model = EW50_model)
-  formula_EW_86 <- Y ~ offset(log(E)) + f(ID, model = EW86_model)
-  formula_EW_C <- Y ~ offset(log(E)) + f(ID, model = EW_C_model)
+  formula_EW_10 <- Y ~ offset(log(E)) + f(ID, model = EW10_model, extraconstr = list(A = matrix(1, nrow = 1, ncol = nAreas), e = 0))
+  formula_EW_20 <- Y ~ offset(log(E)) + f(ID, model = EW20_model, extraconstr = list(A = matrix(1, nrow = 1, ncol = nAreas), e = 0))
+  formula_EW_50 <- Y ~ offset(log(E)) + f(ID, model = EW50_model, extraconstr = list(A = matrix(1, nrow = 1, ncol = nAreas), e = 0))
+  formula_EW_86 <- Y ~ offset(log(E)) + f(ID, model = EW86_model, extraconstr = list(A = matrix(1, nrow = 1, ncol = nAreas), e = 0))
+  formula_EW_C <- Y ~ offset(log(E)) + f(ID, model = EW_C_model, extraconstr = list(A = matrix(1, nrow = 1, ncol = nAreas), e = 0))
   
   res_EW_10 <- inla(formula_EW_10, family = "poisson", data = data_df,
                     control.compute = list(cpo = T, waic = T, dic = T))
@@ -374,7 +374,8 @@ for (j in test_indecies){
                     control.compute = list(cpo = T, waic = T, dic = T))
   
   #BW-ICAR by Wakefield
-  formula_BW <- Y ~ offset(log(E)) + f(ID, model = BW_model)
+  formula_BW <- Y ~ offset(log(E)) + f(ID, model = BW_model, 
+                    extraconstr = list(A = matrix(1, nrow = 1, ncol = nAreas), e = 0))
   res_BW <- inla(formula_BW, family = "poisson", data = data_df,
                  control.compute = list(cpo = T, waic = T, dic = T))
   #construct BW Q from tau1 and tau2
@@ -396,7 +397,7 @@ for (j in test_indecies){
   BW_2_model <- inla.rgeneric.define(inla.rgeneric.Validation, 
                                      R = Q_mat, nAreas = nAreas, pr_str = prior_str)
   
-  formula_BW_2 <- Y ~ offset(log(E)) + f(ID, model = BW_2_model)
+  formula_BW_2 <- Y ~ offset(log(E)) + f(ID, model = BW_2_model, extraconstr = list(A = matrix(1, nrow = 1, ncol = nAreas), e = 0))
   
   res_BW_2 <- inla(formula_BW_2, family = "poisson", data = data_df,
                  control.compute = list(cpo = T, waic = T, dic = T))
@@ -405,15 +406,18 @@ for (j in test_indecies){
   
   if (prior_str == "PC"){
     formula_ICAR <- Y ~ offset(log(E)) + 
-      f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE,
+      f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE, 
+        extraconstr = list(A = matrix(1, nrow = 1, ncol = nAreas), e = 0),
       hyper = list(prec = list(prior = "pc.prec", param = c(3, 0.05))))
   } else if (prior_str == "gamma"){
     formula_ICAR <- Y ~ offset(log(E)) + 
-      f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE)
+      f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE,
+        extraconstr = list(A = matrix(1, nrow = 1, ncol = nAreas), e = 0))
   } else if (prior_str == "U"){
     sdunif="expression: logdens=-log_precision/2; return(logdens)"
     formula_ICAR <- Y ~ offset(log(E)) + 
-      f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE, 
+      f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE,
+        extraconstr = list(A = matrix(1, nrow = 1, ncol = nAreas), e = 0),
         hyper = list(prec = list(prior = sdunif)))
   }
   
@@ -454,6 +458,17 @@ CV_runtime
 ```
 
 Failed on the sixth disease with gamma prior, should mention that the valdation sometimes chrashes, but not consistently.
+
+```{r}
+# save the criteria_df
+prior_str
+
+#saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta_gamma_W_C_constr.rds")
+
+#saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta_PC_W_C_constr.rds")
+
+#saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta_U_W_C_constr.rds")
+```
 
 
 ## Testing
@@ -510,18 +525,6 @@ summary(res_ICAR_2)
 ```
 
 
-```{r}
-# save the criteria_df
-prior_str
-
-#saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta_gamma_W_C_final_final.rds")
-
-#saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta_PC_W_C_final_final.rds")
-
-#saveRDS(criteria_df, file = "CV-Results//CV_no_iidTheta_U_W_C_final_final.rds")
-```
-
-
 # Make the box-plots for the "CV" results
 
 Plot for all the diseases without a reference level.
@@ -531,11 +534,11 @@ library(dplyr)
 library(ggplot2)
 library(ggpubr)
 
-res_df <- readRDS(file = "CV-Results//final with correct BW prior//CV_no_iidTheta_gamma_W_C_final_final.rds")
-prior <- "gamma"
+#res_df <- readRDS(file = "CV-Results//final with correct BW prior//CV_no_iidTheta_gamma_W_C_final_final.rds")
+#prior <- "gamma"
 
-#res_df <- readRDS(file = "CV-Results//final with correct BW prior//CV_no_iidTheta_PC_W_C_final_final.rds")
-#prior <- "PC"
+res_df <- readRDS(file = "CV-Results//CV_no_iidTheta_PC_W_C_constr.rds")
+prior <- "PC"
 
 #res_df <- readRDS(file = "CV-Results//final with correct BW prior//CV_no_iidTheta_U_W_C_final_final.rds")
 #prior <- "U"
