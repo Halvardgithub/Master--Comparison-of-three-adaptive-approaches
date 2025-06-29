@@ -429,7 +429,7 @@ index_WAIC <- 1:4
 
 index_DIC <- 5:8
 
-index_CPO <- 9:12
+index_LS <- 9:12
 
 #For WAIC
 sens_WAIC <- sensitivity_df[index_WAIC]
@@ -469,29 +469,29 @@ DIC_boxplot <- ggplot(DIC_long, aes(x = Model, y = DIC)) +
   labs(x = "", y = "DIC") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
-#For CPO
-sens_CPO <- sensitivity_df[index_CPO]
+#For LS
+sens_LS <- sensitivity_df[index_LS]
 
-colnames(sens_CPO) <- sub("_(?!.*_).*", "", colnames(sens_CPO), perl = TRUE)
+colnames(sens_LS) <- sub("_(?!.*_).*", "", colnames(sens_LS), perl = TRUE)
 
 #transform to PC3 as a referance level
-sens_CPO <- sens_CPO |>
+sens_LS <- sens_LS |>
   mutate(across(everything(), ~ .x - .data$PC3))
 
-CPO_long <-  sens_CPO |>
+LS_long <-  sens_LS |>
   mutate(row_id = row_number()) |>
-  pivot_longer(-row_id, names_to = "Model", values_to = "CPO")
+  pivot_longer(-row_id, names_to = "Model", values_to = "LS")
 
-CPO_boxplot <- ggplot(CPO_long, aes(x = Model, y = CPO)) +
+LS_boxplot <- ggplot(LS_long, aes(x = Model, y = LS)) +
   geom_boxplot(fill = "skyblue") +
   theme_minimal() +
-  labs(x = "", y = "CPO") +
+  labs(x = "", y = "LS") +
   theme(axis.text.x = element_text(angle = 45, hjust = 1))
 
 #saving the figures
 # ggsave("Plots//SenitivityFigureWAIC.png", plot = WAIC_boxplot, height = 7, width = 10,  units = "cm",  dpi = 300)
 # ggsave("Plots//SenitivityFigureDIC.png", plot = DIC_boxplot, height = 7, width = 10,  units = "cm",  dpi = 300)
-# ggsave("Plots//SenitivityFigureCPO.png", plot = CPO_boxplot, height = 7, width = 10,  units = "cm",  dpi = 300)
+#ggsave("Plots//SenitivityFigureCPO.png", plot = LS_boxplot, height = 7, width = 10,  units = "cm",  dpi = 300)
 
 ```
 
