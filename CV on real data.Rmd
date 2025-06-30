@@ -534,14 +534,14 @@ library(dplyr)
 library(ggplot2)
 library(ggpubr)
 
-#res_df <- readRDS(file = "CV-Results//final with correct BW prior//CV_no_iidTheta_gamma_W_C_final_final.rds")
+#res_df <- readRDS(file = "CV-Results//CV_no_iidTheta_gamma_W_C_constr.rds")
 #prior <- "gamma"
 
-res_df <- readRDS(file = "CV-Results//CV_no_iidTheta_PC_W_C_constr.rds")
-prior <- "PC"
+#res_df <- readRDS(file = "CV-Results//CV_no_iidTheta_PC_W_C_constr.rds")
+#prior <- "PC"
 
-#res_df <- readRDS(file = "CV-Results//final with correct BW prior//CV_no_iidTheta_U_W_C_final_final.rds")
-#prior <- "U"
+res_df <- readRDS(file = "CV-Results//CV_no_iidTheta_U_W_C_constr.rds")
+prior <- "U"
 
 index_WAIC <- c(1, 2, 3, 4, 5, 6, 7, 8, 25, 28, 31, 34, 37)
 
@@ -859,31 +859,32 @@ full_boxplot_cancer_WO_outliers
 
 ```{r}
 #Gamma prior
-# ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//CV_boxplot_W_outliers.png", plot = full_boxplot, height = 24, width = 21,  units = "cm",  dpi = 300)
+# ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//CV_boxplot_W_outliers_constr.png", plot = full_boxplot, height = 24, width = 21,  units = "cm",  dpi = 300)
 # 
-# ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//CV_boxplot_ICAR_ref_W_outliers.png", plot = full_boxplot_W_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
+# ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//CV_boxplot_ICAR_ref_W_outliers_constr.png", plot = full_boxplot_W_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
 # 
-# ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//CV_boxplot_ICAR_ref_WO_outliers.png", plot = full_boxplot_WO_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
+# ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//CV_boxplot_ICAR_ref_WO_outliers_constr.png", plot = full_boxplot_WO_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
 # 
-# ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//CV_boxplot_ICAR_ref_cancer_WO_outliers.png", plot = full_boxplot_cancer_WO_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
+# ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//CV_boxplot_ICAR_ref_cancer_WO_outliers_constr.png", plot = full_boxplot_cancer_WO_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
+
 
 #PC prior
-# ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//CV_boxplot_PC_W_outliers.png", plot = full_boxplot, height = 24, width = 21,  units = "cm",  dpi = 300)
+# ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//CV_boxplot_PC_W_outliers_constr.png", plot = full_boxplot, height = 24, width = 21,  units = "cm",  dpi = 300)
 # 
-# ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//CV_boxplot_PC_ICAR_ref_W_outliers.png", plot = full_boxplot_W_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
+# ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//CV_boxplot_PC_ICAR_ref_W_outliers_constr.png", plot = full_boxplot_W_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
 # 
-# ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//CV_boxplot_PC_ICAR_ref_WO_outliers.png", plot = full_boxplot_WO_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
+# ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//CV_boxplot_PC_ICAR_ref_WO_outliers_constr.png", plot = full_boxplot_WO_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
 # 
-# ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//CV_boxplot_PC_ICAR_ref_cancer_WO_outliers.png", plot = full_boxplot_cancer_WO_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
+# ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//CV_boxplot_PC_ICAR_ref_cancer_WO_outliers_constr.png", plot = full_boxplot_cancer_WO_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
 
 #Uniform prior
-# ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//CV_boxplot_U_W_outliers.png", plot = full_boxplot, height = 24, width = 21,  units = "cm",  dpi = 300)
+# ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//CV_boxplot_U_W_outliers_constr.png", plot = full_boxplot, height = 24, width = 21,  units = "cm",  dpi = 300)
 # 
-# ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//CV_boxplot_U_ICAR_ref_W_outliers.png", plot = full_boxplot_W_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
+# ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//CV_boxplot_U_ICAR_ref_W_outliers_constr.png", plot = full_boxplot_W_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
 # 
-# ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//CV_boxplot_U_ICAR_ref_WO_outliers.png", plot = full_boxplot_WO_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
+# ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//CV_boxplot_U_ICAR_ref_WO_outliers_constr.png", plot = full_boxplot_WO_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
 # 
-# ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//CV_boxplot_U_ICAR_ref_cancer_WO_outliers.png", plot = full_boxplot_cancer_WO_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
+# ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//CV_boxplot_U_ICAR_ref_cancer_WO_outliers_constr.png", plot = full_boxplot_cancer_WO_outliers, height = 24, width = 21,  units = "cm",  dpi = 300)
 ```
 
 
