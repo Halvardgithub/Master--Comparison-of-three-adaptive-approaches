@@ -552,10 +552,10 @@ plot_U <- ggplot(df, aes(x = x, y = y)) +
 
 #PC
 
-x_PC <- seq(1/25, 2, length.out = 10000)
+x_PC <- seq(1/25, 100, length.out = 10000)
 
-u <- 3
-alpha <- 0.05
+u <- 1
+alpha <- 0.01
 lambda <- -log(alpha) / u
 
 y_PC <- (lambda / 2) * x_PC**(-3/2) * exp(-lambda / sqrt(x_PC))

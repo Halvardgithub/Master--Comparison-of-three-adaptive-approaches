@@ -110,13 +110,6 @@ inla.rgeneric.BWICAR = function(
   
   log.norm.const <- function() {return(numeric(0))}
   
-  # log.prior <- function() {
-  #   p <- interpret_theta()
-  #   prior <- inla.pc.dprec(p$tau1, u = 1, alpha = 0.01, log=TRUE) + log(p$tau1) +
-  #          inla.pc.dprec(p$tau2, u = 1, alpha = 0.01, log = TRUE) + log(p$tau2)
-  #   return(prior)
-  # }
-  
   log.prior <- function() {#default: shape = 1, rate = 0.00005 for tau
     p <- interpret_theta()
     if (pr_str == "gamma")  {
@@ -145,7 +138,7 @@ nb <- poly2nb(ss_provinces)
 adj_matrix <- nb2mat(nb, style = "B", zero.policy = TRUE)
 
 BW_model <- inla.rgeneric.define(inla.rgeneric.BWICAR, df = ss_provinces,
-                                    AMat = adj_matrix, pr_str = "PC3")
+                                    AMat = adj_matrix, pr_str = "PC1")
 ```
 
 
@@ -233,7 +226,7 @@ inla.rgeneric.Validation = function(
   log.prior <- function() {#default: shape = 1, rate = 0.00005 for tau
     p <- interpret_theta()
     if (pr_str == "gamma")  {prior <- dgamma(p$tau, shape = 1, rate = 0.00005, log = TRUE) + log(p$tau)}
-    else if (pr_str == "PC") {prior <- inla.pc.dprec(p$tau, u = 3, alpha = 0.05, log=TRUE) + log(p$tau)}
+    else if (pr_str == "PC") {prior <- inla.pc.dprec(p$tau, u = 1, alpha = 0.01, log=TRUE) + log(p$tau)}
     else if (pr_str == "U") {prior <- -0.5*log(p$tau)}
     return(prior)
   }
@@ -478,49 +471,26 @@ data_df <- data.frame(Y = Y, E = E, ID = 1:nAreas)
 
 formula_ICAR <- Y ~ offset(log(E)) + 
       f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE,
-      hyper = list(prec = list(prior = "pc.prec", param = c(3, 0.05),log = TRUE)))
+      hyper = list(prec = list(prior = "pc.prec", param = c(3, 0.05))))
 
-res_ICAR <- inla(formula_ICAR, family = "poisson", data = data_df,
-                   control.compute = list(cpo = T, waic = T, dic = T))
+res_ICAR <- inla(formula_ICAR, family = "poisson", data = data_df)
 
 #versus
 
 formula_ICAR_2 <- Y ~ f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE,
-      hyper = list(prec = list(prior = "pc.prec", param = c(3, 0.05),log = TRUE)))
+      hyper = list(prec = list(prior = "pc.prec", param = c(3, 0.05))))
 
-res_ICAR_2 <- inla(formula_ICAR_2, family = "poisson", data = data_df, E = E,
-                   control.compute = list(cpo = T, waic = T, dic = T))
+res_ICAR_2 <- inla(formula_ICAR_2, family = "poisson", data = data_df, E = E)
 
 summary(res_ICAR)
 summary(res_ICAR_2)
 #They are the same, can mention that in the implementation section
 
-# then for log=true
-
-formula_ICAR <- Y ~ offset(log(E)) + 
-      f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE,
-      hyper = list(prec = list(prior = "pc.prec", param = c(3, 0.05),log = TRUE)))
-
-res_ICAR <- inla(formula_ICAR, family = "poisson", data = data_df,
-                   control.compute = list(cpo = T, waic = T, dic = T))
-
-#versus
-
-formula_ICAR_2 <- Y ~ f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE,
-      hyper = list(prec = list(prior = "pc.prec", param = c(3, 0.05))))
-
-res_ICAR_2 <- inla(formula_ICAR_2, family = "poisson", data = data_df, E = E,
-                   control.compute = list(cpo = T, waic = T, dic = T))
-
-summary(res_ICAR)
-summary(res_ICAR_2)
-#also no difference, so then the log = true should be removed
-
 # then for constraint for besag
 
 formula_ICAR <- Y ~ offset(log(E)) + 
       f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE, constr = F,
-        #extraconstr = list(A = matrix(1, nrow = 1, ncol = nAreas), e = 0),
+        extraconstr = list(A = matrix(1, nrow = 1, ncol = nAreas), e = 0),
       hyper = list(prec = list(prior = "pc.prec", param = c(3, 0.05))))
 
 res_ICAR <- inla(formula_ICAR, family = "poisson", data = data_df,
@@ -528,10 +498,11 @@ res_ICAR <- inla(formula_ICAR, family = "poisson", data = data_df,
 
 #versus
 
-formula_ICAR_2 <- Y ~ f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE,
+formula_ICAR_2 <- Y ~ offset(log(E)) +
+  f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE, constr = T,
       hyper = list(prec = list(prior = "pc.prec", param = c(3, 0.05))))
 
-res_ICAR_2 <- inla(formula_ICAR_2, family = "poisson", data = data_df, E = E,
+res_ICAR_2 <- inla(formula_ICAR_2, family = "poisson", data = data_df,
                    control.compute = list(cpo = T, waic = T, dic = T))
 
 summary(res_ICAR)
