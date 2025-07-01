@@ -311,7 +311,7 @@ ExpectedCases <- readRDS("ExpectedCasesMiguel.rds")
 ObservedCases <- readRDS("ObservedCases.rds")
 
 #For all diseases
-test_indecies <- 16:86 #the diseases to be validated on
+test_indecies <- 1:86 #the diseases to be validated on
 
 criteria_df <- data.frame(matrix(NA, nrow = length(test_indecies), ncol = ((2*4 + 3 + 2)*3)))
 colnames(criteria_df) <- c("RW_10_WAIC", "RW_20_WAIC", "RW_50_WAIC", "RW_86_WAIC",
@@ -406,18 +406,15 @@ for (j in test_indecies){
   
   if (prior_str == "PC"){
     formula_ICAR <- Y ~ offset(log(E)) + 
-      f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE, 
-        extraconstr = list(A = matrix(1, nrow = 1, ncol = nAreas), e = 0),
+      f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE,
       hyper = list(prec = list(prior = "pc.prec", param = c(3, 0.05))))
   } else if (prior_str == "gamma"){
     formula_ICAR <- Y ~ offset(log(E)) + 
-      f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE,
-        extraconstr = list(A = matrix(1, nrow = 1, ncol = nAreas), e = 0))
+      f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE)
   } else if (prior_str == "U"){
     sdunif="expression: logdens=-log_precision/2; return(logdens)"
     formula_ICAR <- Y ~ offset(log(E)) + 
       f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE,
-        extraconstr = list(A = matrix(1, nrow = 1, ncol = nAreas), e = 0),
         hyper = list(prec = list(prior = sdunif)))
   }
   
@@ -449,15 +446,9 @@ for (j in test_indecies){
 #runtimes and saving
 CV_runtime <- Sys.time() - t0
 CV_runtime
-
-#testing
-# Y <- as.vector(ObservedCases[, 60])
-# E <- as.vector(ExpectedCases[, 60])
-#  
-# data_df <- data.frame(Y = Y, E = E, ID = 1:nAreas)
 ```
 
-Failed on the sixth disease with gamma prior, should mention that the valdation sometimes chrashes, but not consistently.
+### Saving the results
 
 ```{r}
 # save the criteria_df
@@ -475,6 +466,8 @@ prior_str
 offset(log(E)) vs E in the INLA call
 
 log = TRUE or not, maybe not even an argument
+
+sum-to-zero constraint for besag or not
 ```{r, eval=FALSE}
 Y <- as.vector(ObservedCases[, 60])
 E <- as.vector(ExpectedCases[, 60])
@@ -522,6 +515,29 @@ res_ICAR_2 <- inla(formula_ICAR_2, family = "poisson", data = data_df, E = E,
 summary(res_ICAR)
 summary(res_ICAR_2)
 #also no difference, so then the log = true should be removed
+
+# then for constraint for besag
+
+formula_ICAR <- Y ~ offset(log(E)) + 
+      f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE, constr = F,
+        #extraconstr = list(A = matrix(1, nrow = 1, ncol = nAreas), e = 0),
+      hyper = list(prec = list(prior = "pc.prec", param = c(3, 0.05))))
+
+res_ICAR <- inla(formula_ICAR, family = "poisson", data = data_df,
+                   control.compute = list(cpo = T, waic = T, dic = T))
+
+#versus
+
+formula_ICAR_2 <- Y ~ f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE,
+      hyper = list(prec = list(prior = "pc.prec", param = c(3, 0.05))))
+
+res_ICAR_2 <- inla(formula_ICAR_2, family = "poisson", data = data_df, E = E,
+                   control.compute = list(cpo = T, waic = T, dic = T))
+
+summary(res_ICAR)
+summary(res_ICAR_2)
+
+#inla.doc("besag")
 ```
 
 

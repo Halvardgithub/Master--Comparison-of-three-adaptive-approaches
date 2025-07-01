@@ -82,14 +82,14 @@ RW_ICAR_withIID <- function() {
       phi.adj[i, m] <- phi[adj[i], m]
     }
   }
-  # Precision of the conditional distribution of spatial effects
+  # Precision for the conditional distribution of spatial effects
   for (m in 1:Ndiseases) {
     prec.phi[1, m] <- pow(sd.phi[m], -2) * sqrt(c[1]) * sum(sqrt.c.adj[index[1]:index[2]])
     for (i in 2:Nareas) {
-      prec.phi[i, m] <- pow(sd.phi[m], -2) * sqrt(c[i]) * sum(sqrt.c.adj[(index[i] + 1):index[i + 1]]) #the +1 is to correct the indexes, works as all regions have at least one neighbour
+      prec.phi[i, m] <- pow(sd.phi[m], -2) * sqrt(c[i]) * sum(sqrt.c.adj[(index[i] + 1):index[i + 1]]) # the +1 is to correct the indexes, works as all regions have at least one neighbour
     } 
   } 
-  # Mean of the conditional distribution of spatial effects
+  # Mean for the conditional distribution of spatial effects
   for (m in 1:Ndiseases) {
     mean.phi[1, m] <- inprod2(sqrt.c.adj[index[1]:index[2]],
       phi.adj[index[1]:index[2], m])/sum(sqrt.c.adj[index[1]:index[2]])
@@ -130,20 +130,21 @@ RW_ICAR_NOiid <- function() {
       phi[i, m] ~ dnorm(mean.phi[i, m], prec.phi[i, m])
     }
   }
+  # Adjacencies for c and phi
   for (i in 1:n.adj) {
     sqrt.c.adj[i] <- sqrt(c[adj[i]])
     for (m in 1:Ndiseases) {
       phi.adj[i, m] <- phi[adj[i], m]
     }
   }
-  # Precision of the conditional distribution of spatial effects
+  # Precision for the conditional distribution of spatial effects
   for (m in 1:Ndiseases) {
     prec.phi[1, m] <- pow(sd.phi[m], -2) * sqrt(c[1]) * sum(sqrt.c.adj[index[1]:index[2]])
     for (i in 2:Nareas) {
-      prec.phi[i, m] <- pow(sd.phi[m], -2) * sqrt(c[i]) * sum(sqrt.c.adj[(index[i] + 1):index[i + 1]]) #the +1 is to correct the indexes, works as all regions have at least one neighbour
+      prec.phi[i, m] <- pow(sd.phi[m], -2) * sqrt(c[i]) * sum(sqrt.c.adj[(index[i] + 1):index[i + 1]]) # the +1 is to correct the indexes, works as all regions have at least one neighbour
     } 
   } 
-  # Mean of the conditional distribution of spatial effects
+  # Mean for the conditional distribution of spatial effects
   for (m in 1:Ndiseases) {
     mean.phi[1, m] <- inprod2(sqrt.c.adj[index[1]:index[2]],
       phi.adj[index[1]:index[2], m])/sum(sqrt.c.adj[index[1]:index[2]])
@@ -432,7 +433,7 @@ EW_ICAR_withIID <- function() {
   for (i in 1:Nareas) {
     for (m in 1:Ndiseases) {
       Y[i, m] ~ dpois(lambda[i, m])
-      # Modeling of the mean for each census tract and disease
+      # Modeling of the mean for each region and disease
       log(lambda[i, m]) <- log(E[i, m]) + mu[m] + phi[i,m] + sd.theta[m] * theta[i, m]
       # Prior distribution for spatial effects
       phi[i, m] ~ dnorm(mean.phi[i, m], prec.phi[i, m])
@@ -440,24 +441,24 @@ EW_ICAR_withIID <- function() {
       theta[i, m] ~ dnorm(0, 1)
     }
   }
-  
+  # Adjacencies for phi
   for (i in 1:n.adj) {
     for (m in 1:Ndiseases) {
       phi.adj[i, m] <- phi[adj[i], m]
     }
   }
-  # Precision of the conditional distribution of spatial effects
+  # Precision for the conditional distribution of spatial effects
   for (m in 1:Ndiseases) {
      prec.phi[1, m] <- pow(sd.phi[m], -2) * sum(Tau2.tau.list[index[1]:index[2]])
      for (i in 2:Nareas) {
        prec.phi[i, m] <- pow(sd.phi[m], -2) * sum(Tau2.tau.list[(index[i]+1):index[i+1]])
      }
   }
-  for(i in 1:n.adj){ #to avoid nesting too many lists inside each other, causes crashes
+  #to avoid nesting too many lists inside each other, caused crashes
+  for(i in 1:n.adj){
     Tau2.tau.list[i]<-Tau2[tau.list[i]]
   }  
-  
-  # Mean of the conditional distribution of spatial effects
+  # Mean for the conditional distribution of spatial effects
   for (m in 1:Ndiseases) {
       mean.phi[1, m] <- inprod2(Tau2.tau.list[index[1]:index[2]],
       phi.adj[index[1]:index[2], m])/sum(Tau2.tau.list[index[1]:index[2]])
@@ -469,7 +470,7 @@ EW_ICAR_withIID <- function() {
     ceros[m] ~ dnorm(sum.phi[m], 10)
     sum.phi[m] <- sum(phi[, m])
   }
-  # Prior distributions for Tau2 and its hyperparameters
+  # Prior distributions for Tau2 - all the precision edges
   for (t in 1:(n.adj/2)){
     Tau2[t] ~ dgamma(alpha, alpha) %_% I(0.001, )
   }
@@ -494,30 +495,30 @@ EW_ICAR_NOiid <- function() {
   for (i in 1:Nareas) {
     for (m in 1:Ndiseases) {
       Y[i, m] ~ dpois(lambda[i, m])
-      # Modeling of the mean for each census tract and disease
+      # Modeling of the mean for each region and disease
       log(lambda[i, m]) <- log(E[i, m]) + mu[m] + phi[i,m]
       # Prior distribution for spatial effects
       phi[i, m] ~ dnorm(mean.phi[i, m], prec.phi[i, m])
     }
   }
-  
+  # Adjacencies for phi
   for (i in 1:n.adj) {
     for (m in 1:Ndiseases) {
       phi.adj[i, m] <- phi[adj[i], m]
     }
   }
-  # Precision of the conditional distribution of spatial effects
+  # Precision for the conditional distribution of spatial effects
   for (m in 1:Ndiseases) {
      prec.phi[1, m] <- pow(sd.phi[m], -2) * sum(Tau2.tau.list[index[1]:index[2]])
      for (i in 2:Nareas) {
        prec.phi[i, m] <- pow(sd.phi[m], -2) * sum(Tau2.tau.list[(index[i]+1):index[i+1]])
      }
   }
-  for(i in 1:n.adj){ #to avoid nesting too many lists inside each other, causes crashes
+  #to avoid nesting too many lists inside each other, caused crashes
+  for(i in 1:n.adj){ 
     Tau2.tau.list[i]<-Tau2[tau.list[i]]
   }  
-  
-  # Mean of the conditional distribution of spatial effects
+  # Mean for the conditional distribution of spatial effects
   for (m in 1:Ndiseases) {
       mean.phi[1, m] <- inprod2(Tau2.tau.list[index[1]:index[2]],
       phi.adj[index[1]:index[2], m])/sum(Tau2.tau.list[index[1]:index[2]])
@@ -529,7 +530,7 @@ EW_ICAR_NOiid <- function() {
     ceros[m] ~ dnorm(sum.phi[m], 10)
     sum.phi[m] <- sum(phi[, m])
   }
-  # Prior distributions for Tau2 and its hyperparameters
+  # Prior distributions for Tau2 - all the edge precisions
   for (t in 1:(n.adj/2)){
     Tau2[t] ~ dgamma(alpha, alpha) %_% I(0.001, )
   }
