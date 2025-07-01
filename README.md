@@ -26,4 +26,10 @@ Short script written by Miguel (professor in Valencia) to calculate the expected
 ## Data
 All the data was retrived from Instituto Nacional de Estadística (INE). The data which contains the response variabel is in the file "Mortality.csv", which is the disease counts per disease per province. The additional data needed to calculate the expected number of cases is the population data per province per age group in the file "PopXProvincesXAge.csv" and the national disease counts for each age group is in "MortalityXAge". These are then used to create "ExpectedCasesMiguel.rds" and "ObservedCases.rds", which are then the $\mathbf{E}$ and $\mathbf{y}$ used in the model formulations.
 
+## Versions for main libraries used in R
+* INLA: 24.05.01-1
+* R2WinBUGS: 2.1.22.1
+* pbugs: 1.0.6
+For the remainder of the libraries the versions should not be of consequence, and if future updates are not backwards compatible it should be easy to alter the code.
+
 
