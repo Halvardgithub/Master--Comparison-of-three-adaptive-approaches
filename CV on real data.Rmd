@@ -69,24 +69,26 @@ inla.rgeneric.BWICAR = function(
   
   envir = parent.env(environment())
   
+  # The link between the internal parameters and the precisions 
   interpret_theta <- function() { return(list(tau1 = exp(theta[1L]), 
                                               tau2 = exp(theta[2L])))}
   
   graph <- function() {return(Q())}
   
+  # Defining the precision matrix
   Q <- function() {
     N <- nrow(df) #df is passed as an argument, N is the number of regions
-    R1 <- matrix(0, nrow = N, ncol = N) #non-conflict
-    R2 <- matrix(0, nrow = N, ncol = N) #conflict
+    R1 <- matrix(0, nrow = N, ncol = N) #inside autonomous regions
+    R2 <- matrix(0, nrow = N, ncol = N) #across autonomous regions
     
-    #assume the adjacency matrix is called AMat, then
+    #uses the adjacency matrix called AMat
     non_zero_indices <- which(AMat == 1, arr.ind = TRUE)
     
-    for (k in seq_len(nrow(non_zero_indices))) { #nrow?
+    for (k in seq_len(nrow(non_zero_indices))) {
       i <- non_zero_indices[k, 1]
       j <- non_zero_indices[k, 2]
       
-      if(df[["Cod_CCAA"]][i] == df[["Cod_CCAA"]][j]){
+      if(df[["Cod_CCAA"]][i] == df[["Cod_CCAA"]][j]){ #the name of the autonmous regions
         R1[i, j] <- -1
         R1[i, i] <- R1[i, i] + 1
       }
@@ -110,7 +112,7 @@ inla.rgeneric.BWICAR = function(
   
   log.norm.const <- function() {return(numeric(0))}
   
-  log.prior <- function() {#default: shape = 1, rate = 0.00005 for tau
+  log.prior <- function() {
     p <- interpret_theta()
     if (pr_str == "gamma")  {
       prior <- dgamma(p$tau1, shape = 1, rate = 0.00005, log = TRUE) + log(p$tau1) +
@@ -200,7 +202,7 @@ inla.rgeneric.Validation = function(
   theta = NULL)
 {
   #Input:
-  #Q as the unscaled precision structure matrix
+  #R as the unscaled precision structure matrix
   #nAreas is the number of provinces
   #pr_str indicates which prior to use
   
@@ -221,9 +223,9 @@ inla.rgeneric.Validation = function(
   
   initial <- function() {return(4)}#default for precisions: initial = 4
   
-  log.norm.const <- function() {return(numeric(0))} #Inla computes it, 
+  log.norm.const <- function() {return(numeric(0))} #INLA computes it
   
-  log.prior <- function() {#default: shape = 1, rate = 0.00005 for tau
+  log.prior <- function() {
     p <- interpret_theta()
     if (pr_str == "gamma")  {prior <- dgamma(p$tau, shape = 1, rate = 0.00005, log = TRUE) + log(p$tau)}
     else if (pr_str == "PC") {prior <- inla.pc.dprec(p$tau, u = 1, alpha = 0.01, log=TRUE) + log(p$tau)}
@@ -242,9 +244,9 @@ inla.rgeneric.Validation = function(
 
 #The specific models
 
-#prior_str <- "PC"
+prior_str <- "PC"
 #prior_str <- "gamma"
-prior_str <- "U"
+#prior_str <- "U"
 
 RW10_model <- inla.rgeneric.define(inla.rgeneric.Validation, R = Q_RW10, nAreas = nAreas, pr_str = prior_str)
 RW20_model <- inla.rgeneric.define(inla.rgeneric.Validation, R = Q_RW20, nAreas = nAreas, pr_str = prior_str)
@@ -297,8 +299,9 @@ $$
 with the Q matrix assigned from the fitted models in the file "WinBUGS and the adaptive multivariate models.rmd", and they are constructed from the lists further up in this file. Should maybe also add a sum to zero constraint on the $\phi$, currently only a soft sum to zero constraint from mean = numeric(0) in the rgenric definition.
 
 ### The testing
-Note that `res$cpo$logcpo` gets the log sum of the individual cpo-values, so taking minus and dividing by nAreas gives the same as `-mean(log(res$cpo$cpo))`.
+Performing the CV analysis.
 ```{r, eval=FALSE}
+prior_str
 
 ExpectedCases <- readRDS("ExpectedCasesMiguel.rds")
 ObservedCases <- readRDS("ObservedCases.rds")
@@ -399,15 +402,15 @@ for (j in test_indecies){
   
   if (prior_str == "PC"){
     formula_ICAR <- Y ~ offset(log(E)) + 
-      f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE,
-      hyper = list(prec = list(prior = "pc.prec", param = c(3, 0.05))))
+      f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE, constr = TRUE,
+      hyper = list(prec = list(prior = "pc.prec", param = c(1, 0.01))))
   } else if (prior_str == "gamma"){
     formula_ICAR <- Y ~ offset(log(E)) + 
-      f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE)
+      f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE, constr = TRUE)
   } else if (prior_str == "U"){
     sdunif="expression: logdens=-log_precision/2; return(logdens)"
     formula_ICAR <- Y ~ offset(log(E)) + 
-      f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE,
+      f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE, constr = TRUE,
         hyper = list(prec = list(prior = sdunif)))
   }
   
@@ -441,6 +444,7 @@ CV_runtime <- Sys.time() - t0
 CV_runtime
 ```
 
+
 ### Saving the results
 
 ```{r}
@@ -462,6 +466,9 @@ log = TRUE or not, maybe not even an argument
 
 sum-to-zero constraint for besag or not
 ```{r, eval=FALSE}
+ExpectedCases <- readRDS("ExpectedCasesMiguel.rds")
+ObservedCases <- readRDS("ObservedCases.rds")
+
 Y <- as.vector(ObservedCases[, 60])
 E <- as.vector(ExpectedCases[, 60])
 
@@ -471,14 +478,14 @@ data_df <- data.frame(Y = Y, E = E, ID = 1:nAreas)
 
 formula_ICAR <- Y ~ offset(log(E)) + 
       f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE,
-      hyper = list(prec = list(prior = "pc.prec", param = c(3, 0.05))))
+      hyper = list(prec = list(prior = "pc.prec", param = c(1, 0.01))))
 
 res_ICAR <- inla(formula_ICAR, family = "poisson", data = data_df)
 
 #versus
 
 formula_ICAR_2 <- Y ~ f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE,
-      hyper = list(prec = list(prior = "pc.prec", param = c(3, 0.05))))
+      hyper = list(prec = list(prior = "pc.prec", param = c(1, 0.01))))
 
 res_ICAR_2 <- inla(formula_ICAR_2, family = "poisson", data = data_df, E = E)
 
@@ -491,7 +498,7 @@ summary(res_ICAR_2)
 formula_ICAR <- Y ~ offset(log(E)) + 
       f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE, constr = F,
         extraconstr = list(A = matrix(1, nrow = 1, ncol = nAreas), e = 0),
-      hyper = list(prec = list(prior = "pc.prec", param = c(3, 0.05))))
+      hyper = list(prec = list(prior = "pc.prec", param = c(1, 0.01))))
 
 res_ICAR <- inla(formula_ICAR, family = "poisson", data = data_df,
                    control.compute = list(cpo = T, waic = T, dic = T))
@@ -500,7 +507,7 @@ res_ICAR <- inla(formula_ICAR, family = "poisson", data = data_df,
 
 formula_ICAR_2 <- Y ~ offset(log(E)) +
   f(ID, model = "besag", graph = adj_matrix, scale.model = TRUE, constr = T,
-      hyper = list(prec = list(prior = "pc.prec", param = c(3, 0.05))))
+      hyper = list(prec = list(prior = "pc.prec", param = c(1, 0.01))))
 
 res_ICAR_2 <- inla(formula_ICAR_2, family = "poisson", data = data_df,
                    control.compute = list(cpo = T, waic = T, dic = T))
