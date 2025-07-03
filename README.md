@@ -15,7 +15,7 @@ This file contains the code for the temporal simulations, the linear regression 
 This file handles the inital geojson file for Spain as well as defining the Border weighted model from Wakefield(2024). It also includes multiple plots, a brief sensitivity analysis of the prior for the precision in the Border Weighted ICAR. The last code chunk was used to preprocess the data and was only used to generate the desired data back in march. 
 
 ### WinBUGS and the adaptive multivariate model.Rmd
-This is where the WinBUGS models are defined, specifically RW-ICAR and EW-ICAR. Additionally, the plots for the training part of the results, i.e. the precision plots, edge plots, scatterplots, correlation tables and p-value tables were also produced in this file. To save any of the figures simply uncomment the lines with ggsave and change the location. Note that the training is rather slow, so the training chucnks are not evaluated when the file is ran. Changing the eval to True at the top of those chunks increases the runtimes to around 7 hours for each multivariate model, so 14 in total. 
+This is where the WinBUGS models are defined, specifically RW-ICAR and EW-ICAR. Additionally, the plots for the training part of the results, i.e. the precision plots, edge plots, scatterplots, correlation tables and p-value tables were also produced in this file. To save any of the figures simply uncomment the lines with ggsave and change the location. Note that the training is rather slow, so the training chucnks are not evaluated when the file is ran. Changing the eval to True at the top of those chunks increases the runtimes to around 7 hours for each multivariate model, so around 14 in total. 
 
 ### CV on real data.Rmd
 This is where the "cross validation" takes place. As there are three different priors for the precision these can be chosen in lines X-Y and then run the whole file. This could take some time, for me it takes just under two hours. Then all the different types of boxplot are generated. Must be saved by uncommenting lines at the bottom.
@@ -25,6 +25,9 @@ Short script written by Miguel (professor in Valencia) to calculate the expected
 
 ## Data
 All the data was retrived from Instituto Nacional de Estadística (INE). The data which contains the response variabel is in the file "Mortality.csv", which is the disease counts per disease per province. The additional data needed to calculate the expected number of cases is the population data per province per age group in the file "PopXProvincesXAge.csv" and the national disease counts for each age group is in "MortalityXAge". These are then used to create "ExpectedCasesMiguel.rds" and "ObservedCases.rds", which are then the $\mathbf{E}$ and $\mathbf{y}$ used in the model formulations.
+
+## Simulated results
+The results from my training were to large to put on GitHub, and were instead put on Zenodo, at https://zenodo.org/records/15799852. These results can be downloaded and stored locally, and then used to generate the same figures as in the thesis, most of which are stored in the folder Plots. Some of the tables were also created by xtable in R which prints the latex equivalent of a table in R, this was then copied to the overleaf report. The downloaded data is typically imported to the .rmd files by ReadRDS. 
 
 ## Versions for main libraries used in R
 * INLA: 24.05.01-1
