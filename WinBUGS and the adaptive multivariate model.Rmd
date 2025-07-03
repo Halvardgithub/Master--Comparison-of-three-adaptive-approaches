@@ -298,7 +298,7 @@ runtime_RW
 result_list_RW <- list(results.RW.10, results.RW.20, 
                          results.RW.50, results.RW.86, 
                          runtime_RW, results.RW.cancer)
-saveRDS(result_list_RW, file = "Results//result_list_RW.rds") #move it to correct folder afterwards
+#saveRDS(result_list_RW, file = "Results//result_list_RW.rds") #move it to correct folder afterwards
 ```
 
 Runtimes for RW model in WinBUGS(cirka): 
@@ -309,7 +309,8 @@ Runtimes for RW model in WinBUGS(cirka):
 
 
 ```{r}
-res_list_RW <- readRDS("Results//Results_withScaling_and_without_iidTheta//result_list_RW.rds")
+res_list_RW <- readRDS("Results//Results_withScaling_and_without_iidTheta//result_list_RW.rds") #with the main seed
+#res_list_RW <- readRDS("Results//Results_for_second_seed//result_list_RW.rds") #with the second seed 
 
 res_list_RW[[5]] #check runtimes
 
@@ -386,6 +387,12 @@ res_list_RW[[6]]$summary["tau",]
 
 #Correlation between the weights c for differing number of causes n
 cor(cbind(ss_provinces$color10, ss_provinces$color20, ss_provinces$color50, ss_provinces$color86))
+
+range(res_list_RW[[1]]$summary[, "n.eff"])
+range(res_list_RW[[2]]$summary[, "n.eff"])
+range(res_list_RW[[3]]$summary[, "n.eff"])
+range(res_list_RW[[4]]$summary[, "n.eff"])
+range(res_list_RW[[6]]$summary[, "n.eff"])
 ```
 
 
@@ -678,13 +685,14 @@ runtime_EW
 
 result_list_EW <- list(results.EW.10, results.EW.20, results.EW.50, 
                     results.EW.86, runtime_EW, results.EW.cancer)
-saveRDS(result_list_EW, file = "Results//result_list_EW.rds") #then move to correct folder
+#saveRDS(result_list_EW, file = "Results//result_list_EW.rds") #then move to correct folder
 ```
 
 Assessing convergence and other properties of the MCMC simulations.
 
 ```{r}
-res_list_EW <- readRDS("Results//Results_withScaling_and_without_iidTheta//result_list_EW.rds")
+res_list_EW <- readRDS("Results//Results_withScaling_and_without_iidTheta//result_list_EW.rds") #with the main seed
+#res_list_EW <- readRDS("Results//Results_for_second_seed//result_list_EW.rds") #with the second seed
 
 res_list_EW[[5]]
 
@@ -712,6 +720,25 @@ res_list_EW[[6]]$summary["alpha",]
 res_list_EW[[1]]$mean$Tau2
 res_list_EW[[4]]$mean$Tau2
 
+#check n.eff/ESS [, "n.eff"]
+range(res_list_EW[[1]]$summary[, "n.eff"])
+range(res_list_EW[[2]]$summary[, "n.eff"])
+range(res_list_EW[[3]]$summary[, "n.eff"])
+range(res_list_EW[[4]]$summary[, "n.eff"])
+range(res_list_EW[[6]]$summary[, "n.eff"])
+
+#Note that the number of parameters in each model also varies as it is tied to the number of diseases
+length(which(res_list_EW[[1]]$summary[, "n.eff"] < 500))
+length(which(res_list_EW[[2]]$summary[, "n.eff"] < 500))
+length(which(res_list_EW[[3]]$summary[, "n.eff"] < 500))
+length(which(res_list_EW[[4]]$summary[, "n.eff"] < 500))
+length(which(res_list_EW[[6]]$summary[, "n.eff"] < 500))
+
+length(which(res_list_EW[[1]]$summary[, "n.eff"] < 5000))
+length(which(res_list_EW[[2]]$summary[, "n.eff"] < 5000))
+length(which(res_list_EW[[3]]$summary[, "n.eff"] < 5000))
+length(which(res_list_EW[[4]]$summary[, "n.eff"] < 5000))
+length(which(res_list_EW[[6]]$summary[, "n.eff"] < 5000))
 ```
 
 #Plots and visualization of results

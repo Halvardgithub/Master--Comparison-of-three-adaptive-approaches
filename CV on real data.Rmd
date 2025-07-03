@@ -528,14 +528,14 @@ library(dplyr)
 library(ggplot2)
 library(ggpubr)
 
-#res_df <- readRDS(file = "CV-Results//CV_no_iidTheta_gamma_W_C_constr.rds")
-#prior <- "gamma"
+res_df <- readRDS(file = "CV-Results//CV_no_iidTheta_gamma_W_C_constr.rds")
+prior <- "gamma"
 
 #res_df <- readRDS(file = "CV-Results//CV_no_iidTheta_PC_W_C_constr.rds")
 #prior <- "PC"
 
-res_df <- readRDS(file = "CV-Results//CV_no_iidTheta_U_W_C_constr.rds")
-prior <- "U"
+#res_df <- readRDS(file = "CV-Results//CV_no_iidTheta_U_W_C_constr.rds")
+#prior <- "U"
 
 index_WAIC <- c(1, 2, 3, 4, 5, 6, 7, 8, 25, 28, 31, 34, 37)
 
@@ -724,11 +724,12 @@ lower <- quantile(CPO_long$CPO, 0.025, na.rm = TRUE)
 upper <- quantile(CPO_long$CPO, 0.975, na.rm = TRUE)
 
 if (prior == "U"){
-  lower <- -2.5
+  lower <- -1.2
 }else if (prior == "PC"){
-  lower <- -2.5
+  lower <- -1
 } else if (prior == "gamma"){
-  lower <- -0.5
+  lower <- -0.35
+  upper <- 0.5
 }
 
 CPO_boxplot <- ggplot(CPO_long, aes(x = Model, y = CPO)) +
@@ -830,12 +831,13 @@ lower <- quantile(CPO_long$CPO, 0.025, na.rm = TRUE)
 upper <- quantile(CPO_long$CPO, 0.975, na.rm = TRUE)
 
 if (prior == "U"){
-  lower <- -1
+  lower <- -0.5
 } else if (prior == "PC"){
-  lower <- -0.8
-} else if (prior == "gamma"){
   lower <- -0.2
-  upper <- 0.4
+  upper <- 0.2
+} else if (prior == "gamma"){
+  lower <- -0.07
+  upper <- 0.22
 }
 
 CPO_boxplot <- ggplot(CPO_long, aes(x = Model, y = CPO)) +
@@ -852,6 +854,7 @@ full_boxplot_cancer_WO_outliers
 
 
 ```{r}
+prior
 #Gamma prior
 # ggsave("Plots//Plots_withScaling_and_without_iidTheta_withCancer//CV_boxplot_W_outliers_constr.png", plot = full_boxplot, height = 24, width = 21,  units = "cm",  dpi = 300)
 # 
