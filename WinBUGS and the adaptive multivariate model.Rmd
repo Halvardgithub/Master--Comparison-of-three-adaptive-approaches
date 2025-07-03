@@ -46,7 +46,8 @@ index <- c(1, cumsum(carto.wb$num)) # Vector to identify the positions of the ne
 
 #Randomize disease from 1-86, numbers are 10, 20 and 50
 get_causes <- function(n){ #nDiseasesTot is defined further up
-  set.seed(12345)
+  #set.seed(12345) # the main seed
+  set.seed(44) # the secondary seed for comparisons
   subset <- sample(1:nDiseasesTot, n, replace = FALSE) #there is a total of 102 diseases
   return(sort(subset))
 }
@@ -297,7 +298,7 @@ runtime_RW
 result_list_RW <- list(results.RW.10, results.RW.20, 
                          results.RW.50, results.RW.86, 
                          runtime_RW, results.RW.cancer)
-#saveRDS(result_list_RW, file = "Results//result_list_RW.rds") #move it to correct folder afterwards
+saveRDS(result_list_RW, file = "Results//result_list_RW.rds") #move it to correct folder afterwards
 ```
 
 Runtimes for RW model in WinBUGS(cirka): 
@@ -677,7 +678,7 @@ runtime_EW
 
 result_list_EW <- list(results.EW.10, results.EW.20, results.EW.50, 
                     results.EW.86, runtime_EW, results.EW.cancer)
-#saveRDS(result_list_EW, file = "Results//result_list_EW.rds") #then move to correct folder
+saveRDS(result_list_EW, file = "Results//result_list_EW.rds") #then move to correct folder
 ```
 
 Assessing convergence and other properties of the MCMC simulations.
