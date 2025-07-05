@@ -185,11 +185,12 @@ ss_provinces_example_highlight_33 = filter(ss_provinces, Codigo %in% c(33))
 ExamplePlot2 <- ggplot() +
   geom_sf(data = ss_ar_example, color="black") + #do not really need this line
   geom_sf(data=ss_provinces_example, color="grey20", linewidth = 0.5) +
-  geom_sf(data = ss_ar_example, color="black", fill=NA,linewidth = 0.8) +
   geom_sf(data = ss_provinces_example_highlight_27, color = "black", 
           linewidth = 0.5, fill = "lightcoral") +
   geom_sf(data = ss_provinces_example_highlight_33, color = "black", 
           linewidth = 0.5, fill = "lightcoral") +
+  geom_sf(data=ss_provinces_example, fill=NA, color="grey20", linewidth = 0.5) +
+  geom_sf(data = ss_ar_example, color="black", fill=NA,linewidth = 0.8) +
   geom_sf(data = centroids_example, color = "black", size = 2)  + # Centroids
   geom_sf(data = edges_sf_example, aes(color = Wex2), show.legend = FALSE) +
   scale_color_manual(values = c("0" = "blue", "1" = "red")) +

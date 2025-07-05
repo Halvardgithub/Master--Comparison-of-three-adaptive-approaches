@@ -72,9 +72,9 @@ RW_ICAR_withIID <- function() {
       # Modeling of the mean for each region and disease
       log(lambda[i, m]) <- log(E[i, m]) + mu[m] + phi[i,m] + sd.theta[m] * theta[i, m]
       # Prior distribution for spatial effects
-      phi[i, m] ~ dnorm(mean.phi[i, m], prec.phi[i, m])
+      phi[i, m] ~ dnorm(mean.phi[i, m], prec.phi[i, m]) #uses precision
       # Prior distribution for non-spatial effects
-      theta[i, m] ~ dnorm(0, 1)
+      theta[i, m] ~ dnorm(0, 1) #uses precision
     }
   }
   for (i in 1:n.adj) {
@@ -99,7 +99,7 @@ RW_ICAR_withIID <- function() {
     }
     # Soft sum-to-zero restriction for spatial effects
     ceros[m] <- 0
-    ceros[m] ~ dnorm(sum.phi[m], 10)
+    ceros[m] ~ dnorm(sum.phi[m], 10) #uses precision
     sum.phi[m] <- sum(phi[, m])
   }
   # Prior distributions for c
@@ -128,7 +128,7 @@ RW_ICAR_NOiid <- function() {
       # Modeling of the mean for each region and disease
       log(lambda[i, m]) <- log(E[i, m]) + mu[m] + phi[i,m]
       # Prior distribution for spatial effects
-      phi[i, m] ~ dnorm(mean.phi[i, m], prec.phi[i, m])
+      phi[i, m] ~ dnorm(mean.phi[i, m], prec.phi[i, m]) #uses precision
     }
   }
   # Adjacencies for c and phi
@@ -154,7 +154,7 @@ RW_ICAR_NOiid <- function() {
     }
     # Soft sum-to-zero restriction for spatial effects
     ceros[m] <- 0
-    ceros[m] ~ dnorm(sum.phi[m], 10)
+    ceros[m] ~ dnorm(sum.phi[m], 10) #uses precision
     sum.phi[m] <- sum(phi[, m])
   }
   # Prior distributions for c
@@ -444,9 +444,9 @@ EW_ICAR_withIID <- function() {
       # Modeling of the mean for each region and disease
       log(lambda[i, m]) <- log(E[i, m]) + mu[m] + phi[i,m] + sd.theta[m] * theta[i, m]
       # Prior distribution for spatial effects
-      phi[i, m] ~ dnorm(mean.phi[i, m], prec.phi[i, m])
+      phi[i, m] ~ dnorm(mean.phi[i, m], prec.phi[i, m]) #uses precision
       # Prior distribution for non-spatial effects
-      theta[i, m] ~ dnorm(0, 1)
+      theta[i, m] ~ dnorm(0, 1) #uses precision
     }
   }
   # Adjacencies for phi
@@ -475,7 +475,7 @@ EW_ICAR_withIID <- function() {
     }
     # Sum-to-zero restriction for spatial effects
     ceros[m] <- 0
-    ceros[m] ~ dnorm(sum.phi[m], 10)
+    ceros[m] ~ dnorm(sum.phi[m], 10) #uses precision
     sum.phi[m] <- sum(phi[, m])
   }
   # Prior distributions for Tau2 - all the precision edges
@@ -506,7 +506,7 @@ EW_ICAR_NOiid <- function() {
       # Modeling of the mean for each region and disease
       log(lambda[i, m]) <- log(E[i, m]) + mu[m] + phi[i,m]
       # Prior distribution for spatial effects
-      phi[i, m] ~ dnorm(mean.phi[i, m], prec.phi[i, m])
+      phi[i, m] ~ dnorm(mean.phi[i, m], prec.phi[i, m]) #uses precision
     }
   }
   # Adjacencies for phi
@@ -535,7 +535,7 @@ EW_ICAR_NOiid <- function() {
     }
     # Sum-to-zero restriction for spatial effects
     ceros[m] <- 0
-    ceros[m] ~ dnorm(sum.phi[m], 10)
+    ceros[m] ~ dnorm(sum.phi[m], 10) #uses precision
     sum.phi[m] <- sum(phi[, m])
   }
   # Prior distributions for Tau2 - all the edge precisions
