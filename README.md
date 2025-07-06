@@ -4,7 +4,6 @@ The codebase for my Master in Applied physics and mathematics concerning spatial
 ## Different results and cofigurations
 Without scale and with iid Theta refers to the two WinBUGS models with an iid effect and the plots are not scaled by the disease specific precision included in the model. With scaling and iid theta still has the iid and now scales with the average of the diseases specific precision to make the plots more comparable for different methods and different n's. Note that the result for ABYM (or RW-ICAR) is the same, but the plots are different because of scaling. Lastly, the methods with scalign and without iid theta for comparison, and to only focus on the structured spatial effect without interference from the iid theta, even though most actual models would include this.
 
-
 ## The different .Rmd files
 All the code is contained in the four .Rmd files, and they were used to produce all the figures and plots in the thesis. Vrious plots are produced in all four of the files, simply search up "ggsave" to see where they are saved, or "xtabel" to find where latex output has been generated before being copied over to the overleaf document.
 
@@ -14,11 +13,30 @@ This file contains the code for the temporal simulations, the linear regression 
 ### Spatial Wakefield and geojson handeling.Rmd
 This file handles the inital geojson file for Spain as well as defining the Border weighted model from Wakefield(2024). It also includes multiple plots, a brief sensitivity analysis of the prior for the precision in the Border Weighted ICAR. The last code chunk was used to preprocess the data and was only used to generate the desired data back in march. 
 
+Relevant linenumbers
+* Implementing the BW-ICAR: 288-371
+* Sensitivity analysis for BW-ICAR: 381-420
+The rest of the code is mainly plotting various maps and results, and some procesing of the data.
+
 ### WinBUGS and the adaptive multivariate model.Rmd
 This is where the WinBUGS models are defined, specifically RW-ICAR and EW-ICAR. Additionally, the plots for the training part of the results, i.e. the precision plots, edge plots, scatterplots, correlation tables and p-value tables were also produced in this file. To save any of the figures simply uncomment the lines with ggsave and change the location. Note that the training is rather slow, so the training chucnks are not evaluated when the file is ran. Changing the eval to True at the top of those chunks increases the runtimes to around 7 hours for each multivariate model, so around 14 in total. 
 
+Relevant linenumbers
+* Defining and running the RW-ICAR: 62-302
+* Defining and running the EW-ICAR: 400-689
+* Plots and figures: 744-1490
+
 ### CV on real data.Rmd
 This is where the "cross validation" takes place. As there are three different priors for the precision these can be chosen in lines X-Y and then run the whole file. This could take some time, for me it takes just under two hours. Then all the different types of boxplot are generated. Must be saved by uncommenting lines at the bottom.
+
+Relevant linenumbers
+* Creating and scaling the neighbourhood structures from the training: 146-189
+* Defining the validation model with rgeneric: 191-242
+* Choosing the validation prior: 246-248
+* Running the validation: 300-444
+* Saving the result: 447-458
+* Plotting results: 521-884
+For the plotting, the plots are based on the file imported at lines 530-537, which were saved on 447-458. Then the plots are saved at lines 855-884. Changing between the priors is done by commenting in and out the relevant lines.
 
 ### ExpectedCases.R
 Short script written by Miguel (professor in Valencia) to calculate the expected number of cases.
