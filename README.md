@@ -1,5 +1,5 @@
 # Master--Comparison-of-three-adaptive-approaches
-The codebase for my Master in Applied physics and mathematics concerning spatial Bayesian hierarchical models in the field of epidemiology. The application study uses data from Spain at the level of Autonomous regions and Provinces.
+The codebase for my Master in Applied physics and mathematics concerning spatial Bayesian hierarchical models in the field of epidemiology. The application study uses data from Spain at the level of Autonomous regions and Provinces. The final master's thesis is contained in the file thesis finished.pdf.
 
 ## The different .Rmd files
 All the code is contained in the four .Rmd files, and they were used to produce all the figures and plots in the thesis. Various plots are produced in all four of the files, simply search up "ggsave" to see where they are saved, or "xtabel" to find where latex output has been generated before being copied over to the overleaf document.
