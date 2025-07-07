@@ -305,7 +305,7 @@ Runtimes for RW model in WinBUGS(cirka):
 10 casues takes 10 min
 20 causes takes 20 min
 50 causes takes 1h 30 min
-86 causes takes 5h 30 min
+86 causes takes 4h 
 
 
 ```{r}
@@ -1488,6 +1488,3 @@ colnames(formatted_df) <- c("n=10", "n=20", "n=50", "n=86", "Cancer")
 
 xtable(formatted_df)
 ```
-
-
-

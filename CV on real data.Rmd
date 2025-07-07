@@ -52,9 +52,8 @@ nAreas <- length(carto.wb$num)
 nEdges <- length(carto.wb$adj)/2
 ```
 
-
-
 Secondly, import the necessary code for the Border weighted ICAR, again copied in:
+
 ```{r}
 library(INLA)
 
